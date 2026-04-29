@@ -1,153 +1,167 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '../components/Navbar';
-import GlassCard from '../components/GlassCard';
-import HelpTooltip from '../components/HelpTooltip';
-import gsap from 'gsap';
-import { Megaphone, Mail, Share2, Sparkles, Send, Copy, ThumbsUp, ArrowRight } from 'lucide-react';
-import './CampaignEngine.css';
+import React, { useState } from 'react';
+import AppLayout from '../components/AppLayout';
+import { Megaphone, Mail, Share2, Send, Copy, ThumbsUp, Sparkles, ArrowRight, Check } from 'lucide-react';
 
 const CampaignEngine = () => {
-  const [campaignType, setCampaignType] = useState('social'); // 'social' or 'email'
-  const headerRef = useRef(null);
-  const gridRef = useRef(null);
+  const [tab, setTab] = useState('social');
+  const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const tl = gsap.timeline();
-    tl.fromTo(headerRef.current, 
-      { y: -30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: "power3.out" }
-    );
-    tl.fromTo(gridRef.current, 
-      { y: 30, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: "power3.out" },
-      "-=0.5"
-    );
-  }, []);
+  const handleCopy = () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const socialPost = `🎉 Thrilled to announce that we've been awarded a $150,000 Catalyst Grant from the Lumina Foundation!
+
+This funding will allow us to deploy 500 new interactive learning terminals to Title I schools, train 120 educators in digital pedagogy, and reach 8,500 additional students this year.
+
+None of this would be possible without our incredible community of supporters. Thank you for believing in educational equity. 💙
+
+#GrantWin #EducationalEquity #TechForGood #LuminaFoundation`;
+
+  const emailSubject = 'A Major Milestone for Our Students (And You!)';
+  const emailBody = `Dear [First Name],
+
+Because of your early belief in our mission, I want to share some incredible news with you before we announce it publicly.
+
+We have just been awarded a $150,000 Catalyst Grant from the Lumina Foundation — one of the most competitive grants in educational technology funding.
+
+This is a direct result of the impact we've achieved together. In our 2025 report, we documented a 40% increase in digital literacy among our students — a metric that caught Lumina's eye.
+
+With this grant, we will:
+• Deploy 500 interactive learning terminals to Title I schools
+• Train 120 educators in digital pedagogy
+• Serve 8,500 additional students
+
+Your support made this possible. Thank you.
+
+With gratitude,
+[Executive Director Name]`;
 
   return (
-    <div className="page-container relative overflow-hidden bg-white">
-      <div className="bg-flux"></div>
-      <Navbar title="Impact Multiplier" />
-      
-      <div className="page-content animate-fade-in px-8 max-w-[1400px] mx-auto">
-        <div ref={headerRef} className="campaign-header-premium flex flex-col lg:flex-row lg:items-end justify-between mb-20 gap-10 pt-10">
-          <div className="vault-title flex items-start gap-8">
-            <div className="icon-glow-container p-8 glass-card bg-periwinkle/5 border-periwinkle/20 rounded-[40px]">
-              <Megaphone className="text-periwinkle" size={48} />
-            </div>
+    <AppLayout title="Campaign Engine">
+      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: 24 }}>
+
+        {/* Left Panel */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Source Grant */}
+          <div className="card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Source Grant</div>
             <div>
-              <div className="text-xs-caps text-periwinkle mb-3">Genie Donna Protocol</div>
-              <h2 className="text-5xl md:text-7xl tracking-tighter mb-6">Campaign Engine</h2>
-              <div className="flex items-center gap-4 text-xl text-secondary max-w-xl leading-tight">
-                Transform a single successful grant into an automated 365-day engagement machine. 
-                <HelpTooltip title="The Donna Protocol" content="Inspired by high-end donor stewardship, this engine automatically generates social assets, donor emails, and impact reports from your won grants." />
+              <div style={{ padding: '12px 16px', background: 'rgba(99,102,241,0.06)', border: '1.5px solid var(--indigo)', borderRadius: 10, cursor: 'pointer', marginBottom: 10 }}>
+                <div style={{ fontWeight: 600, color: 'var(--slate-900)', fontSize: 14 }}>Lumina Catalyst Award</div>
+                <div style={{ fontSize: 12, color: 'var(--slate-500)', marginTop: 3 }}>Won · $150,000</div>
+              </div>
+              <div style={{ padding: '12px 16px', background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: 10, cursor: 'pointer', opacity: 0.6 }}>
+                <div style={{ fontWeight: 600, color: 'var(--slate-900)', fontSize: 14 }}>Community Health Initiative</div>
+                <div style={{ fontSize: 12, color: 'var(--slate-500)', marginTop: 3 }}>Pending · $75,000</div>
               </div>
             </div>
           </div>
-          
-          <div className="p-1.5 bg-periwinkle/5 rounded-full flex border border-periwinkle/10 shadow-xl">
-            <button 
-              className={`flex items-center gap-4 py-5 px-12 text-xs font-bold rounded-full transition-all ${campaignType === 'social' ? 'bg-periwinkle text-white' : 'text-secondary hover:text-primary'}`}
-              onClick={() => setCampaignType('social')}
-            >
-              <Share2 size={18} /> Social Media
-            </button>
-            <button 
-              className={`flex items-center gap-4 py-5 px-12 text-xs font-bold rounded-full transition-all ${campaignType === 'email' ? 'bg-periwinkle text-white' : 'text-secondary hover:text-primary'}`}
-              onClick={() => setCampaignType('email')}
-            >
-              <Mail size={18} /> Donor Relations
-            </button>
+
+          {/* Campaign Type */}
+          <div className="card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Campaign Type</div>
+            <select style={{ width: '100%', marginBottom: 0 }}>
+              <option>Announce Grant Win</option>
+              <option>Monthly Donor Update</option>
+              <option>Capital Campaign Push</option>
+              <option>Year-End Impact Report</option>
+            </select>
+            <p style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 8, lineHeight: 1.5 }}>
+              The Oracle adjusts tone and call-to-action based on your objective.
+            </p>
           </div>
+
+          {/* Donna Protocol */}
+          <div className="card" style={{ background: 'linear-gradient(135deg, #f0f0ff 0%, #fff 100%)', border: '1px solid var(--slate-200)' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <Sparkles size={18} style={{ color: 'var(--indigo)', marginTop: 2, flexShrink: 0 }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 4 }}>Donna Protocol Active</div>
+                <p style={{ fontSize: 12, color: 'var(--slate-500)', margin: 0, lineHeight: 1.6 }}>
+                  Donna automatically generates your social posts, donor newsletters, and press releases from every won grant.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <button className="btn btn-primary" style={{ width: '100%' }}>
+            Generate Campaign <ArrowRight size={16} />
+          </button>
         </div>
 
-        <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Source Material Selector */}
-          <GlassCard className="h-max p-10">
-            <div className="text-xs-caps text-periwinkle mb-8">Intelligence Input</div>
-            <h4 className="text-3xl mb-10 flex items-center gap-4 font-bold tracking-tight">
-              <Sparkles size={28} className="text-periwinkle" /> Source Material
-            </h4>
-            
-            <div className="space-y-6">
-              <div className="p-8 glass-card border-periwinkle/40 bg-periwinkle/5 rounded-3xl cursor-pointer">
-                <p className="font-bold text-xl text-primary">Lumina Foundation Award</p>
-                <div className="flex items-center gap-4 mt-3">
-                  <span className="text-xs font-bold text-emerald tracking-widest uppercase">Won Oct 2026</span>
-                  <span className="text-xs text-secondary/60 uppercase tracking-widest">• $150k</span>
-                </div>
-              </div>
-              <div className="p-8 glass-card opacity-40 hover:opacity-100 transition-all rounded-3xl cursor-pointer">
-                <p className="font-bold text-xl text-primary">Community Health Init.</p>
-                <div className="flex items-center gap-4 mt-3">
-                  <span className="text-xs font-bold text-periwinkle tracking-widest uppercase">Pending Nov 2026</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="mt-16 pt-12 border-t border-periwinkle/10">
-              <label className="text-xs-caps block mb-6">Campaign Objective</label>
-              <select className="w-full p-4 bg-periwinkle/5 border border-periwinkle/10 rounded-2xl outline-none text-primary font-bold">
-                <option>Announce Grant Win</option>
-                <option>Monthly Donor Update</option>
-                <option>Capital Campaign Push</option>
-              </select>
-              <p className="text-xs text-secondary mt-4">The Genie will adjust tone and call-to-action based on this goal.</p>
-            </div>
-            
-            <button className="btn btn-primary w-full mt-12 py-6">
-              Sync Intelligence <ArrowRight size={22} className="ml-4" />
-            </button>
-          </GlassCard>
+        {/* Right Panel */}
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          {/* Tab Bar */}
+          <div style={{ display: 'flex', borderBottom: '1px solid var(--slate-200)', background: 'var(--slate-50)' }}>
+            {[
+              { key: 'social', label: 'Social Media', icon: <Share2 size={15} /> },
+              { key: 'email', label: 'Donor Email', icon: <Mail size={15} /> },
+            ].map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px',
+                  fontSize: 14, fontWeight: 600,
+                  color: tab === t.key ? 'var(--indigo)' : 'var(--slate-500)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  borderBottom: `2px solid ${tab === t.key ? 'var(--indigo)' : 'transparent'}`,
+                  transition: 'all 0.2s'
+                }}
+              >
+                {t.icon} {t.label}
+              </button>
+            ))}
+          </div>
 
-          {/* Results Area */}
-          <div className="lg:col-span-2 flex flex-col gap-10">
-            {campaignType === 'social' ? (
-              <GlassCard className="p-12" interactive>
-                <div className="flex justify-between items-center mb-10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-4 h-4 rounded-full bg-periwinkle shadow-[0_0_20px_rgba(124,126,255,0.4)]"></div>
-                    <span className="text-xs-caps">LinkedIn Thought Leadership</span>
-                  </div>
-                  <button className="btn btn-outline py-3 px-6 text-[10px]"><Copy size={16} className="mr-3"/> Copy</button>
+          <div style={{ padding: 32 }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 4 }}>
+                  {tab === 'social' ? 'LinkedIn / Facebook Post' : 'Personalized Donor Letter'}
                 </div>
-                <p className="text-2xl text-primary mb-12 leading-loose italic font-medium">
-                  "Thrilled to announce that we've been awarded a $150,000 Catalyst Grant from the Lumina Foundation! This funding will allow us to deploy 500 new interactive learning terminals to Title I schools..."
-                </p>
-                <div className="flex justify-between items-center pt-8 border-t border-periwinkle/10">
-                  <div className="flex items-center gap-4 text-sm text-emerald font-bold">
-                    <ThumbsUp size={18}/> 98% Predicted Engagement
-                  </div>
-                  <span className="text-xs-caps opacity-60">Tone: Authoritative</span>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <span className="badge badge-emerald"><ThumbsUp size={11} /> 98% Predicted Engagement</span>
+                  <span className="badge badge-indigo">Tone: Warm & Authoritative</span>
                 </div>
-              </GlassCard>
+              </div>
+              <button className="btn btn-ghost" onClick={handleCopy} style={{ gap: 8 }}>
+                {copied ? <Check size={15} style={{ color: 'var(--emerald)' }} /> : <Copy size={15} />}
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+
+            {tab === 'social' ? (
+              <div style={{ background: 'var(--slate-50)', borderRadius: 12, padding: 24, border: '1px solid var(--slate-200)' }}>
+                <p style={{ fontSize: 15, color: 'var(--slate-800)', lineHeight: 1.8, margin: 0, whiteSpace: 'pre-wrap' }}>{socialPost}</p>
+              </div>
             ) : (
-              <GlassCard className="p-12">
-                <div className="flex justify-between items-center mb-12">
-                  <div className="flex items-center gap-4">
-                    <div className="w-4 h-4 rounded-full bg-emerald shadow-[0_0_20px_rgba(16,185,129,0.4)]"></div>
-                    <span className="text-xs-caps">Donna Smart Newsletter</span>
-                  </div>
-                  <div className="flex gap-6">
-                    <button className="btn btn-outline py-3 px-8 text-[10px] font-bold"><Send size={16} className="mr-3"/> Dispatch</button>
-                    <button className="btn btn-outline py-3 px-6 text-[10px]"><Copy size={18}/></button>
-                  </div>
+              <div>
+                <div style={{ background: 'var(--slate-50)', padding: '10px 16px', borderRadius: '8px 8px 0 0', border: '1px solid var(--slate-200)', borderBottom: 'none' }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-500)' }}>Subject: </span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-900)' }}>{emailSubject}</span>
                 </div>
-                <div className="p-12 glass-card bg-periwinkle/5 border border-periwinkle/10 rounded-[48px]">
-                  <p className="text-sm text-secondary mb-6 font-bold">Subject: A Major Milestone for Our Students (And You!)</p>
-                  <div className="h-[1px] w-full bg-periwinkle/10 mb-12"></div>
-                  <p className="text-2xl text-primary leading-loose font-medium">
-                    Dear [Donor First Name],<br/><br/>
-                    Because of your early belief in our mission, I am thrilled to share some monumental news with you before we announce it publicly.<br/><br/>
-                    We have just been awarded a **$150,000 Catalyst Grant** from the Lumina Foundation...
-                  </p>
+                <div style={{ background: 'white', padding: 24, borderRadius: '0 0 12px 12px', border: '1px solid var(--slate-200)' }}>
+                  <p style={{ fontSize: 15, color: 'var(--slate-800)', lineHeight: 1.9, margin: 0, whiteSpace: 'pre-wrap' }}>{emailBody}</p>
                 </div>
-              </GlassCard>
+              </div>
             )}
+
+            <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              <button className="btn btn-primary">
+                <Send size={15} /> {tab === 'social' ? 'Schedule Post' : 'Send Email'}
+              </button>
+              <button className="btn btn-ghost">
+                <Sparkles size={15} /> Regenerate
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

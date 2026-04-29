@@ -1,141 +1,158 @@
-import React, { useEffect, useRef } from 'react';
-import Navbar from '../components/Navbar';
-import GlassCard from '../components/GlassCard';
-import HelpTooltip from '../components/HelpTooltip';
-import gsap from 'gsap';
-import { Target, TrendingUp, AlertCircle, Clock, Zap, FileSignature, ArrowRight, Sparkles, Shield } from 'lucide-react';
-import './Dashboard.css';
+import React from 'react';
+import AppLayout from '../components/AppLayout';
+import { TrendingUp, FileText, Search, Zap, ArrowRight, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+
+const grants = [
+  { name: 'Lumina Catalyst Grant', funder: 'Lumina Foundation', match: 98, status: 'In Progress', deadline: '14 days', amount: '$150,000' },
+  { name: 'Community Tech Initiative', funder: 'Schmidt Futures', match: 91, status: 'Submitted', deadline: '—', amount: '$75,000' },
+  { name: 'Youth Digital Equity Fund', funder: 'Gates Foundation', match: 87, status: 'Draft', deadline: '32 days', amount: '$250,000' },
+  { name: 'Arts & Education Bridge', funder: 'Ford Foundation', match: 79, status: 'Research', deadline: '45 days', amount: '$50,000' },
+];
+
+const StatusBadge = ({ status }) => {
+  const map = {
+    'In Progress': { bg: 'rgba(99,102,241,0.1)', color: 'var(--indigo)' },
+    'Submitted': { bg: 'rgba(16,185,129,0.1)', color: 'var(--emerald)' },
+    'Draft': { bg: 'rgba(245,158,11,0.1)', color: 'var(--gold)' },
+    'Research': { bg: 'var(--slate-100)', color: 'var(--slate-500)' },
+  };
+  const style = map[status] || map['Research'];
+  return (
+    <span style={{ background: style.bg, color: style.color, fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 999 }}>
+      {status}
+    </span>
+  );
+};
 
 const Dashboard = () => {
-  const cardsRef = useRef([]);
-
-  useEffect(() => {
-    gsap.fromTo(cardsRef.current, 
-      { opacity: 0, y: 30, scale: 0.9 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" }
-    );
-  }, []);
-
   return (
-    <div className="page-container relative overflow-hidden">
-      <div className="bg-flux"></div>
-      <Navbar title="Grant Command" />
-      
-      <div className="page-content animate-fade-in px-8 max-w-[1400px] mx-auto">
-        <div className="dashboard-header-premium mb-16 pt-10">
-          <div className="max-w-4xl">
-            <div className="text-xs-caps mb-4">Autonomous Intelligence</div>
-            <h1 className="text-6xl md:text-8xl mb-8 tracking-tighter leading-tight">
-              Welcome, <span className="text-periwinkle font-bold">Director</span>.
-              <HelpTooltip 
-                title="System Overview" 
-                content="Your Genie is currently scanning 45 foundation databases. 12 opportunities have been flagged for high-match potential."
-                defaultOpen={true}
-              />
-            </h1>
-            <p className="text-2xl text-secondary leading-relaxed max-w-2xl">
-              Your funding pipeline is at <span className="text-emerald font-bold">94% capacity</span>.
-            </p>
+    <AppLayout title="Dashboard">
+      {/* Stats Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }}>
+        <div className="stat-card">
+          <div className="stat-label">Total Secured (YTD)</div>
+          <div className="stat-value">$1.47M</div>
+          <div className="stat-change stat-up">↑ 18% vs last year</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Active Applications</div>
+          <div className="stat-value">12</div>
+          <div className="stat-change" style={{ color: 'var(--slate-400)', fontSize: 13 }}>4 need your review</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Win Rate</div>
+          <div className="stat-value">68%</div>
+          <div className="stat-change stat-up">↑ 12% from baseline</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Funders Identified</div>
+          <div className="stat-value">847</div>
+          <div className="stat-change" style={{ color: 'var(--slate-400)', fontSize: 13 }}>23 new this week</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+        {/* Active Grants Table */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--slate-900)' }}>Active Grant Pipeline</h2>
+            <button className="btn btn-ghost" style={{ fontSize: 13 }}>View All <ArrowRight size={14} /></button>
+          </div>
+          <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--slate-200)', overflow: 'hidden' }}>
+            <table>
+              <thead>
+                <tr>
+                  <th>Grant / Funder</th>
+                  <th>Match</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Deadline</th>
+                </tr>
+              </thead>
+              <tbody>
+                {grants.map((g, i) => (
+                  <tr key={i} style={{ cursor: 'pointer' }}>
+                    <td>
+                      <div style={{ fontWeight: 600, color: 'var(--slate-900)', fontSize: 14 }}>{g.name}</div>
+                      <div style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 2 }}>{g.funder}</div>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div className="progress-bar" style={{ width: 60 }}>
+                          <div className="progress-fill" style={{ width: `${g.match}%`, background: g.match > 90 ? 'var(--emerald)' : 'var(--indigo)' }}></div>
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-700)' }}>{g.match}%</span>
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: 600, color: 'var(--slate-800)', fontSize: 14 }}>{g.amount}</td>
+                    <td><StatusBadge status={g.status} /></td>
+                    <td style={{ fontSize: 13, color: 'var(--slate-500)' }}>{g.deadline}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div className="bento-grid grid grid-cols-1 md:grid-cols-3 gap-10">
-          
-          {/* Main Focus Tile */}
-          <GlassCard 
-            ref={el => cardsRef.current[0] = el}
-            className="md:col-span-2 row-span-2 interactive flex flex-col p-0" 
-            interactive
-          >
-            <img src="/nano_banner_intelligence.png" className="nano-banner" alt="Intelligence" />
-            <div className="p-10 flex flex-col justify-between flex-1">
+        {/* Right Column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          {/* Quick Actions */}
+          <div className="card">
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 16 }}>Quick Actions</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }}>
+                <Zap size={16} /> Start New Grant Draft
+              </button>
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }}>
+                <Search size={16} /> Discover Funders
+              </button>
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }}>
+                <FileText size={16} /> Generate Impact Report
+              </button>
+            </div>
+          </div>
+
+          {/* Alerts */}
+          <div className="card">
+            <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 16 }}>System Alerts</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <AlertCircle size={16} style={{ color: 'var(--gold)', marginTop: 2, flexShrink: 0 }} />
+                <p style={{ fontSize: 13, color: 'var(--slate-600)', margin: 0 }}>
+                  <strong style={{ color: 'var(--slate-800)' }}>Lumina Grant</strong> deadline in 14 days — draft is 65% complete.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <CheckCircle size={16} style={{ color: 'var(--emerald)', marginTop: 2, flexShrink: 0 }} />
+                <p style={{ fontSize: 13, color: 'var(--slate-600)', margin: 0 }}>
+                  <strong style={{ color: 'var(--slate-800)' }}>23 new funders</strong> match your mission profile this week.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <Clock size={16} style={{ color: 'var(--indigo)', marginTop: 2, flexShrink: 0 }} />
+                <p style={{ fontSize: 13, color: 'var(--slate-600)', margin: 0 }}>
+                  Vault sync required — upload your <strong style={{ color: 'var(--slate-800)' }}>2025 Audit</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Oracle Status */}
+          <div className="card" style={{ background: 'linear-gradient(135deg, var(--indigo) 0%, #4338ca 100%)', border: 'none' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="p-3 bg-periwinkle/10 rounded-xl">
-                    <Zap className="text-periwinkle" size={24} />
-                  </div>
-                  <span className="text-xs-caps">Highest Priority Draft</span>
-                </div>
-                <h2 className="text-5xl mb-4 tracking-tight">Lumina Catalyst Grant</h2>
-                <p className="text-xl text-secondary mb-10">Scale your Tech-Forward Youth initiative in Title I districts.</p>
-                
-                <div className="space-y-4">
-                  <div className="flex justify-between text-xs-caps">
-                    <span>Oracle Maturity</span>
-                    <span className="text-periwinkle">65%</span>
-                  </div>
-                  <div className="h-2 bg-periwinkle/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-periwinkle shadow-[0_0_20px_rgba(124,126,255,0.4)]" style={{width: '65%'}}></div>
-                  </div>
-                </div>
+                <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Oracle Active</p>
+                <p style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: 0 }}>Scanning Funders</p>
               </div>
-              
-              <div className="mt-12">
-                <button className="btn btn-primary">Resume Strategy Engine <ArrowRight size={18} className="ml-3" /></button>
-              </div>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 0 3px rgba(74,222,128,0.3)', marginTop: 4 }}></div>
             </div>
-          </GlassCard>
-
-          {/* Metric Tile 1 */}
-          <GlassCard 
-            ref={el => cardsRef.current[1] = el}
-            className="flex flex-col justify-between p-10"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs-caps">Total Won YTD</span>
-              <TrendingUp className="text-emerald" size={24} />
-            </div>
-            <div className="mt-8">
-              <h3 className="text-6xl tracking-tighter text-primary">$1.4M</h3>
-              <div className="flex items-center gap-2 mt-4">
-                <span className="text-emerald font-bold">+15%</span>
-                <span className="text-xs-caps text-secondary opacity-60">vs Target</span>
-              </div>
-            </div>
-          </GlassCard>
-
-          {/* Metric Tile 2 */}
-          <GlassCard 
-            ref={el => cardsRef.current[2] = el}
-            className="flex flex-col justify-between p-10"
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs-caps">Active Genies</span>
-              <div className="p-2 bg-gold/10 rounded-lg">
-                <Sparkles className="text-gold" size={20} />
-              </div>
-            </div>
-            <div className="mt-8">
-              <h3 className="text-6xl tracking-tighter text-primary">12</h3>
-              <div className="flex items-center gap-2 mt-4">
-                <span className="text-gold font-bold">4</span>
-                <span className="text-xs-caps text-secondary opacity-60">Awaiting Director Review</span>
-              </div>
-            </div>
-          </GlassCard>
-
-          {/* Insights Tile */}
-          <GlassCard 
-            ref={el => cardsRef.current[3] = el}
-            className="p-10"
-          >
-            <img src="/nano_banner_funding.png" className="nano-banner -mx-10 -mt-10 mb-8" alt="Funding" />
-            <h4 className="text-2xl mb-8 tracking-tight">System Alerts</h4>
-            <div className="space-y-8">
-              <div className="flex gap-4">
-                <Shield className="text-periwinkle shrink-0" size={20} />
-                <p className="text-sm text-secondary leading-relaxed">Vault sync required for <span className="text-primary font-bold">2025 Audit</span>.</p>
-              </div>
-              <div className="flex gap-4">
-                <Target className="text-emerald shrink-0" size={20} />
-                <p className="text-sm text-secondary leading-relaxed">Instrumentl price hike detected. Recommend <span className="text-primary font-bold underline">Migration Protocol</span>.</p>
-              </div>
-            </div>
-          </GlassCard>
-
+            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 12 }}>
+              847 foundations analyzed · 23 new matches
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

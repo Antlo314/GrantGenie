@@ -1,16 +1,1 @@
-.page-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
-}
-
-.page-content {
-  flex: 1;
-  padding-bottom: 140px;
-}
-
-.dashboard-header-premium {
-  position: relative;
-  z-index: 10;
-}
+/* Global styles live in index.css */

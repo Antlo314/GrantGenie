@@ -1,163 +1,139 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Navbar from '../components/Navbar';
-import GlassCard from '../components/GlassCard';
-import gsap from 'gsap';
-import { 
-  Send, 
-  Sparkles, 
-  Bold, 
-  Italic, 
-  Type, 
-  Settings2, 
-  History, 
-  Eye,
-  CheckCircle,
-  Clock,
-  MessageSquare,
-  Maximize2,
-  Save
-} from 'lucide-react';
-import './OracleWriter.css';
+import React, { useState } from 'react';
+import AppLayout from '../components/AppLayout';
+import { Send, Sparkles, Type, MessageSquare, CheckCircle, Save, Zap, ChevronRight } from 'lucide-react';
 
 const OracleWriter = () => {
-  const [activeMode, setActiveMode] = useState('editor'); // 'editor' or 'chat'
-  const sidebarRef = useRef(null);
-  const mainRef = useRef(null);
+  const [mode, setMode] = useState('editor');
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'ai', text: "I've loaded the Lumina Foundation rubric and your 2025 Impact Report. I can help you draft, refine tone, or strengthen specific sections. Where would you like to start?" }
+  ]);
+  const [input, setInput] = useState('');
 
-  useEffect(() => {
-    const tl = gsap.timeline();
-    tl.fromTo(sidebarRef.current, 
-      { x: -100, opacity: 0 },
-      { x: 0, opacity: 1, duration: 1.2, ease: "expo.out" }
-    );
-    tl.fromTo(mainRef.current, 
-      { x: 100, opacity: 0 },
-      { x: 0, opacity: 1, duration: 1.2, ease: "expo.out" },
-      "-=1"
-    );
-  }, []);
+  const sendMessage = () => {
+    if (!input.trim()) return;
+    setChatMessages(prev => [...prev, { role: 'user', text: input }, { role: 'ai', text: "Great direction. I'll strengthen that paragraph with specific metrics from your Impact Report to align with Lumina's equity-focused rubric..." }]);
+    setInput('');
+  };
 
   return (
-    <div className="page-container relative overflow-hidden bg-white">
-      <div className="bg-flux"></div>
-      <Navbar title="Oracle Strategy Engine" />
-      
-      <div className="page-content animate-fade-in px-8 max-w-[1600px] mx-auto">
-        <div className="writer-layout-premium flex flex-col lg:flex-row gap-10 pt-10 h-[calc(100vh-120px)]">
-          
-          {/* Strategy Sidebar */}
-          <div ref={sidebarRef} className="writer-sidebar-premium w-full lg:w-96 shrink-0">
-            <GlassCard className="h-full flex flex-col p-10">
-              <div className="panel-header mb-12">
-                <div className="text-xs-caps text-periwinkle mb-4">Strategy Lab</div>
-                <h3 className="text-3xl flex items-center gap-4 tracking-tight">
-                  <Settings2 size={28} className="text-periwinkle" /> Grant Context
-                </h3>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto space-y-12 pr-2">
-                <div className="context-item">
-                  <span className="text-xs-caps block mb-4">Target Funder</span>
-                  <p className="text-2xl tracking-tight text-primary font-bold">Lumina Foundation</p>
-                </div>
-                
-                <div className="context-item">
-                  <span className="text-xs-caps block mb-4">Prompt Strategy</span>
-                  <p className="text-lg text-secondary italic border-l-4 border-periwinkle/20 pl-6 py-2 leading-relaxed">
-                    "Focus heavily on the quantitative metrics from the 2025 Impact Report. Emphasize scalability."
-                  </p>
-                </div>
-
-                <div className="context-item">
-                  <span className="text-xs-caps block mb-4">Compliance Vault</span>
-                  <div className="space-y-4 mt-6">
-                    <div className="flex items-center gap-4 text-secondary font-medium">
-                      <CheckCircle size={18} className="text-emerald" /> 2025 Impact Report
-                    </div>
-                    <div className="flex items-center gap-4 text-secondary font-medium">
-                      <CheckCircle size={18} className="text-emerald" /> Board Member Biographies
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-12 pt-10 border-t border-periwinkle/10">
-                <div className="p-1.5 bg-periwinkle/5 rounded-full flex border border-periwinkle/10">
-                  <button 
-                    className={`flex-1 flex items-center justify-center gap-3 py-4 text-xs font-bold rounded-full transition-all ${activeMode === 'editor' ? 'bg-periwinkle text-white' : 'text-secondary hover:text-primary'}`}
-                    onClick={() => setActiveMode('editor')}
-                  >
-                    <Type size={16} /> Editor
-                  </button>
-                  <button 
-                    className={`flex-1 flex items-center justify-center gap-3 py-4 text-xs font-bold rounded-full transition-all ${activeMode === 'chat' ? 'bg-periwinkle text-white' : 'text-secondary hover:text-primary'}`}
-                    onClick={() => setActiveMode('chat')}
-                  >
-                    <MessageSquare size={16} /> Chat
-                  </button>
-                </div>
-              </div>
-            </GlassCard>
+    <AppLayout title="Oracle Writer">
+      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, height: 'calc(100vh - 128px)' }}>
+        
+        {/* Left: Grant Context */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, overflowY: 'auto' }}>
+          {/* Grant Info */}
+          <div className="card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Current Grant</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 4 }}>Lumina Catalyst Grant</div>
+            <div style={{ fontSize: 13, color: 'var(--slate-500)', marginBottom: 16 }}>Lumina Foundation · $150,000</div>
+            <div className="progress-bar" style={{ marginBottom: 6 }}>
+              <div className="progress-fill" style={{ width: '65%' }}></div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--slate-500)' }}>
+              <span>Completion</span><span style={{ fontWeight: 600, color: 'var(--indigo)' }}>65%</span>
+            </div>
           </div>
 
-          {/* Main Content Area */}
-          <div ref={mainRef} className="writer-main-premium flex-1">
-            <GlassCard className="h-full flex flex-col p-0 overflow-hidden bg-white">
-              {activeMode === 'editor' ? (
-                <>
-                  <div className="toolbar-organic p-8 border-b border-periwinkle/10 flex items-center justify-between bg-periwinkle/5">
-                    <div className="flex gap-6">
-                      <button className="btn btn-outline py-3 px-8 text-xs">Format</button>
-                      <button className="btn btn-outline py-3 px-8 text-xs font-bold">Tone: Persuasive</button>
-                    </div>
-                    <div className="flex items-center gap-6">
-                      <button className="nav-icon-btn text-secondary"><Maximize2 size={24} /></button>
-                      <button className="btn btn-outline py-3 px-8 text-xs"><Save size={18} className="mr-3" /> Save</button>
-                      <button className="btn btn-primary py-3 px-10 text-xs"><Send size={18} className="mr-3" /> Audit</button>
-                    </div>
-                  </div>
-                  <div className="editor-content-organic flex-1 p-12">
-                    <textarea 
-                      className="w-full h-full bg-transparent border-none outline-none text-2xl leading-loose text-primary resize-none placeholder-secondary/20 font-body"
-                      defaultValue={`Our organization stands at the vanguard of educational equity, recognizing that access to technology is not merely a convenience, but a fundamental right in the 21st century.
-
-Drawing upon our successful 2025 Impact Report, which demonstrated a 40% increase in digital literacy among our target demographic, we are positioned to scale our "Tech-Forward Youth" initiative.`}
-                    />
-                  </div>
-                </>
-              ) : (
-                <div className="chat-container-organic h-full flex flex-col">
-                  <div className="chat-header-premium p-10 border-b border-periwinkle/10 bg-periwinkle/5">
-                    <h4 className="text-2xl flex items-center gap-4 font-bold tracking-tight">
-                      <Sparkles size={28} className="text-periwinkle animate-pulse" /> Genie Conversational Oracle
-                    </h4>
-                  </div>
-                  
-                  <div className="chat-scroll flex-1 p-10 overflow-y-auto space-y-10">
-                    <div className="chat-msg ai max-w-[80%] flex gap-6">
-                      <div className="msg-avatar w-12 h-12 rounded-full border border-periwinkle/30 bg-periwinkle/10 flex items-center justify-center shrink-0">
-                        <Sparkles size={20} className="text-periwinkle" />
-                      </div>
-                      <div className="msg-content p-8 rounded-3xl bg-periwinkle/5 border border-periwinkle/10">
-                        <p className="text-lg text-secondary leading-relaxed">I've loaded the Lumina Foundation rubric and your 2025 Impact Report. How would you like to approach the narrative for the new terminals?</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="chat-input-premium p-10 border-t border-periwinkle/10">
-                    <div className="input-pill flex items-center bg-periwinkle/5 border border-periwinkle/10 rounded-full p-3 pl-10 shadow-sm">
-                      <input type="text" placeholder="Instruct the Genie..." className="flex-1 bg-transparent border-none outline-none text-xl text-primary" />
-                      <button className="btn btn-primary rounded-full w-14 h-14 p-0 ml-6"><Send size={22} /></button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </GlassCard>
+          {/* Vault */}
+          <div className="card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Vault Documents</div>
+            {['2025 Impact Report', 'Board Member Biographies', 'IRS 501c3 Letter', '2024 Annual Budget'].map((doc, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < 3 ? '1px solid var(--slate-100)' : 'none' }}>
+                <CheckCircle size={14} style={{ color: 'var(--emerald)', flexShrink: 0 }} />
+                <span style={{ fontSize: 13, color: 'var(--slate-700)' }}>{doc}</span>
+              </div>
+            ))}
           </div>
 
+          {/* Strategy */}
+          <div className="card">
+            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Oracle Strategy</div>
+            <p style={{ fontSize: 13, color: 'var(--slate-600)', fontStyle: 'italic', lineHeight: 1.6, margin: 0 }}>
+              "Lead with the 40% digital literacy improvement metric. Lumina prioritizes scalability evidence — cite the Title I district data."
+            </p>
+          </div>
+
+          <button className="btn btn-primary" style={{ width: '100%' }}>
+            <Save size={15} /> Save Draft
+          </button>
+        </div>
+
+        {/* Right: Editor / Chat */}
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
+          {/* Toolbar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid var(--slate-200)', background: 'var(--slate-50)' }}>
+            <div style={{ display: 'flex', background: 'var(--slate-200)', borderRadius: 8, padding: 3, gap: 2 }}>
+              <button
+                onClick={() => setMode('editor')}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: mode === 'editor' ? 'white' : 'transparent', color: mode === 'editor' ? 'var(--slate-900)' : 'var(--slate-500)', border: 'none', cursor: 'pointer', boxShadow: mode === 'editor' ? 'var(--shadow)' : 'none', transition: 'all 0.15s' }}
+              >
+                <Type size={14} /> Editor
+              </button>
+              <button
+                onClick={() => setMode('chat')}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, background: mode === 'chat' ? 'white' : 'transparent', color: mode === 'chat' ? 'var(--slate-900)' : 'var(--slate-500)', border: 'none', cursor: 'pointer', boxShadow: mode === 'chat' ? 'var(--shadow)' : 'none', transition: 'all 0.15s' }}
+              >
+                <MessageSquare size={14} /> Chat with Oracle
+              </button>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="badge badge-indigo" style={{ cursor: 'pointer' }}>Tone: Persuasive</button>
+              <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
+                <Zap size={14} /> AI Audit
+              </button>
+            </div>
+          </div>
+
+          {mode === 'editor' ? (
+            <textarea
+              style={{
+                flex: 1,
+                padding: '28px 32px',
+                border: 'none',
+                outline: 'none',
+                resize: 'none',
+                fontSize: 16,
+                lineHeight: 1.9,
+                color: 'var(--slate-800)',
+                fontFamily: 'Georgia, serif',
+                background: 'white',
+              }}
+              defaultValue={`Our organization stands at the vanguard of educational equity, recognizing that access to technology is not merely a convenience, but a fundamental right in the 21st century.\n\nDrawing upon our successful 2025 Impact Report, which demonstrated a 40% increase in digital literacy among our target demographic, we are positioned to scale our "Tech-Forward Youth" initiative across 14 Title I school districts.\n\nWith the support of the Lumina Foundation Catalyst Grant, we will deploy 500 new interactive learning terminals, train 120 educators in digital pedagogy, and extend our proven curriculum to reach an additional 8,500 students over the next program year.`}
+            />
+          ) : (
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {chatMessages.map((msg, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
+                    {msg.role === 'ai' && (
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--indigo) 0%, #4338ca 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Sparkles size={15} style={{ color: 'white' }} />
+                      </div>
+                    )}
+                    <div className={msg.role === 'ai' ? 'chat-bubble-ai' : 'chat-bubble-user'}>
+                      {msg.text}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ padding: '16px 24px', borderTop: '1px solid var(--slate-200)', display: 'flex', gap: 12 }}>
+                <input
+                  type="text"
+                  placeholder="Ask the Oracle to rewrite, strengthen, or adjust tone..."
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && sendMessage()}
+                  style={{ flex: 1 }}
+                />
+                <button className="btn btn-primary" onClick={sendMessage} style={{ padding: '10px 16px' }}>
+                  <Send size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
