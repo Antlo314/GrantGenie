@@ -46,52 +46,50 @@ const OracleWriter = () => {
           
           {/* Strategy Sidebar */}
           <div ref={sidebarRef} className="writer-sidebar-premium">
-            <GlassCard className="strategy-panel-organic h-full flex flex-col">
-              <div className="panel-header mb-8">
-                <h3 className="font-display text-xl flex items-center gap-2 text-gold">
-                  <Settings2 size={20} /> Grant Context
+            <GlassCard className="h-full flex flex-col">
+              <div className="panel-header mb-10">
+                <div className="text-xs-caps text-gold mb-2">Strategy Lab</div>
+                <h3 className="text-2xl flex items-center gap-2">
+                  <Settings2 size={24} /> Grant Context
                 </h3>
               </div>
               
-              <div className="flex-1 overflow-y-auto space-y-8 pr-2">
+              <div className="flex-1 overflow-y-auto space-y-10 pr-2">
                 <div className="context-item">
-                  <h5 className="text-[10px] uppercase text-muted tracking-widest mb-3">Target Funder</h5>
-                  <p className="text-primary font-display text-lg glow-text">Lumina Foundation Catalyst Fund</p>
+                  <span className="text-xs-caps block mb-3">Target Funder</span>
+                  <p className="text-2xl tracking-tight text-white">Lumina Foundation</p>
                 </div>
                 
                 <div className="context-item">
-                  <h5 className="text-[10px] uppercase text-muted tracking-widest mb-3">Prompt Strategy</h5>
-                  <p className="text-secondary text-sm italic border-l-2 border-gold/30 pl-4 py-1 leading-relaxed">
+                  <span className="text-xs-caps block mb-3">Prompt Strategy</span>
+                  <p className="text-secondary italic border-l-2 border-gold/30 pl-5 py-1 leading-relaxed">
                     "Focus heavily on the quantitative metrics from the 2025 Impact Report. Emphasize scalability."
                   </p>
                 </div>
 
                 <div className="context-item">
-                  <h5 className="text-[10px] uppercase text-muted tracking-widest mb-3">Data Vault Sources</h5>
-                  <div className="space-y-2 mt-2">
-                    <div className="flex items-center gap-2 text-xs text-secondary">
-                      <CheckCircle size={12} className="text-emerald" /> 2025 Impact Report
+                  <span className="text-xs-caps block mb-3">Compliance Vault</span>
+                  <div className="space-y-3 mt-4">
+                    <div className="flex items-center gap-3 text-sm text-secondary">
+                      <CheckCircle size={14} className="text-emerald" /> 2025 Impact Report
                     </div>
-                    <div className="flex items-center gap-2 text-xs text-secondary">
-                      <CheckCircle size={12} className="text-emerald" /> Board Member Biographies
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-secondary">
-                      <CheckCircle size={12} className="text-emerald" /> Q3 Financial Audit
+                    <div className="flex items-center gap-3 text-sm text-secondary">
+                      <CheckCircle size={14} className="text-emerald" /> Board Member Biographies
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-white/5">
-                <div className="writer-mode-selector p-1 bg-black/40 rounded-full flex">
+              <div className="mt-10 pt-8 border-t border-white/5">
+                <div className="p-1 bg-black/60 rounded-full flex border border-white/5">
                   <button 
-                    className={`mode-tab flex-1 flex items-center justify-center gap-2 py-2 text-xs rounded-full transition-all ${activeMode === 'editor' ? 'bg-gold text-black font-bold' : 'text-muted hover:text-white'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold rounded-full transition-all ${activeMode === 'editor' ? 'bg-gold text-black' : 'text-muted hover:text-white'}`}
                     onClick={() => setActiveMode('editor')}
                   >
                     <Type size={14} /> Editor
                   </button>
                   <button 
-                    className={`mode-tab flex-1 flex items-center justify-center gap-2 py-2 text-xs rounded-full transition-all ${activeMode === 'chat' ? 'bg-gold text-black font-bold' : 'text-muted hover:text-white'}`}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 text-xs font-bold rounded-full transition-all ${activeMode === 'chat' ? 'bg-gold text-black' : 'text-muted hover:text-white'}`}
                     onClick={() => setActiveMode('chat')}
                   >
                     <MessageSquare size={14} /> Chat
@@ -103,59 +101,50 @@ const OracleWriter = () => {
 
           {/* Main Content Area */}
           <div ref={mainRef} className="writer-main-premium">
-            <GlassCard className="editor-panel-organic h-full flex flex-col p-0 overflow-hidden">
+            <GlassCard className="h-full flex flex-col p-0 overflow-hidden">
               {activeMode === 'editor' ? (
                 <>
-                  <div className="toolbar-organic p-4 border-b border-white/5 flex items-center justify-between">
-                    <div className="flex gap-2">
-                      <button className="btn btn-outline py-1.5 px-4 text-[10px]">Format</button>
-                      <button className="btn btn-outline py-1.5 px-4 text-[10px] text-gold border-gold/30">Tone: Persuasive</button>
+                  <div className="toolbar-organic p-6 border-b border-white/5 flex items-center justify-between bg-black/20">
+                    <div className="flex gap-4">
+                      <button className="btn btn-outline py-2 px-6">Format</button>
+                      <button className="btn btn-outline py-2 px-6 text-gold">Tone: Persuasive</button>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <button className="icon-btn hover:text-gold transition-colors"><Maximize2 size={18} /></button>
-                      <button className="btn btn-outline py-1.5 px-4 text-[10px]"><Save size={14} /> Save</button>
-                      <button className="btn btn-primary py-1.5 px-6 text-[10px]"><Send size={14} /> Audit</button>
+                    <div className="flex items-center gap-4">
+                      <button className="icon-btn-premium"><Maximize2 size={20} /></button>
+                      <button className="btn btn-outline py-2 px-6"><Save size={16} /> Save</button>
+                      <button className="btn btn-primary py-2 px-8"><Send size={16} /> Audit</button>
                     </div>
                   </div>
-                  <div className="editor-content-organic flex-1 p-8">
+                  <div className="editor-content-organic flex-1 p-10">
                     <textarea 
-                      className="w-full h-full bg-transparent border-none outline-none text-lg leading-relaxed text-primary resize-none placeholder-white/10 font-sans"
+                      className="w-full h-full bg-transparent border-none outline-none text-xl leading-loose text-white resize-none placeholder-white/5 font-body"
                       defaultValue={`Our organization stands at the vanguard of educational equity, recognizing that access to technology is not merely a convenience, but a fundamental right in the 21st century.
 
-Drawing upon our successful 2025 Impact Report, which demonstrated a 40% increase in digital literacy among our target demographic, we are positioned to scale our "Tech-Forward Youth" initiative.
-
-The Lumina Foundation Catalyst Fund will enable us to deploy 500 new interactive learning terminals to underserved districts. By integrating AI-driven personalized tutoring software, we project a minimum 25% improvement in standardized test scores over the next 24 months.`}
+Drawing upon our successful 2025 Impact Report, which demonstrated a 40% increase in digital literacy among our target demographic, we are positioned to scale our "Tech-Forward Youth" initiative.`}
                     />
                   </div>
                 </>
               ) : (
                 <div className="chat-container-organic h-full flex flex-col">
-                  <div className="chat-header-premium p-6 border-b border-white/5">
-                    <h4 className="font-display text-gold flex items-center gap-3">
-                      <Sparkles size={20} className="animate-pulse" /> Genie Conversational Oracle
+                  <div className="chat-header-premium p-8 border-b border-white/5 bg-black/20">
+                    <h4 className="text-xl flex items-center gap-3">
+                      <Sparkles size={24} className="text-gold animate-pulse" /> Genie Conversational Oracle
                     </h4>
                   </div>
                   
-                  <div className="chat-scroll flex-1 p-6 overflow-y-auto space-y-6">
-                    <div className="chat-msg ai">
-                      <div className="msg-avatar"><Sparkles size={16} className="text-gold" /></div>
-                      <div className="msg-content glass-panel p-4">
-                        <p className="text-sm text-secondary">I've loaded the Lumina Foundation rubric and your 2025 Impact Report. How would you like to approach the narrative for the new terminals?</p>
-                      </div>
-                    </div>
-                    
-                    <div className="chat-msg user self-end flex flex-row-reverse">
-                      <div className="msg-avatar bg-white/10 text-white flex items-center justify-center text-[10px] font-bold">DIR</div>
-                      <div className="msg-content glass-panel p-4 mr-3 bg-white/5">
-                        <p className="text-sm text-primary">Let's make sure we emphasize that the 500 terminals are specifically going to Title I schools.</p>
+                  <div className="chat-scroll flex-1 p-8 overflow-y-auto space-y-8">
+                    <div className="chat-msg ai max-w-[80%]">
+                      <div className="msg-avatar border border-gold/20 bg-gold/5"><Sparkles size={16} className="text-gold" /></div>
+                      <div className="msg-content p-6 rounded-2xl bg-white/5 border border-white/5">
+                        <p className="text-secondary">I've loaded the Lumina Foundation rubric and your 2025 Impact Report. How would you like to approach the narrative for the new terminals?</p>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="chat-input-premium p-6 border-t border-white/5">
-                    <div className="input-pill flex items-center bg-black/40 border border-white/10 rounded-full p-2 pl-6">
-                      <input type="text" placeholder="Instruct the Genie..." className="flex-1 bg-transparent border-none outline-none text-sm" />
-                      <button className="btn btn-primary rounded-full w-10 h-10 p-0 ml-2"><Send size={16} /></button>
+                  <div className="chat-input-premium p-8 border-t border-white/5">
+                    <div className="input-pill flex items-center bg-black/60 border border-white/5 rounded-full p-2 pl-8">
+                      <input type="text" placeholder="Instruct the Genie..." className="flex-1 bg-transparent border-none outline-none text-white" />
+                      <button className="btn btn-primary rounded-full w-12 h-12 p-0 ml-4"><Send size={18} /></button>
                     </div>
                   </div>
                 </div>

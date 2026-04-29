@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Key } from 'lucide-react';
+import { Lock, Mail, Shield } from 'lucide-react';
+import GlassCard from '../components/GlassCard';
 import './Auth.css';
 
 const Auth = () => {
@@ -14,62 +15,60 @@ const Auth = () => {
   };
 
   return (
-    <div className="auth-container flex items-center justify-center min-h-screen relative z-10 p-4">
+    <div className="auth-container flex items-center justify-center min-h-screen relative z-10 p-4 bg-black">
       
-      {/* Background glow specific to auth */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gold/10 blur-[120px] rounded-full pointer-events-none"></div>
+      {/* Cinematic Aura */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold/5 blur-[160px] rounded-full pointer-events-none"></div>
 
-      <div className="auth-card glass-panel w-full max-w-md p-8 md:p-10 animate-fade-in">
-        <div className="flex flex-col items-center mb-8 text-center">
-          <img src="/logo.png" alt="Grant Genie" className="h-16 w-16 object-contain mb-4" />
-          <h2 className="font-display text-2xl font-bold text-primary">
-            {isLogin ? 'Access Terminal' : 'Initialize Workspace'}
+      <GlassCard className="w-full max-w-md p-12 animate-fade-in">
+        <div className="flex flex-col items-center mb-12 text-center">
+          <div className="p-4 bg-gold/10 rounded-full mb-6 border border-gold/20">
+            <Shield className="text-gold" size={32} />
+          </div>
+          <div className="text-xs-caps text-gold mb-2">Secure Gateway</div>
+          <h2 className="text-3xl tracking-tight">
+            {isLogin ? 'Access Terminal' : 'Initialize Genie'}
           </h2>
-          <p className="text-secondary text-sm mt-2">
-            {isLogin ? 'Enter your credentials to continue.' : 'Deploy your own zero-trust grant engine.'}
-          </p>
         </div>
 
-        <form onSubmit={handleAuth} className="flex flex-col gap-5">
+        <form onSubmit={handleAuth} className="flex flex-col gap-6">
           {!isLogin && (
-            <div className="input-group">
-              <label className="text-xs uppercase tracking-widest text-muted mb-1 block">Organization Name</label>
-              <div className="auth-input-wrapper">
-                <input type="text" className="auth-input" placeholder="e.g. Lumina Foundation" required />
-              </div>
+            <div className="space-y-2">
+              <label className="text-xs-caps block">Organization</label>
+              <input type="text" className="w-full" placeholder="e.g. Lumina Foundation" required />
             </div>
           )}
 
-          <div className="input-group">
-            <label className="text-xs uppercase tracking-widest text-muted mb-1 block">Email Address</label>
-            <div className="auth-input-wrapper">
-              <Mail size={16} className="text-muted absolute left-3 top-1/2 -translate-y-1/2" />
-              <input type="email" className="auth-input pl-10" placeholder="director@organization.org" required />
+          <div className="space-y-2">
+            <label className="text-xs-caps block">Email Address</label>
+            <div className="relative">
+              <Mail size={16} className="text-muted absolute left-4 top-1/2 -translate-y-1/2" />
+              <input type="email" className="w-full pl-12" placeholder="director@organization.org" required />
             </div>
           </div>
 
-          <div className="input-group">
-            <label className="text-xs uppercase tracking-widest text-muted mb-1 block">Passphrase</label>
-            <div className="auth-input-wrapper">
-              <Lock size={16} className="text-muted absolute left-3 top-1/2 -translate-y-1/2" />
-              <input type="password" className="auth-input pl-10" placeholder="••••••••" required />
+          <div className="space-y-2">
+            <label className="text-xs-caps block">Passphrase</label>
+            <div className="relative">
+              <Lock size={16} className="text-muted absolute left-4 top-1/2 -translate-y-1/2" />
+              <input type="password" className="w-full pl-12" placeholder="••••••••" required />
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary w-full mt-2 py-3 text-base">
-            {isLogin ? 'Authenticate' : 'Deploy Instance'}
+          <button type="submit" className="btn btn-primary w-full mt-4">
+            {isLogin ? 'Authenticate' : 'Initialize Engine'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-10 text-center">
           <button 
             onClick={() => setIsLogin(!isLogin)}
-            className="text-sm text-secondary hover:text-gold transition-colors"
+            className="text-xs-caps text-secondary hover:text-gold transition-all"
           >
-            {isLogin ? "Don't have an instance? Deploy one." : "Already initialized? Access Terminal."}
+            {isLogin ? "Request New Instance" : "Return to Terminal"}
           </button>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 };
