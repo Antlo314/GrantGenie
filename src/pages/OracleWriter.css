@@ -1,78 +1,10 @@
 .writer-layout-premium {
-  display: grid;
-  grid-template-columns: 320px 1fr;
+  display: flex;
   gap: 2rem;
-  height: calc(100vh - 180px);
-}
-
-.writer-sidebar-premium {
-  height: 100%;
-}
-
-.writer-main-premium {
-  height: 100%;
-}
-
-.strategy-panel-organic {
-  border-radius: 40px 10px 40px 10px;
-  padding: 2rem;
-}
-
-.editor-panel-organic {
-  border-radius: 10px 40px 10px 40px;
-}
-
-.toolbar-organic {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.mode-tab {
-  border: none;
-  cursor: pointer;
-}
-
-.editor-textarea-premium {
-  line-height: 1.8;
-}
-
-/* Chat Styling */
-.chat-msg {
-  display: flex;
-  gap: 1rem;
-  max-width: 85%;
-}
-
-.msg-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0,0,0,0.4);
-}
-
-.chat-msg.ai .msg-content {
-  border-radius: 2px 20px 20px 20px;
-}
-
-.chat-msg.user .msg-content {
-  border-radius: 20px 2px 20px 20px;
 }
 
 @media (max-width: 1024px) {
   .writer-layout-premium {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-  
-  .writer-sidebar-premium {
-    height: auto;
-  }
-  
-  .writer-main-premium {
-    height: 600px;
+    flex-direction: column;
   }
 }

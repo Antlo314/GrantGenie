@@ -1,39 +1,11 @@
 .campaign-grid-premium {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 1fr;
   gap: 2.5rem;
 }
 
-.campaign-context-organic {
-  padding: 2.5rem;
-  border-radius: 40px 10px 40px 10px;
-}
-
-.context-item-organic {
-  border-radius: 20px 5px 20px 5px;
-  cursor: pointer;
-}
-
-.result-card-premium {
-  border-radius: 10px 40px 10px 40px;
-  padding: 2.5rem;
-}
-
-.campaign-tabs-organic {
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-}
-
-.tab-btn-organic {
-  border: none;
-  cursor: pointer;
-}
-
-.icon-glow-container {
-  box-shadow: 0 0 40px rgba(212, 175, 55, 0.1);
-}
-
-@media (max-width: 1024px) {
+@media (min-width: 1024px) {
   .campaign-grid-premium {
-    grid-template-columns: 1fr;
+    grid-template-columns: 340px 1fr;
   }
 }
