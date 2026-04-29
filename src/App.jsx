@@ -1,18 +1,21 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Sidebar from './components/Sidebar';
+import FloatingDock from './components/FloatingDock';
 import Dashboard from './pages/Dashboard';
 import DiscoveryRadar from './pages/DiscoveryRadar';
 import OracleWriter from './pages/OracleWriter';
 import AuditMatrix from './pages/AuditMatrix';
-import './App.css'; // Cleared file to prevent default Vite styles
+import './App.css'; 
 
 function App() {
   return (
     <Router>
-      <div className="app-container">
-        <div className="bg-glow"></div>
-        <Sidebar />
+      <div className="app-container cinematic-layout">
+        {/* Abstract Background Elements */}
+        <div className="cinematic-bg"></div>
+        <div className="bg-glow emerald-glow"></div>
+        <div className="bg-glow gold-glow"></div>
+
         <main className="main-content">
           <Routes>
             <Route path="/" element={<Dashboard />} />
@@ -21,7 +24,7 @@ function App() {
             <Route path="/audit" element={<AuditMatrix />} />
             <Route path="/vault" element={
               <div className="page-container flex items-center justify-center h-full">
-                <div className="text-center animate-fade-in">
+                <div className="text-center animate-fade-in glass-card interactive p-8">
                   <h2 className="font-display text-gold mb-2" style={{fontSize: '2rem'}}>Zero-Trust Data Vault</h2>
                   <p className="text-muted">Enterprise document storage and compliance tracking.</p>
                   <p className="text-secondary mt-4 text-sm uppercase tracking-widest">Coming Soon</p>
@@ -30,6 +33,8 @@ function App() {
             } />
           </Routes>
         </main>
+
+        <FloatingDock />
       </div>
     </Router>
   );

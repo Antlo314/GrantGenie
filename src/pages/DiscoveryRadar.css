@@ -2,18 +2,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .radar-title-section {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.radar-title-section h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
 }
 
 .tabs-container {
@@ -51,14 +46,13 @@
 .grant-card {
   display: flex;
   flex-direction: column;
-  padding: 1.5rem;
+  height: 100%;
 }
 
 .grant-card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
 }
 
 .match-score-badge {
@@ -72,6 +66,7 @@
   border-radius: 999px;
   font-size: 0.875rem;
   font-weight: 600;
+  box-shadow: 0 0 10px rgba(4, 120, 87, 0.3);
 }
 
 .icon-btn-small {
@@ -134,7 +129,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1.5rem;
 }
 
 .tag {
@@ -145,6 +139,83 @@
   color: var(--color-text-secondary);
 }
 
-.grant-card-footer {
-  margin-top: auto;
+/* Mobile Swipe Stack */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+.swipe-stack-container {
+  height: 60vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.swipe-card-wrapper {
+  width: 100%;
+  max-width: 400px;
+  height: 100%;
+  position: relative;
+}
+
+.swipe-card {
+  height: calc(100% - 80px);
+  display: flex;
+  flex-direction: column;
+  border-width: 2px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.swipe-actions {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.swipe-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.swipe-btn:active {
+  transform: scale(0.9);
+}
+
+.pass-btn {
+  background: rgba(20, 20, 20, 0.8);
+  border: 2px solid #ef4444;
+  color: #ef4444;
+}
+
+.save-btn {
+  background: rgba(20, 20, 20, 0.8);
+  border: 2px solid #34d399;
+  color: #34d399;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex;
+  }
+  
+  .desktop-only {
+    display: none;
+  }
+  
+  .page-content {
+    padding: 1rem;
+  }
 }

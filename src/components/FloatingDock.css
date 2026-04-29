@@ -1,0 +1,114 @@
+.dock-container {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+}
+
+.floating-dock {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.dock-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock-item:hover {
+  color: var(--color-text-primary);
+  transform: translateY(-8px) scale(1.1);
+}
+
+.dock-item:hover .dock-icon-wrapper {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dock-item.active {
+  color: var(--color-accent-gold);
+}
+
+.dock-item.active .dock-icon-wrapper {
+  background: var(--color-accent-gold-glow);
+  box-shadow: 0 0 20px var(--color-accent-gold-glow);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.dock-tooltip {
+  position: absolute;
+  top: -40px;
+  background: rgba(0, 0, 0, 0.8);
+  color: var(--color-text-primary);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dock-item:hover .dock-tooltip {
+  opacity: 1;
+  top: -45px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .dock-container {
+    bottom: 1rem;
+    width: 90%;
+  }
+
+  .floating-dock {
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+  }
+
+  .dock-item {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .dock-item:hover {
+    transform: none; /* Disable hover scale on mobile */
+  }
+  
+  .dock-tooltip {
+    display: none; /* Hide tooltips on mobile */
+  }
+}
