@@ -1,0 +1,59 @@
+.deck-layout {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 140px;
+}
+
+.deck-hero {
+  padding: 4rem 0;
+}
+
+.hero-badge-organic {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 40% 60% 70% 30% / 40% 40% 60% 60%; /* Organic shape */
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+.deck-card {
+  height: 100%;
+}
+
+.comparison-container {
+  border-radius: 40px 10px 40px 10px;
+}
+
+.comparison-table th {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.comparison-table td {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+}
+
+.pricing-card {
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.pricing-card:hover {
+  transform: translateY(-10px) scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .deck-hero h1 {
+    font-size: 3rem;
+  }
+  
+  .comparison-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

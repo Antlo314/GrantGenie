@@ -11,11 +11,12 @@ import ProgramManager from './pages/ProgramManager';
 import LandingPage from './pages/LandingPage';
 import Auth from './pages/Auth';
 import Settings from './pages/Settings';
+import InvestorDeck from './pages/InvestorDeck';
 import './App.css'; 
 
 const AppLayout = () => {
   const location = useLocation();
-  const isPublicRoute = location.pathname === '/' || location.pathname === '/auth';
+  const isPublicRoute = location.pathname === '/' || location.pathname === '/auth' || location.pathname === '/deck';
 
   return (
     <div className="app-container cinematic-layout">
@@ -28,6 +29,7 @@ const AppLayout = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/deck" element={<InvestorDeck />} />
           
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/discovery" element={<DiscoveryRadar />} />

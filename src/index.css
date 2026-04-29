@@ -77,31 +77,67 @@ h1, h2, h3, h4, h5, h6 {
 .w-full { width: 100%; }
 .h-full { height: 100%; }
 
-/* Glassmorphism System */
+/* Glassmorphism System - Organic & Fluid Overhaul */
 .glass-panel {
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-glass);
+  background: rgba(10, 10, 10, 0.4);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 40px 10px 40px 10px; /* Teardrop shape */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
 }
 
 .glass-card {
-  background: var(--color-bg-surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+  background: rgba(15, 15, 15, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 30px 5px 30px 5px; /* Unconventional fluid radius */
+  padding: 1.75rem;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  position: relative;
 }
 
 .glass-card.interactive:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.4), var(--shadow-gold);
-  border-color: var(--color-accent-gold);
-  background: rgba(20, 20, 20, 0.6);
+  transform: translateY(-8px) rotate(0.5deg);
+  background: rgba(25, 25, 25, 0.5);
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(212, 175, 55, 0.1);
+}
+
+.glass-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle at bottom right, rgba(212, 175, 55, 0.1), transparent 70%);
+  pointer-events: none;
+}
+
+/* Organic Shapes & Fluidity */
+.shape-organic-1 { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+.shape-organic-2 { border-radius: 30% 70% 70% 30% / 50% 60% 40% 50%; }
+
+.glow-fluid {
+  filter: blur(60px);
+  mix-blend-mode: screen;
+  opacity: 0.5;
 }
 
 /* Button Styles */

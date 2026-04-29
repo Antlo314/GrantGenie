@@ -48,7 +48,10 @@ const LandingPage = () => {
           >
             Deploy Your Genie <ArrowRight className="ml-2" />
           </button>
-          <button className="btn btn-outline text-lg py-4 px-8">
+          <button 
+            onClick={() => navigate('/deck')}
+            className="btn btn-outline text-lg py-4 px-8"
+          >
             View Investor Deck
           </button>
         </div>
