@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Radar, PenTool, CheckSquare, Shield } from 'lucide-react';
+import { LayoutDashboard, Radar, PenTool, Shield, Megaphone, Layers } from 'lucide-react';
 import './FloatingDock.css';
 
 const FloatingDock = () => {
@@ -7,8 +7,9 @@ const FloatingDock = () => {
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Radar', path: '/discovery', icon: Radar },
     { name: 'Oracle', path: '/writer', icon: PenTool },
-    { name: 'Audit', path: '/audit', icon: CheckSquare },
     { name: 'Vault', path: '/vault', icon: Shield },
+    { name: 'Campaigns', path: '/campaigns', icon: Megaphone },
+    { name: 'Programs', path: '/programs', icon: Layers },
   ];
 
   return (
