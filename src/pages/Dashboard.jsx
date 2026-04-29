@@ -1,6 +1,7 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
 import GlassCard from '../components/GlassCard';
+import HelpTooltip from '../components/HelpTooltip';
 import { Target, TrendingUp, AlertCircle, Clock, Zap, FileSignature, ArrowRight } from 'lucide-react';
 import './Dashboard.css';
 
@@ -10,11 +11,18 @@ const Dashboard = () => {
       <Navbar title="Command Center" />
       
       <div className="page-content animate-fade-in">
-        <div className="dashboard-header-premium">
-          <h1 className="hero-greeting font-display">
-            Welcome back, <span className="text-gold glow-text">Director</span>.
-          </h1>
-          <p className="hero-subtext text-secondary">Your AI-driven pipeline is operating at peak efficiency.</p>
+        <div className="dashboard-header-premium flex items-center justify-between">
+          <div>
+            <h1 className="hero-greeting font-display flex items-center">
+              Welcome back, <span className="text-gold glow-text ml-2">Director</span>.
+              <HelpTooltip 
+                title="Getting Started" 
+                content="This is your Command Center. From here, you can monitor your active AI drafts, track secured funding, and review Geni Insights. Use the dock at the bottom to navigate."
+                defaultOpen={true}
+              />
+            </h1>
+            <p className="hero-subtext text-secondary">Your AI-driven pipeline is operating at peak efficiency.</p>
+          </div>
         </div>
 
         <div className="bento-grid">

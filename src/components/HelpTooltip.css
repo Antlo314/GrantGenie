@@ -1,0 +1,36 @@
+.help-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.help-icon-btn:hover {
+  opacity: 1;
+}
+
+.help-popover {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 0 0 15px rgba(212, 175, 55, 0.2);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top center;
+}
+
+.help-popover::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: var(--color-bg-glass);
+  border-left: 1px solid rgba(212, 175, 55, 0.4);
+  border-top: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: translateX(-50%) scale(0.95) translateY(-10px); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+}

@@ -4,7 +4,7 @@ import './FloatingDock.css';
 
 const FloatingDock = () => {
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Radar', path: '/discovery', icon: Radar },
     { name: 'Oracle', path: '/writer', icon: PenTool },
     { name: 'Vault', path: '/vault', icon: Shield },
