@@ -2,7 +2,8 @@
   display: grid;
   grid-template-columns: 300px 1fr;
   gap: 1.5rem;
-  height: calc(100vh - 180px); /* Leave room for dock and navbar */
+  height: calc(100vh - 80px); /* Adjust height */
+  padding-bottom: 140px; /* Space for dock */
 }
 
 .writer-sidebar, .writer-main {
@@ -120,12 +121,18 @@
 }
 
 /* Editor UI */
+.editor-toolbar {
+  flex-wrap: wrap; /* Allows wrapping on mobile */
+  gap: 1rem;
+}
+
 .toolbar-btn {
   color: var(--color-text-secondary);
   font-size: 0.875rem;
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-sm);
   transition: all 0.2s ease;
+  white-space: nowrap; /* Prevent text breaking */
 }
 
 .toolbar-btn:hover {
@@ -142,6 +149,7 @@
   justify-content: center;
   color: var(--color-text-secondary);
   background: rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
 }
 
 .icon-btn-small:hover {
@@ -154,5 +162,25 @@
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
     height: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .editor-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .editor-toolbar > div {
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .chat-message {
+    max-width: 95%;
+  }
+  
+  .message-bubble {
+    padding: 0.75rem;
   }
 }

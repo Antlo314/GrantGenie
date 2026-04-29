@@ -21,11 +21,11 @@ const Navbar = ({ title }) => {
         
         <div className="user-profile">
           <div className="avatar">
-            <User size={20} />
+            <img src="/logo.png" alt="Grant Genie Logo" />
           </div>
           <div className="user-info">
-            <span className="user-name">Director</span>
-            <span className="user-role text-gold">Admin</span>
+            <span className="user-name">Grant Genie</span>
+            <span className="user-role text-gold">System</span>
           </div>
         </div>
       </div>
