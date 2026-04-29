@@ -7,9 +7,11 @@
 }
 
 :root {
-  --indigo: #6366f1;
-  --indigo-dark: #4338ca;
-  --indigo-light: #818cf8;
+  /* Brand: Deep Teal (distinctive — not purple like competitors) */
+  --teal: #0d9488;
+  --teal-dark: #0f766e;
+  --teal-light: #14b8a6;
+  --teal-xlight: #ccfbf1;
   --gold: #f59e0b;
   --gold-light: #fbbf24;
   --emerald: #10b981;
@@ -74,23 +76,23 @@ p {
 }
 
 .btn-primary {
-  background: var(--indigo);
+  background: var(--teal);
   color: var(--white);
-  box-shadow: 0 4px 14px rgba(99,102,241,0.4);
+  box-shadow: 0 4px 14px rgba(13,148,136,0.4);
 }
 .btn-primary:hover {
-  background: var(--indigo-dark);
+  background: var(--teal-dark);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+  box-shadow: 0 6px 20px rgba(13,148,136,0.5);
 }
 
 .btn-secondary {
   background: var(--white);
-  color: var(--indigo);
+  color: var(--teal);
   border: 1.5px solid var(--slate-200);
 }
 .btn-secondary:hover {
-  border-color: var(--indigo);
+  border-color: var(--teal);
   background: #f0f0ff;
 }
 
@@ -137,8 +139,8 @@ input, select, textarea {
   width: 100%;
 }
 input:focus, select:focus, textarea:focus {
-  border-color: var(--indigo);
-  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,0.1);
 }
 input::placeholder, textarea::placeholder {
   color: var(--slate-400);
@@ -154,9 +156,9 @@ input::placeholder, textarea::placeholder {
   font-size: 12px;
   font-weight: 600;
 }
-.badge-indigo {
-  background: rgba(99,102,241,0.1);
-  color: var(--indigo);
+.badge-indigo, .badge-teal {
+  background: rgba(13,148,136,0.1);
+  color: var(--teal);
 }
 .badge-gold {
   background: rgba(245,158,11,0.1);
@@ -165,6 +167,23 @@ input::placeholder, textarea::placeholder {
 .badge-emerald {
   background: rgba(16,185,129,0.1);
   color: var(--emerald);
+}
+
+/* ── Nano Banners ── */
+.nano-banner {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+  display: block;
+}
+
+.nano-banner-sm {
+  width: 100%;
+  height: 100px;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+  display: block;
 }
 
 /* ── Layout ── */
@@ -222,7 +241,7 @@ input::placeholder, textarea::placeholder {
 }
 
 .sidebar-logo-text span {
-  color: var(--indigo);
+  color: var(--teal);
 }
 
 .sidebar-section-label {
@@ -258,8 +277,8 @@ input::placeholder, textarea::placeholder {
 }
 
 .sidebar-link.active {
-  background: rgba(99,102,241,0.08);
-  color: var(--indigo);
+  background: rgba(13,148,136,0.08);
+  color: var(--teal);
   font-weight: 600;
 }
 
@@ -304,7 +323,7 @@ input::placeholder, textarea::placeholder {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--indigo), var(--indigo-dark));
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -356,7 +375,7 @@ input::placeholder, textarea::placeholder {
 .progress-fill {
   height: 100%;
   border-radius: 999px;
-  background: var(--indigo);
+  background: var(--teal);
   transition: width 0.5s ease;
 }
 
@@ -450,8 +469,8 @@ tr:hover td {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(99,102,241,0.1);
-  color: var(--indigo);
+  background: rgba(13,148,136,0.1);
+  color: var(--teal);
   font-size: 13px;
   font-weight: 600;
   padding: 6px 14px;
@@ -470,7 +489,7 @@ tr:hover td {
 }
 
 .hero h1 span {
-  color: var(--indigo);
+  color: var(--teal);
 }
 
 .hero-sub {
@@ -523,12 +542,12 @@ tr:hover td {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: rgba(99,102,241,0.1);
+  background: rgba(13,148,136,0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 16px;
-  color: var(--indigo);
+  color: var(--teal);
 }
 
 .feature-item h3 {
@@ -555,8 +574,8 @@ tr:hover td {
 }
 
 .pricing-card.featured {
-  border-color: var(--indigo);
-  box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+  border-color: var(--teal);
+  box-shadow: 0 0 0 4px rgba(13,148,136,0.1);
   position: relative;
 }
 
@@ -570,7 +589,7 @@ tr:hover td {
 .section-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--indigo);
+  color: var(--teal);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 12px;
@@ -612,11 +631,11 @@ tr:hover td {
 }
 
 .comp-winner td {
-  background: rgba(99,102,241,0.03);
+  background: rgba(13,148,136,0.03);
 }
 
 /* ── Utility ── */
-.text-indigo { color: var(--indigo); }
+.text-indigo { color: var(--teal); }
 .text-gold { color: var(--gold); }
 .text-emerald { color: var(--emerald); }
 .text-muted { color: var(--slate-400); }
@@ -654,7 +673,7 @@ tr:hover td {
 }
 
 .help-btn:hover {
-  color: var(--indigo);
+  color: var(--teal);
 }
 
 .tooltip-box {
@@ -684,7 +703,7 @@ tr:hover td {
 }
 
 .chat-bubble-user {
-  background: var(--indigo);
+  background: var(--teal);
   color: white;
   border-radius: 16px 4px 16px 16px;
   padding: 12px 16px;

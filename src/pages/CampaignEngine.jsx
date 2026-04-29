@@ -48,7 +48,7 @@ With gratitude,
           <div className="card">
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Source Grant</div>
             <div>
-              <div style={{ padding: '12px 16px', background: 'rgba(99,102,241,0.06)', border: '1.5px solid var(--indigo)', borderRadius: 10, cursor: 'pointer', marginBottom: 10 }}>
+              <div style={{ padding: '12px 16px', background: 'rgba(13,148,136,0.06)', border: '1.5px solid var(--teal)', borderRadius: 10, cursor: 'pointer', marginBottom: 10 }}>
                 <div style={{ fontWeight: 600, color: 'var(--slate-900)', fontSize: 14 }}>Lumina Catalyst Award</div>
                 <div style={{ fontSize: 12, color: 'var(--slate-500)', marginTop: 3 }}>Won · $150,000</div>
               </div>
@@ -76,7 +76,7 @@ With gratitude,
           {/* Donna Protocol */}
           <div className="card" style={{ background: 'linear-gradient(135deg, #f0f0ff 0%, #fff 100%)', border: '1px solid var(--slate-200)' }}>
             <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <Sparkles size={18} style={{ color: 'var(--indigo)', marginTop: 2, flexShrink: 0 }} />
+              <Sparkles size={18} style={{ color: 'var(--teal)', marginTop: 2, flexShrink: 0 }} />
               <div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 4 }}>Donna Protocol Active</div>
                 <p style={{ fontSize: 12, color: 'var(--slate-500)', margin: 0, lineHeight: 1.6 }}>
@@ -105,9 +105,9 @@ With gratitude,
                 style={{
                   display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px',
                   fontSize: 14, fontWeight: 600,
-                  color: tab === t.key ? 'var(--indigo)' : 'var(--slate-500)',
+                  color: tab === t.key ? 'var(--teal)' : 'var(--slate-500)',
                   background: 'none', border: 'none', cursor: 'pointer',
-                  borderBottom: `2px solid ${tab === t.key ? 'var(--indigo)' : 'transparent'}`,
+                  borderBottom: `2px solid ${tab === t.key ? 'var(--teal)' : 'transparent'}`,
                   transition: 'all 0.2s'
                 }}
               >
@@ -125,7 +125,7 @@ With gratitude,
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <span className="badge badge-emerald"><ThumbsUp size={11} /> 98% Predicted Engagement</span>
-                  <span className="badge badge-indigo">Tone: Warm & Authoritative</span>
+                  <span className="badge badge-teal">Tone: Warm & Authoritative</span>
                 </div>
               </div>
               <button className="btn btn-ghost" onClick={handleCopy} style={{ gap: 8 }}>
@@ -166,3 +166,4 @@ With gratitude,
 };
 
 export default CampaignEngine;
+

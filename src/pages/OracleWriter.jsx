@@ -30,7 +30,7 @@ const OracleWriter = () => {
               <div className="progress-fill" style={{ width: '65%' }}></div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--slate-500)' }}>
-              <span>Completion</span><span style={{ fontWeight: 600, color: 'var(--indigo)' }}>65%</span>
+              <span>Completion</span><span style={{ fontWeight: 600, color: 'var(--teal)' }}>65%</span>
             </div>
           </div>
 
@@ -77,7 +77,7 @@ const OracleWriter = () => {
               </button>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button className="badge badge-indigo" style={{ cursor: 'pointer' }}>Tone: Persuasive</button>
+              <button className="badge badge-teal" style={{ cursor: 'pointer' }}>Tone: Persuasive</button>
               <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
                 <Zap size={14} /> AI Audit
               </button>
@@ -106,7 +106,7 @@ const OracleWriter = () => {
                 {chatMessages.map((msg, i) => (
                   <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
                     {msg.role === 'ai' && (
-                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--indigo) 0%, #4338ca 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Sparkles size={15} style={{ color: 'white' }} />
                       </div>
                     )}
@@ -138,3 +138,4 @@ const OracleWriter = () => {
 };
 
 export default OracleWriter;
+

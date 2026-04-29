@@ -51,3 +51,4 @@ const HelpTooltip = ({ title, content, defaultOpen = false }) => {
 };
 
 export default HelpTooltip;
+

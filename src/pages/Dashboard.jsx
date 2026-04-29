@@ -11,7 +11,7 @@ const grants = [
 
 const StatusBadge = ({ status }) => {
   const map = {
-    'In Progress': { bg: 'rgba(99,102,241,0.1)', color: 'var(--indigo)' },
+    'In Progress': { bg: 'rgba(13,148,136,0.1)', color: 'var(--teal)' },
     'Submitted': { bg: 'rgba(16,185,129,0.1)', color: 'var(--emerald)' },
     'Draft': { bg: 'rgba(245,158,11,0.1)', color: 'var(--gold)' },
     'Research': { bg: 'var(--slate-100)', color: 'var(--slate-500)' },
@@ -79,7 +79,7 @@ const Dashboard = () => {
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div className="progress-bar" style={{ width: 60 }}>
-                          <div className="progress-fill" style={{ width: `${g.match}%`, background: g.match > 90 ? 'var(--emerald)' : 'var(--indigo)' }}></div>
+                          <div className="progress-fill" style={{ width: `${g.match}%`, background: g.match > 90 ? 'var(--emerald)' : 'var(--teal)' }}></div>
                         </div>
                         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-700)' }}>{g.match}%</span>
                       </div>
@@ -129,7 +129,7 @@ const Dashboard = () => {
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <Clock size={16} style={{ color: 'var(--indigo)', marginTop: 2, flexShrink: 0 }} />
+                <Clock size={16} style={{ color: 'var(--teal)', marginTop: 2, flexShrink: 0 }} />
                 <p style={{ fontSize: 13, color: 'var(--slate-600)', margin: 0 }}>
                   Vault sync required — upload your <strong style={{ color: 'var(--slate-800)' }}>2025 Audit</strong>.
                 </p>
@@ -137,18 +137,21 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Oracle Status */}
-          <div className="card" style={{ background: 'linear-gradient(135deg, var(--indigo) 0%, #4338ca 100%)', border: 'none' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Oracle Active</p>
-                <p style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: 0 }}>Scanning Funders</p>
+          {/* Oracle Status with Nano Banner */}
+          <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow)' }}>
+            <img src="/nano-intelligence.png" alt="Oracle Intelligence" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} />
+            <div style={{ background: 'linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)', padding: '18px 22px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Oracle Active</p>
+                  <p style={{ fontSize: 19, fontWeight: 700, color: 'white', margin: 0 }}>Scanning Funders</p>
+                </div>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 0 3px rgba(74,222,128,0.3)', marginTop: 4 }}></div>
               </div>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 0 3px rgba(74,222,128,0.3)', marginTop: 4 }}></div>
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 10, marginBottom: 0 }}>
+                847 foundations analyzed · 23 new matches
+              </p>
             </div>
-            <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 12 }}>
-              847 foundations analyzed · 23 new matches
-            </p>
           </div>
         </div>
       </div>
@@ -157,3 +160,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

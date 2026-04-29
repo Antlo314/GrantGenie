@@ -72,3 +72,4 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
 };
 
 export default AppLayout;
+

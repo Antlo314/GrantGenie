@@ -10,3 +10,4 @@ const GlassCard = ({ children, className = '', interactive = false, ...props }) 
 };
 
 export default GlassCard;
+

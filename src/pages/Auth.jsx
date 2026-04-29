@@ -23,7 +23,7 @@ const Auth = () => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 40 }}>
             <img src="/logo.png" alt="Grant Genie" style={{ width: 36, height: 36, objectFit: 'contain' }} />
             <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--slate-900)' }}>
-              Grant <span style={{ color: 'var(--indigo)' }}>Genie</span>
+              Grant <span style={{ color: 'var(--teal)' }}>Genie</span>
             </span>
           </div>
 
@@ -94,7 +94,7 @@ const Auth = () => {
               {isLogin ? "Don't have an account? " : 'Already have an account? '}
               <button
                 onClick={() => setIsLogin(!isLogin)}
-                style={{ color: 'var(--indigo)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14 }}
+                style={{ color: 'var(--teal)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: 14 }}
               >
                 {isLogin ? 'Sign up free' : 'Sign in'}
               </button>
@@ -106,7 +106,7 @@ const Auth = () => {
       {/* Right panel */}
       <div style={{
         flex: 1,
-        background: 'linear-gradient(135deg, var(--indigo) 0%, #4338ca 100%)',
+        background: 'linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -140,3 +140,4 @@ const Auth = () => {
 };
 
 export default Auth;
+
