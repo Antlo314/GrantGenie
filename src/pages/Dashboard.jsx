@@ -1,34 +1,48 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Navbar from '../components/Navbar';
 import GlassCard from '../components/GlassCard';
 import HelpTooltip from '../components/HelpTooltip';
+import gsap from 'gsap';
 import { Target, TrendingUp, AlertCircle, Clock, Zap, FileSignature, ArrowRight } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const cardsRef = useRef([]);
+
+  useEffect(() => {
+    gsap.fromTo(cardsRef.current, 
+      { opacity: 0, y: 30, scale: 0.9 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.8, stagger: 0.1, ease: "power4.out" }
+    );
+  }, []);
+
   return (
     <div className="page-container">
       <Navbar title="Command Center" />
       
       <div className="page-content animate-fade-in">
-        <div className="dashboard-header-premium flex items-center justify-between">
-          <div>
-            <h1 className="hero-greeting font-display flex items-center">
-              Welcome back, <span className="text-gold glow-text ml-2">Director</span>.
+        <div className="dashboard-header-premium flex items-center justify-between mb-8">
+          <div className="max-w-2xl">
+            <h1 className="hero-greeting font-display text-4xl md:text-5xl tracking-tight leading-tight flex items-center flex-wrap gap-2">
+              Welcome back, <span className="text-gold glow-text">Director</span>.
               <HelpTooltip 
                 title="Getting Started" 
                 content="This is your Command Center. From here, you can monitor your active AI drafts, track secured funding, and review Geni Insights. Use the dock at the bottom to navigate."
                 defaultOpen={true}
               />
             </h1>
-            <p className="hero-subtext text-secondary">Your AI-driven pipeline is operating at peak efficiency.</p>
+            <p className="hero-subtext text-secondary mt-2 text-lg">Your AI-driven pipeline is operating at peak efficiency.</p>
           </div>
         </div>
 
         <div className="bento-grid">
           
           {/* Main Focus Tile */}
-          <GlassCard className="bento-tile bento-main interactive" interactive>
+          <GlassCard 
+            ref={el => cardsRef.current[0] = el}
+            className="bento-tile bento-main interactive" 
+            interactive
+          >
             <div className="tile-content h-full flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-4">
@@ -56,7 +70,10 @@ const Dashboard = () => {
           </GlassCard>
 
           {/* Metric Tile 1 */}
-          <GlassCard className="bento-tile bento-metric">
+          <GlassCard 
+            ref={el => cardsRef.current[1] = el}
+            className="bento-tile bento-metric"
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-muted text-sm uppercase tracking-widest">Secured YTD</span>
               <TrendingUp className="text-emerald" size={20} />
@@ -66,7 +83,10 @@ const Dashboard = () => {
           </GlassCard>
 
           {/* Metric Tile 2 */}
-          <GlassCard className="bento-tile bento-metric">
+          <GlassCard 
+            ref={el => cardsRef.current[2] = el}
+            className="bento-tile bento-metric"
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-muted text-sm uppercase tracking-widest">Active Oracles</span>
               <FileSignature className="text-gold" size={20} />
@@ -76,7 +96,10 @@ const Dashboard = () => {
           </GlassCard>
 
           {/* Activity Tile */}
-          <GlassCard className="bento-tile bento-activity interactive">
+          <GlassCard 
+            ref={el => cardsRef.current[3] = el}
+            className="bento-tile bento-activity interactive"
+          >
             <div className="flex items-center justify-between mb-4">
               <h4 className="font-display text-lg">Recent Audits</h4>
               <button className="btn-ghost p-1"><ArrowRight size={18} /></button>
@@ -104,7 +127,10 @@ const Dashboard = () => {
           </GlassCard>
 
           {/* Insights Tile */}
-          <GlassCard className="bento-tile bento-insights">
+          <GlassCard 
+            ref={el => cardsRef.current[4] = el}
+            className="bento-tile bento-insights"
+          >
             <h4 className="font-display text-lg mb-4">Genie Insights</h4>
             <div className="insight-row">
               <AlertCircle className="text-gold shrink-0 mt-1" size={18} />

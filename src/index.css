@@ -140,49 +140,74 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.5;
 }
 
-/* Button Styles */
+/* Button Styles - Enterprise Fluid Pill */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.75rem;
-  border-radius: 999px; /* Pill buttons for premium feel */
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 999px;
+  font-weight: 600;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   gap: 0.5rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #e5c453 0%, #b8962e 100%);
+  background: linear-gradient(135deg, #d4af37 0%, #9a7b1c 100%);
   color: #000;
-  box-shadow: 0 8px 20px -4px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -4px rgba(212, 175, 55, 0.6);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
   background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 100%);
 }
 
 .btn-outline {
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--color-accent-gold);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(212, 175, 55, 0.5);
   color: var(--color-accent-gold);
+  backdrop-filter: blur(10px);
 }
 
 .btn-outline:hover {
-  background: var(--color-accent-gold-glow);
-  box-shadow: var(--shadow-gold);
+  background: rgba(212, 175, 55, 0.1);
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.15);
 }
 
-.btn-ghost {
-  color: var(--color-text-secondary);
+/* Fix "Old OS" Input/Select Styles */
+input, select, textarea {
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1rem !important;
+  outline: none !important;
+  transition: all 0.3s ease !important;
+  font-family: var(--font-sans) !important;
 }
 
-.btn-ghost:hover {
-  color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.05);
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-accent-gold) !important;
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.1) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Enterprise Text Scaling */
+.font-display { font-family: var(--font-display); }
+.tracking-tight { letter-spacing: -0.03em; }
+.tracking-widest { letter-spacing: 0.1em; }
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
 /* Cinematic Layout Structure */
