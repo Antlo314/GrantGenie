@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar';
 import GlassCard from '../components/GlassCard';
 import HelpTooltip from '../components/HelpTooltip';
 import gsap from 'gsap';
-import { Target, TrendingUp, AlertCircle, Clock, Zap, FileSignature, ArrowRight } from 'lucide-react';
+import { Target, TrendingUp, AlertCircle, Clock, Zap, FileSignature, ArrowRight, Sparkles, Shield } from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {

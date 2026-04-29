@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Shield, Infinity, Database } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Infinity, Database, Sparkles } from 'lucide-react';
+import GlassCard from '../components/GlassCard';
 import './LandingPage.css';
 
 const LandingPage = () => {

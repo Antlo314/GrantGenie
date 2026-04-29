@@ -22,28 +22,28 @@ const HelpTooltip = ({ title, content, defaultOpen = false }) => {
   return (
     <div className="relative inline-flex items-center ml-4">
       <button 
-        className="help-icon-btn text-gold/60 hover:text-gold transition-all duration-300"
+        className="help-icon-btn text-periwinkle/40 hover:text-periwinkle transition-all duration-300"
         onClick={() => setIsOpen(!isOpen)}
         title="Help"
       >
-        <HelpCircle size={18} />
+        <HelpCircle size={22} />
       </button>
 
       {isOpen && (
         <div 
           ref={tooltipRef}
-          className="help-popover glass-panel absolute z-[100] p-5 w-72 left-0 top-full mt-4"
+          className="help-popover glass-card absolute z-[100] p-6 w-80 left-0 top-full mt-6 shadow-2xl border-periwinkle/20"
         >
-          <div className="flex justify-between items-start mb-3">
-            <h5 className="font-display text-sm font-bold text-gold tracking-widest uppercase">{title}</h5>
+          <div className="flex justify-between items-start mb-4">
+            <h5 className="text-xs-caps text-periwinkle">{title}</h5>
             <button 
-              className="text-muted hover:text-white transition-colors"
+              className="text-secondary hover:text-primary transition-colors"
               onClick={() => setIsDismissed(true)}
             >
-              <X size={14} />
+              <X size={16} />
             </button>
           </div>
-          <p className="text-xs text-secondary leading-relaxed font-sans">{content}</p>
+          <p className="text-sm text-secondary leading-relaxed font-sans">{content}</p>
         </div>
       )}
     </div>
