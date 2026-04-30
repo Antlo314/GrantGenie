@@ -47,10 +47,10 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero with Nano Banner */}
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
-        <img src="/nano-hero.png" alt="" style={{ width: '100%', height: 320, objectFit: 'cover', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,1) 100%)' }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 40, textAlign: 'center', padding: '100px 24px 60px' }}>
+      <div className="section-padding" style={{ position: 'relative', overflow: 'hidden', minHeight: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 60, paddingTop: 100, textAlign: 'center' }}>
+        <img src="/nano-hero.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', zIndex: 0 }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,1) 100%)', zIndex: 1 }} />
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 999, marginBottom: 20, boxShadow: '0 2px 8px rgba(255,255,255,0.8)' }}>
             <Zap size={14} /> Built to beat Instrumentl, Vee & GrantAssistant
           </div>

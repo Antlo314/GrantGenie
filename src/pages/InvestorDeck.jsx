@@ -45,15 +45,16 @@ const InvestorDeck = () => {
       <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 64 }}>
 
         {/* Hero Slide with Nano Banner */}
-        <section style={{ borderRadius: 24, overflow: 'hidden', position: 'relative', color: 'white' }}>
-          <img src="/nano-hero.png" alt="" style={{ width: '100%', height: 360, objectFit: 'cover', display: 'block' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(13,148,136,0.92) 0%, rgba(15,118,110,0.88) 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 40px' }}>
+        <section style={{ borderRadius: 24, overflow: 'hidden', position: 'relative', color: 'white', minHeight: 360, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 24px' }}>
+          <img src="/nano-hero.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', zIndex: 0 }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(13,148,136,0.92) 0%, rgba(15,118,110,0.88) 100%)', zIndex: 1 }} />
+          <div style={{ position: 'relative', zIndex: 2 }}>
             <p style={{ fontSize: 13, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.6)', marginBottom: 16 }}>Seed Round · 2026</p>
             <h1 style={{ fontSize: 'clamp(36px, 5vw, 64px)', fontWeight: 800, color: 'white', letterSpacing: '-0.03em', marginBottom: 20 }}>Grant Genie</h1>
             <p style={{ fontSize: 20, color: 'rgba(255,255,255,0.85)', maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.7 }}>
               The world's first <strong style={{ color: 'white' }}>infinite-capacity</strong> grant operating system. Automating the $50B nonprofit funding sector with multi-agent AI.
             </p>
-            <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
               {[['$10K', 'Seed Ask'], ['$30K', 'MRR Target'], ['98%', 'Gross Margin']].map(([v, l]) => (
                 <div key={l} style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '16px 32px', textAlign: 'center', backdropFilter: 'blur(8px)' }}>
                   <div style={{ fontSize: 28, fontWeight: 800, color: 'white' }}>{v}</div>
@@ -73,8 +74,8 @@ const InvestorDeck = () => {
           {comparisons.map((section, si) => (
             <div key={si} style={{ marginBottom: 32 }}>
               <div style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--slate-400)', marginBottom: 8, paddingLeft: 8 }}>{section.category}</div>
-              <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--slate-200)', overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div className="comparison-table-wrap" style={{ background: 'white', borderRadius: 16, border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 600 }}>
                   <thead>
                     <tr>
                       <th style={{ padding: '14px 20px', textAlign: 'left', fontSize: 12, fontWeight: 600, color: 'var(--slate-500)', background: 'var(--slate-50)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid var(--slate-200)' }}>Feature</th>
@@ -108,7 +109,7 @@ const InvestorDeck = () => {
         <section>
           <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Financial Model</p>
           <h2 style={{ fontSize: 36, fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: 40 }}>The Road to $30K MRR</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 40 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20, marginBottom: 40 }}>
             {[
               { icon: <DollarSign size={20} />, label: 'Cost per Grant', value: '$0.02', sub: 'API token cost' },
               { icon: <TrendingUp size={20} />, label: 'Gross Margin', value: '98%', sub: 'At $150/mo tier' },
@@ -127,7 +128,7 @@ const InvestorDeck = () => {
           {/* MRR Path */}
           <div className="card">
             <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 20 }}>Acquisition Path</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 20 }}>
               {[
                 { step: '01', title: 'Disrupt', desc: 'Target $299/mo Instrumentl users. Win with price ($150) and unlimited capacity.', target: '100 users · $15K MRR' },
                 { step: '02', title: 'Upsell', desc: 'Convert power users to $299 Enterprise with BYOK, team features, and white-label.', target: '50 users · $15K MRR' },
@@ -174,11 +175,11 @@ const InvestorDeck = () => {
         </section>
 
         {/* Equity Opportunity */}
-        <section style={{ background: 'linear-gradient(135deg, var(--slate-900) 0%, #0f172a 100%)', borderRadius: 24, padding: '60px 48px', color: 'white', border: '1px solid rgba(255,255,255,0.1)', position: 'relative', overflow: 'hidden' }}>
+        <section style={{ background: 'linear-gradient(135deg, var(--slate-900) 0%, #0f172a 100%)', borderRadius: 24, padding: 'min(60px, var(--main-padding)) var(--main-padding)', color: 'white', border: '1px solid rgba(255,255,255,0.1)', position: 'relative', overflow: 'hidden' }}>
           {/* Accent Glow */}
           <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: 300, height: 300, background: 'var(--teal)', filter: 'blur(100px)', opacity: 0.1, pointerEvents: 'none' }} />
           
-          <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+          <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: 40, alignItems: 'center' }}>
             <div>
               <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 16 }}>Early Adopter Round</p>
               <h2 style={{ fontSize: 40, fontWeight: 800, color: 'white', marginBottom: 20, letterSpacing: '-0.03em', lineHeight: 1.1 }}>Founding Investor <br />Equity Opportunity</h2>
@@ -194,14 +195,14 @@ const InvestorDeck = () => {
                   'Priority access to future funding rounds'
                 ].map((item, i) => (
                   <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 15, color: 'var(--slate-300)' }}>
-                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(13,148,136,0.2)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>✓</div>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(13,148,136,0.2)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, flexShrink: 0 }}>✓</div>
                     {item}
                   </div>
                 ))}
               </div>
             </div>
             
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: 40, textAlign: 'center', backdropFilter: 'blur(12px)' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: 'min(40px, var(--main-padding))', textAlign: 'center', backdropFilter: 'blur(12px)' }}>
               <div style={{ fontSize: 14, color: 'var(--slate-400)', marginBottom: 8, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current Valuation Multiplier</div>
               <div style={{ fontSize: 64, fontWeight: 800, color: 'white', marginBottom: 8, letterSpacing: '-0.04em' }}>10.0x</div>
               <p style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginBottom: 32 }}>Targeting Series A in Q4 2026</p>
