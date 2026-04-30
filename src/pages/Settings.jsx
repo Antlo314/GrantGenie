@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import GlassCard from '../components/GlassCard';
-import { Settings as SettingsIcon, Key, Server, Cpu, CheckCircle, Info } from 'lucide-react';
-import './Settings.css';
+import React, { useState } from 'react';
+import AppLayout from '../components/AppLayout';
+import { Key, Server, Cpu, CheckCircle, Info, Zap } from 'lucide-react';
 
 const Settings = () => {
   const [keys, setKeys] = useState({
@@ -25,117 +23,110 @@ const Settings = () => {
   const isUsingDefaultGemini = !keys.gemini && import.meta.env.VITE_GEMINI_API_KEY;
 
   return (
-    <div className="page-container">
-      <Navbar title="System Configuration" />
-      
-      <div className="page-content settings-layout animate-fade-in">
-        <div className="settings-header">
-          <div className="vault-title">
-            <SettingsIcon className="text-gold glow-text" size={36} />
-            <div>
-              <h2 className="font-display text-3xl">BYOK Architecture</h2>
-              <p className="text-secondary">Bring Your Own Key. Pay fractions of a cent per grant directly to the AI provider. Zero markup.</p>
-            </div>
-          </div>
+    <AppLayout title="System Configuration">
+      <div style={{ maxWidth: 1000, margin: '0 auto' }} className="animate-fade-in">
+        <div style={{ marginBottom: 32 }}>
+          <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 8 }}>BYOK Architecture</h2>
+          <p style={{ color: 'var(--slate-500)', fontSize: 16 }}>Bring Your Own Key. Pay fractions of a cent per grant directly to the AI provider. Zero markup.</p>
         </div>
 
-        <div className="settings-grid mt-8">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' }}>
           
-          <GlassCard className="settings-card">
-            <h3 className="font-display text-xl mb-6 flex items-center gap-2">
+          <div className="card">
+            <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
               <Key className="text-gold" size={20} /> Neural Network Keys
             </h3>
 
-            <form onSubmit={handleSave} className="flex flex-col gap-6">
-              {/* Gemini Key - Hybrid Support */}
-              <div className="input-group">
-                <label className="text-xs uppercase tracking-widest text-muted mb-2 block flex items-center justify-between">
+            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {/* Gemini Key */}
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
                   <span>Google Gemini API Key (1.5 Flash)</span>
                   {keys.gemini ? (
-                    <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> User Key Active</span>
+                    <span style={{ color: 'var(--emerald)', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle size={12}/> User Key Active</span>
                   ) : isUsingDefaultGemini ? (
-                    <span className="text-blue-400 flex items-center gap-1"><Info size={12}/> System Default Active</span>
+                    <span style={{ color: 'var(--teal)', display: 'flex', alignItems: 'center', gap: 4 }}><Info size={12}/> System Default Active</span>
                   ) : (
-                    <span className="text-slate-500">Not Configured</span>
+                    <span>Not Configured</span>
                   )}
                 </label>
-                <div className="auth-input-wrapper">
-                  <input 
-                    type="password" 
-                    className="auth-input font-mono" 
-                    placeholder="Enter your Gemini key..."
-                    value={keys.gemini}
-                    onChange={(e) => setKeys({...keys, gemini: e.target.value})}
-                  />
-                </div>
-                <p className="text-xs text-secondary mt-1">Recommended for high-volume document analysis and long-context grants.</p>
+                <input 
+                  type="password" 
+                  placeholder="Enter your Gemini key..."
+                  value={keys.gemini}
+                  onChange={(e) => setKeys({...keys, gemini: e.target.value})}
+                  style={{ fontFamily: 'monospace' }}
+                />
+                <p style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 8 }}>Recommended for high-volume document analysis and long-context grants.</p>
               </div>
 
-              <div className="input-group">
-                <label className="text-xs uppercase tracking-widest text-muted mb-2 block flex items-center justify-between">
+              {/* OpenAI Key */}
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
                   <span>OpenAI API Key (GPT-4o)</span>
-                  {keys.openai && <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> Active</span>}
+                  {keys.openai && <span style={{ color: 'var(--emerald)', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle size={12}/> Active</span>}
                 </label>
-                <div className="auth-input-wrapper">
-                  <input 
-                    type="password" 
-                    className="auth-input font-mono" 
-                    placeholder="sk-proj-..."
-                    value={keys.openai}
-                    onChange={(e) => setKeys({...keys, openai: e.target.value})}
-                  />
-                </div>
-                <p className="text-xs text-secondary mt-1">Used for Campaign Engine and fast generation.</p>
+                <input 
+                  type="password" 
+                  placeholder="sk-proj-..."
+                  value={keys.openai}
+                  onChange={(e) => setKeys({...keys, openai: e.target.value})}
+                  style={{ fontFamily: 'monospace' }}
+                />
+                <p style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 8 }}>Used for Campaign Engine and fast generation.</p>
               </div>
 
-              <div className="input-group">
-                <label className="text-xs uppercase tracking-widest text-muted mb-2 block flex items-center justify-between">
+              {/* Anthropic Key */}
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, display: 'flex', justifyContent: 'space-between' }}>
                   <span>Anthropic API Key (Claude 3.5 Sonnet)</span>
-                  {keys.anthropic && <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> Active</span>}
+                  {keys.anthropic && <span style={{ color: 'var(--emerald)', display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle size={12}/> Active</span>}
                 </label>
-                <div className="auth-input-wrapper">
-                  <input 
-                    type="password" 
-                    className="auth-input font-mono" 
-                    placeholder="sk-ant-..."
-                    value={keys.anthropic}
-                    onChange={(e) => setKeys({...keys, anthropic: e.target.value})}
-                  />
-                </div>
-                <p className="text-xs text-secondary mt-1">Recommended for deep narrative grant writing (Oracle Writer).</p>
+                <input 
+                  type="password" 
+                  placeholder="sk-ant-..."
+                  value={keys.anthropic}
+                  onChange={(e) => setKeys({...keys, anthropic: e.target.value})}
+                  style={{ fontFamily: 'monospace' }}
+                />
+                <p style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 8 }}>Recommended for deep narrative grant writing (Oracle Writer).</p>
               </div>
 
-              <button type="submit" className="btn btn-primary w-max mt-4">
+              <button type="submit" className="btn btn-primary" style={{ width: 'max-content', marginTop: 8 }}>
                 {saved ? 'Configuration Saved' : 'Update Architecture'}
               </button>
             </form>
-          </GlassCard>
+          </div>
 
-          <div className="flex flex-col gap-6">
-            <GlassCard className="settings-info-card">
-              <Server className="text-emerald mb-3" size={24} />
-              <h4 className="font-display text-lg mb-2">Local-First Storage</h4>
-              <p className="text-sm text-secondary leading-relaxed">
-                All data, including your API keys and Vault documents, are encrypted and stored locally in your browser environment. Grant Genie servers never see your keys or your proprietary organizational data.
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="card" style={{ background: 'var(--slate-50)', borderColor: 'var(--slate-200)' }}>
+              <Server className="text-emerald" size={24} style={{ marginBottom: 16 }} />
+              <h4 style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 8 }}>Local-First Storage</h4>
+              <p style={{ fontSize: 13, color: 'var(--slate-600)', lineHeight: 1.6 }}>
+                All data, including your API keys and Vault documents, are encrypted and stored locally in your browser environment. Grant Genie servers never see your keys.
               </p>
-            </GlassCard>
+            </div>
 
-            <GlassCard className="settings-info-card">
-              <Cpu className="text-blue-400 mb-3" size={24} />
-              <h4 className="font-display text-lg mb-2">Cost Analysis vs Vee.com</h4>
-              <p style={{ color: 'var(--slate-400)', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' }}>
-                Vee.com charges $249/mo for 1 grant. Using your own OpenAI key, a 2,000-word grant costs approximately <strong>$0.03</strong> in API compute.
+            <div className="card" style={{ background: 'linear-gradient(135deg, var(--slate-900) 0%, #0f172a 100%)', color: 'white', borderColor: 'rgba(255,255,255,0.1)' }}>
+              <Cpu style={{ color: 'var(--gold)', marginBottom: 16 }} size={24} />
+              <h4 style={{ fontSize: 16, fontWeight: 700, color: 'white', marginBottom: 8 }}>Cost Analysis vs Vee</h4>
+              <p style={{ color: 'var(--slate-400)', fontSize: 13, lineHeight: 1.6, marginBottom: 16 }}>
+                Vee.com charges $249/mo for 1 grant. Using your own API key, a 2,000-word grant costs approximately <strong>$0.03</strong>.
               </p>
-              <div className="p-3 bg-white/5 border border-white/10 rounded-md flex justify-between items-center text-sm">
-                <span>Estimated Monthly Savings</span>
-                <span className="text-emerald font-bold font-display text-lg">99.9%</span>
+              <div style={{ padding: 12, background: 'rgba(255,255,255,0.05)', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--slate-400)' }}>Estimated Savings</span>
+                <span style={{ color: 'var(--emerald)', fontWeight: 800, fontSize: 18 }}>99.9%</span>
               </div>
-            </GlassCard>
+            </div>
           </div>
 
         </div>
       </div>
-    </div>
+    </AppLayout>
+  );
+};
+
+export default Settings;
   );
 };
 

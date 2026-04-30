@@ -1,18 +1,63 @@
 import React, { useState } from 'react';
 import AppLayout from '../components/AppLayout';
-import { Send, Sparkles, Type, MessageSquare, CheckCircle, Save, Zap, ChevronRight } from 'lucide-react';
+import { Send, Sparkles, Type, MessageSquare, CheckCircle, Save, Zap, Loader2 } from 'lucide-react';
+import { askGemini } from '../utils/ai';
 
 const OracleWriter = () => {
   const [mode, setMode] = useState('editor');
+  const [draft, setDraft] = useState(`Our organization stands at the vanguard of educational equity, recognizing that access to technology is not merely a convenience, but a fundamental right in the 21st century.\n\nDrawing upon our successful 2025 Impact Report, which demonstrated a 40% increase in digital literacy among our target demographic, we are positioned to scale our "Tech-Forward Youth" initiative across 14 Title I school districts.\n\nWith the support of the Lumina Foundation Catalyst Grant, we will deploy 500 new interactive learning terminals, train 120 educators in digital pedagogy, and extend our proven curriculum to reach an additional 8,500 students over the next program year.`);
   const [chatMessages, setChatMessages] = useState([
     { role: 'ai', text: "I've loaded the Lumina Foundation rubric and your 2025 Impact Report. I can help you draft, refine tone, or strengthen specific sections. Where would you like to start?" }
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    setChatMessages(prev => [...prev, { role: 'user', text: input }, { role: 'ai', text: "Great direction. I'll strengthen that paragraph with specific metrics from your Impact Report to align with Lumina's equity-focused rubric..." }]);
+  const sendMessage = async () => {
+    if (!input.trim() || loading) return;
+    
+    const userMessage = input;
     setInput('');
+    setChatMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    setLoading(true);
+
+    try {
+      const prompt = `
+        You are the Grant Genie Oracle, an expert grant writer.
+        Current Grant: Lumina Catalyst Grant ($150,000)
+        Current Draft:
+        "${draft}"
+        
+        User Request: "${userMessage}"
+        
+        Please provide a helpful, expert response. If the user asks to rewrite or improve, provide the revised text and explain why it's better.
+        Keep your tone professional and encouraging.
+      `;
+      
+      const response = await askGemini(prompt);
+      setChatMessages(prev => [...prev, { role: 'ai', text: response }]);
+    } catch (error) {
+      setChatMessages(prev => [...prev, { role: 'ai', text: "Sorry, I encountered an error: " + error.message }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAudit = async () => {
+    setLoading(true);
+    setMode('chat');
+    try {
+      const response = await askGemini(`
+        Perform a professional "AI Audit" on the following grant draft for the Lumina Catalyst Grant:
+        "${draft}"
+        
+        Identify 3 strengths and 3 areas for improvement based on standard nonprofit funding rubrics.
+      `);
+      setChatMessages(prev => [...prev, { role: 'ai', text: response }]);
+    } catch (error) {
+      alert("Audit failed: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -78,8 +123,8 @@ const OracleWriter = () => {
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="badge badge-teal" style={{ cursor: 'pointer' }}>Tone: Persuasive</button>
-              <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 13 }}>
-                <Zap size={14} /> AI Audit
+              <button className="btn btn-primary" style={{ padding: '8px 16px', fontSize: 13 }} onClick={handleAudit} disabled={loading}>
+                {loading ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />} AI Audit
               </button>
             </div>
           </div>
@@ -98,13 +143,14 @@ const OracleWriter = () => {
                 fontFamily: 'Georgia, serif',
                 background: 'white',
               }}
-              defaultValue={`Our organization stands at the vanguard of educational equity, recognizing that access to technology is not merely a convenience, but a fundamental right in the 21st century.\n\nDrawing upon our successful 2025 Impact Report, which demonstrated a 40% increase in digital literacy among our target demographic, we are positioned to scale our "Tech-Forward Youth" initiative across 14 Title I school districts.\n\nWith the support of the Lumina Foundation Catalyst Grant, we will deploy 500 new interactive learning terminals, train 120 educators in digital pedagogy, and extend our proven curriculum to reach an additional 8,500 students over the next program year.`}
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
             />
           ) : (
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
               <div style={{ flex: 1, overflowY: 'auto', padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {chatMessages.map((msg, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }}>
+                  <div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', flexDirection: msg.role === 'user' ? 'row-reverse' : 'row' }} className="animate-fade-in">
                     {msg.role === 'ai' && (
                       <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <Sparkles size={15} style={{ color: 'white' }} />
@@ -115,6 +161,14 @@ const OracleWriter = () => {
                     </div>
                   </div>
                 ))}
+                {loading && (
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--slate-200)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Loader2 size={15} className="animate-spin text-slate-400" />
+                    </div>
+                    <span style={{ fontSize: 13, color: 'var(--slate-400)' }}>Oracle is thinking...</span>
+                  </div>
+                )}
               </div>
               <div style={{ padding: '16px 24px', borderTop: '1px solid var(--slate-200)', display: 'flex', gap: 12 }}>
                 <input
@@ -124,8 +178,9 @@ const OracleWriter = () => {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && sendMessage()}
                   style={{ flex: 1 }}
+                  disabled={loading}
                 />
-                <button className="btn btn-primary" onClick={sendMessage} style={{ padding: '10px 16px' }}>
+                <button className="btn btn-primary" onClick={sendMessage} style={{ padding: '10px 16px' }} disabled={loading || !input.trim()}>
                   <Send size={16} />
                 </button>
               </div>

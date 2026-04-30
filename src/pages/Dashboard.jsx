@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { TrendingUp, FileText, Search, Zap, ArrowRight, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -25,10 +26,12 @@ const StatusBadge = ({ status }) => {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+
   return (
     <AppLayout title="Dashboard">
       {/* Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }} className="desktop-only">
         <div className="stat-card">
           <div className="stat-label">Total Secured (YTD)</div>
           <div className="stat-value">$1.47M</div>
@@ -51,15 +54,15 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
         {/* Active Grants Table */}
-        <div>
+        <div style={{ gridColumn: 'span 2' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--slate-900)' }}>Active Grant Pipeline</h2>
             <button className="btn btn-ghost" style={{ fontSize: 13 }}>View All <ArrowRight size={14} /></button>
           </div>
-          <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--slate-200)', overflow: 'hidden' }}>
-            <table>
+          <div style={{ background: 'white', borderRadius: 16, border: '1px solid var(--slate-200)', overflowX: 'auto' }}>
+            <table style={{ minWidth: 600 }}>
               <thead>
                 <tr>
                   <th>Grant / Funder</th>
@@ -71,7 +74,7 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {grants.map((g, i) => (
-                  <tr key={i} style={{ cursor: 'pointer' }}>
+                  <tr key={i} style={{ cursor: 'pointer' }} onClick={() => navigate('/oracle')}>
                     <td>
                       <div style={{ fontWeight: 600, color: 'var(--slate-900)', fontSize: 14 }}>{g.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--slate-400)', marginTop: 2 }}>{g.funder}</div>
@@ -100,17 +103,20 @@ const Dashboard = () => {
           <div className="card">
             <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 16 }}>Quick Actions</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }}>
+              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }} onClick={() => navigate('/oracle')}>
                 <Zap size={16} /> Start New Grant Draft
               </button>
-              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }}>
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }} onClick={() => navigate('/radar')}>
                 <Search size={16} /> Discover Funders
               </button>
-              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }}>
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }} onClick={() => navigate('/campaigns')}>
                 <FileText size={16} /> Generate Impact Report
               </button>
             </div>
           </div>
+
+          {/* Oracle Interactive Analysis */}
+          <OracleAnalysisCard />
 
           {/* Alerts */}
           <div className="card">
@@ -136,9 +142,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
-          {/* Oracle Interactive Analysis */}
-          <OracleAnalysisCard />
         </div>
       </div>
     </AppLayout>
@@ -151,6 +154,7 @@ const OracleAnalysisCard = () => {
   const [output, setOutput] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const navigate = useNavigate();
 
   const handleAnalyze = async () => {
     if (!input.trim()) return;
@@ -196,31 +200,14 @@ const OracleAnalysisCard = () => {
               <button 
                 className="btn btn-primary" 
                 style={{ flex: 1, fontSize: 12 }} 
-                onClick={async () => {
-                  setLoading(true);
-                  try {
-                    const { askGemini } = await import('../utils/ai');
-                    const draft = await askGemini(`
-                      Based on this grant concept: "${input}", generate a professional 3-paragraph "Executive Summary" for a grant proposal.
-                      Include an 'Introduction', 'Community Impact', and 'Proposed Solution'.
-                      Use formal grant-writing tone.
-                    `);
-                    setOutput(draft);
-                  } catch (err) {
-                    setError(err.message);
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                disabled={loading}
+                onClick={() => navigate('/oracle')}
               >
-                {loading ? 'Drafting...' : 'One-Click Draft'}
+                Draft Full Proposal
               </button>
               <button 
                 className="btn btn-ghost" 
                 style={{ flex: 1, fontSize: 12 }} 
                 onClick={() => { setOutput(''); setInput(''); }}
-                disabled={loading}
               >
                 Reset
               </button>
@@ -260,4 +247,3 @@ const OracleAnalysisCard = () => {
 };
 
 export default Dashboard;
-

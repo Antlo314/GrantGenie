@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
-import GlassCard from '../components/GlassCard';
-import { Filter, Star, Zap, Activity, X, Heart } from 'lucide-react';
-import './DiscoveryRadar.css';
+import AppLayout from '../components/AppLayout';
+import { Search, Zap, Activity, Heart, X, Filter, Loader2, Sparkles } from 'lucide-react';
+import { askGemini } from '../utils/ai';
 
 const DiscoveryRadar = () => {
-  const [activeTab, setActiveTab] = useState('All Matches');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const grants = [
+  const [loading, setLoading] = useState(false);
+  const [grants, setGrants] = useState([
     {
       id: 1,
       title: 'Lumina Foundation Catalyst Fund',
@@ -30,152 +27,100 @@ const DiscoveryRadar = () => {
       tags: ['Youth', 'STEM'],
       status: 'Strong Match',
       description: 'Empowering the next generation of engineers.'
-    },
-    {
-      id: 3,
-      title: 'Community Wellness Grant 2027',
-      funder: 'Apex Health Partners',
-      amount: '$50,000',
-      deadline: 'Jan 10, 2027',
-      matchScore: 72,
-      tags: ['Health', 'Community'],
-      status: 'Moderate Match',
-      description: 'Local initiatives to improve public health.'
     }
-  ];
+  ]);
 
-  const handleSwipe = (direction) => {
-    // In a real app, 'left' dismisses, 'right' saves to Vault/Oracle
-    setCurrentIndex(prev => Math.min(prev + 1, grants.length - 1));
+  const handleLiveScan = async () => {
+    setLoading(true);
+    try {
+      const response = await askGemini(`
+        Generate 3 realistic grant opportunities for a nonprofit focused on "Digital Equity and STEM education for Title I school districts".
+        Format each as a JSON-like object with: title, funder, amount, deadline, matchScore (80-99), tags (array), and description.
+        Return only the descriptions and titles in a professional list format.
+      `);
+      // For the demo, we'll just prepend a "New Discovery" card based on the AI response
+      const newGrant = {
+        id: Date.now(),
+        title: 'AI Identified: Schmidt Futures Equity Fund',
+        funder: 'Schmidt Futures',
+        amount: '$125,000',
+        deadline: 'Mar 12, 2027',
+        matchScore: 97,
+        tags: ['AI', 'Equity', 'Scale'],
+        status: 'AI Verified',
+        description: response.substring(0, 100) + "..."
+      };
+      setGrants([newGrant, ...grants]);
+    } catch (error) {
+      alert("Scan failed: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="page-container">
-      <Navbar title="Discovery Radar" />
-      
-      <div className="page-content animate-fade-in">
-        <div className="radar-header">
-          <div className="radar-title-section">
-            <Activity className="text-gold glow-text" size={32} />
-            <div>
-              <h3 className="font-display text-2xl">Algorithmic Match Engine</h3>
-              <p className="text-muted">Scanning global databases against your DNA profile.</p>
-            </div>
+    <AppLayout title="Discovery Radar">
+      <div className="animate-fade-in">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 32 }}>
+          <div>
+            <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 8 }}>Algorithmic Match Engine</h2>
+            <p style={{ color: 'var(--slate-500)', fontSize: 16 }}>Scanning global databases against your organization's DNA profile.</p>
           </div>
-          
-          <div className="radar-filters desktop-only">
-            <button className="btn btn-outline">
-              <Filter size={18} />
-              <span>Advanced Filters</span>
-            </button>
-          </div>
+          <button className="btn btn-primary" onClick={handleLiveScan} disabled={loading}>
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <Activity size={18} />}
+            {loading ? 'Scanning Global Databases...' : 'Initiate Live Scan'}
+          </button>
         </div>
 
-        <div className="tabs-container">
-          {['All Matches', 'High Probability', 'Saved'].map(tab => (
-            <button 
-              key={tab} 
-              className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Mobile Swipe Stack Layout */}
-        <div className="swipe-stack-container mobile-only">
-          {currentIndex < grants.length ? (
-            <div className="swipe-card-wrapper">
-              <GlassCard className="swipe-card">
-                <div className="grant-card-header">
-                  <div className="match-score-badge">
-                    <Zap size={16} />
-                    <span>{grants[currentIndex].matchScore}% Match</span>
-                  </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 24 }}>
+          {grants.map((grant) => (
+            <div key={grant.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div style={{ background: 'rgba(13,148,136,0.1)', color: 'var(--teal)', padding: '4px 12px', borderRadius: 999, fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Zap size={14} /> {grant.matchScore}% Match
                 </div>
-                <div className="grant-card-body text-center mt-8">
-                  <h2 className="text-3xl font-display mb-2">{grants[currentIndex].title}</h2>
-                  <p className="text-xl text-gold mb-8">{grants[currentIndex].funder}</p>
-                  
-                  <div className="flex justify-center gap-8 mb-8">
-                    <div>
-                      <p className="text-muted text-sm uppercase">Amount</p>
-                      <p className="text-2xl font-bold">{grants[currentIndex].amount}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted text-sm uppercase">Deadline</p>
-                      <p className="text-xl">{grants[currentIndex].deadline}</p>
-                    </div>
-                  </div>
-                  
-                  <p className="text-secondary">{grants[currentIndex].description}</p>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button className="btn btn-ghost" style={{ padding: 8, borderRadius: '50%' }}><Heart size={16} /></button>
+                  <button className="btn btn-ghost" style={{ padding: 8, borderRadius: '50%' }}><X size={16} /></button>
                 </div>
-              </GlassCard>
-              
-              <div className="swipe-actions">
-                <button className="swipe-btn pass-btn" onClick={() => handleSwipe('left')}>
-                  <X size={32} />
-                </button>
-                <button className="swipe-btn save-btn" onClick={() => handleSwipe('right')}>
-                  <Heart size={32} />
-                </button>
               </div>
+
+              <div>
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 4 }}>{grant.title}</h3>
+                <p style={{ fontSize: 14, color: 'var(--teal)', fontWeight: 600 }}>{grant.funder}</p>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '16px 0', borderTop: '1px solid var(--slate-100)', borderBottom: '1px solid var(--slate-100)' }}>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Amount</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)' }}>{grant.amount}</p>
+                </div>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Deadline</p>
+                  <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)' }}>{grant.deadline}</p>
+                </div>
+              </div>
+
+              <p style={{ fontSize: 14, color: 'var(--slate-600)', lineHeight: 1.6 }}>{grant.description}</p>
+
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {grant.tags.map(tag => (
+                  <span key={tag} style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-500)', background: 'var(--slate-100)', padding: '2px 10px', borderRadius: 4 }}>{tag}</span>
+                ))}
+              </div>
+
+              <button className="btn btn-primary" style={{ width: '100%', marginTop: 'auto' }}>
+                Send to Oracle Writer <Sparkles size={16} />
+              </button>
             </div>
-          ) : (
-            <div className="text-center mt-20 text-muted">
-              <Activity size={48} className="mx-auto mb-4 opacity-50" />
-              <h3>No more grants in radar.</h3>
-            </div>
-          )}
-        </div>
-
-        {/* Desktop Grid Layout */}
-        <div className="grants-grid desktop-only">
-          {grants.map(grant => (
-            <GlassCard key={grant.id} className="grant-card interactive">
-              <div className="grant-card-header">
-                <div className="match-score-badge">
-                  <Zap size={16} />
-                  <span>{grant.matchScore}% Match</span>
-                </div>
-                <button className="icon-btn-small">
-                  <Star size={18} className="text-muted hover:text-gold" />
-                </button>
-              </div>
-              
-              <div className="grant-card-body">
-                <h4 className="grant-title font-display">{grant.title}</h4>
-                <p className="grant-funder text-secondary">{grant.funder}</p>
-                
-                <div className="grant-details">
-                  <div className="detail-item">
-                    <span className="detail-label">Amount</span>
-                    <span className="detail-value text-primary">{grant.amount}</span>
-                  </div>
-                  <div className="detail-item">
-                    <span className="detail-label">Deadline</span>
-                    <span className="detail-value text-primary">{grant.deadline}</span>
-                  </div>
-                </div>
-
-                <div className="grant-tags">
-                  {grant.tags.map(tag => (
-                    <span key={tag} className="tag">{tag}</span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grant-card-footer mt-6">
-                <button className="btn w-full btn-primary">
-                  <span>Send to Oracle Writer</span>
-                </button>
-              </div>
-            </GlassCard>
           ))}
         </div>
       </div>
-    </div>
+    </AppLayout>
+  );
+};
+
+export default DiscoveryRadar;
   );
 };
 

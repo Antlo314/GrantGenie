@@ -13,7 +13,8 @@ import {
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: FileText, label: 'Oracle Writer', path: '/writer' },
+  { icon: FileText, label: 'Oracle Writer', path: '/oracle' },
+  { icon: Search, label: 'Discovery Radar', path: '/radar' },
   { icon: Megaphone, label: 'Campaign Engine', path: '/campaign' },
   { icon: TrendingUp, label: 'Investor Deck', path: '/deck' },
 ];
@@ -27,7 +28,7 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <img src="/logo.png" alt="Grant Genie" />
+          <img src="/grant_genie_favicon.png" alt="Grant Genie" style={{ width: 32, height: 32, objectFit: 'contain' }} />
           <div className="sidebar-logo-text">Grant <span>Genie</span></div>
         </div>
 
@@ -44,7 +45,12 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
         ))}
 
         <div className="sidebar-section-label" style={{ marginTop: 'auto' }}>Account</div>
-        <button className="sidebar-link"><Settings size={18} /> Settings</button>
+        <button 
+          className={`sidebar-link ${location.pathname === '/settings' ? 'active' : ''}`} 
+          onClick={() => navigate('/settings')}
+        >
+          <Settings size={18} /> Settings
+        </button>
         <button className="sidebar-link" onClick={() => navigate('/')}><LogOut size={18} /> Sign Out</button>
       </aside>
 
