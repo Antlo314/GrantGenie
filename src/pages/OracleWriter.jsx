@@ -62,10 +62,16 @@ const OracleWriter = () => {
 
   return (
     <AppLayout title="Oracle Writer">
-      <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24, height: 'calc(100vh - 128px)' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: 24, 
+        height: 'auto',
+        minHeight: 'calc(100vh - 160px)' 
+      }}>
         
-        {/* Left: Grant Context */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, overflowY: 'auto' }}>
+        {/* Left: Grant Context - Desktop Only */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20, overflowY: 'auto' }} className="desktop-only">
           {/* Grant Info */}
           <div className="card">
             <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>Current Grant</div>

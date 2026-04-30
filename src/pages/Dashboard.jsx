@@ -30,7 +30,7 @@ const Dashboard = () => {
 
   return (
     <AppLayout title="Dashboard">
-      {/* Stats Row */}
+      {/* Stats Row - Desktop */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }} className="desktop-only">
         <div className="stat-card">
           <div className="stat-label">Total Secured (YTD)</div>
@@ -51,6 +51,26 @@ const Dashboard = () => {
           <div className="stat-label">Funders Identified</div>
           <div className="stat-value">847</div>
           <div className="stat-change" style={{ color: 'var(--slate-400)', fontSize: 13 }}>23 new this week</div>
+        </div>
+      </div>
+
+      {/* Stats Row - Mobile */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }} className="mobile-only">
+        <div className="stat-card" style={{ padding: 16 }}>
+          <div className="stat-label" style={{ fontSize: 10 }}>Secured</div>
+          <div className="stat-value" style={{ fontSize: 20 }}>$1.4M</div>
+        </div>
+        <div className="stat-card" style={{ padding: 16 }}>
+          <div className="stat-label" style={{ fontSize: 10 }}>Active</div>
+          <div className="stat-value" style={{ fontSize: 20 }}>12</div>
+        </div>
+        <div className="stat-card" style={{ padding: 16 }}>
+          <div className="stat-label" style={{ fontSize: 10 }}>Win Rate</div>
+          <div className="stat-value" style={{ fontSize: 20 }}>68%</div>
+        </div>
+        <div className="stat-card" style={{ padding: 16 }}>
+          <div className="stat-label" style={{ fontSize: 10 }}>Funders</div>
+          <div className="stat-value" style={{ fontSize: 20 }}>847</div>
         </div>
       </div>
 

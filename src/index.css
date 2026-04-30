@@ -717,6 +717,18 @@ tr:hover td {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 999px; }
 
+:root {
+  --main-padding: 32px;
+}
+
+.desktop-only {
+  display: flex !important;
+}
+
+.mobile-only {
+  display: none !important;
+}
+
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .landing-nav { padding: 0 32px; }
@@ -724,6 +736,18 @@ tr:hover td {
 }
 
 @media (max-width: 900px) {
+  :root {
+    --main-padding: 16px;
+  }
+  
+  .desktop-only {
+    display: none !important;
+  }
+  
+  .mobile-only {
+    display: flex !important;
+  }
+
   .sidebar { display: none; }
   .landing-nav { padding: 0 24px; }
   .section { padding: 60px 24px; }
