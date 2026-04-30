@@ -137,25 +137,125 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Oracle Status with Nano Banner */}
-          <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow)' }}>
-            <img src="/nano-intelligence.png" alt="Oracle Intelligence" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} />
-            <div style={{ background: 'linear-gradient(135deg, var(--teal) 0%, #0f766e 100%)', padding: '18px 22px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 6 }}>Oracle Active</p>
-                  <p style={{ fontSize: 19, fontWeight: 700, color: 'white', margin: 0 }}>Scanning Funders</p>
-                </div>
-                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 0 3px rgba(74,222,128,0.3)', marginTop: 4 }}></div>
-              </div>
-              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 10, marginBottom: 0 }}>
-                847 foundations analyzed · 23 new matches
-              </p>
-            </div>
-          </div>
+          {/* Oracle Interactive Analysis */}
+          <OracleAnalysisCard />
         </div>
       </div>
     </AppLayout>
+  );
+};
+
+// Interactive Oracle Component
+const OracleAnalysisCard = () => {
+  const [input, setInput] = React.useState('');
+  const [output, setOutput] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState('');
+
+  const handleAnalyze = async () => {
+    if (!input.trim()) return;
+    setLoading(true);
+    setError('');
+    setOutput('');
+    
+    try {
+      // Lazy load the utility to avoid circular issues if any
+      const { askGemini } = await import('../utils/ai');
+      const response = await askGemini(`
+        You are the Grant Genie Oracle. A user is asking for advice on this grant idea: "${input}".
+        Provide a quick, professional 3-sentence evaluation and one "insider tip" to increase their win rate.
+        Keep it brief and high-value.
+      `);
+      setOutput(response);
+    } catch (err) {
+      setError(err.message || 'Failed to connect to Oracle');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow)', background: 'white' }}>
+      <div style={{ position: 'relative', height: 110 }}>
+        <img src="/nano-intelligence.png" alt="Oracle Intelligence" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.4))' }}></div>
+        <div style={{ position: 'absolute', bottom: 12, left: 16 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'white', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 2 }}>Oracle Interactive</p>
+          <p style={{ fontSize: 16, fontWeight: 700, color: 'white', margin: 0 }}>Consult the Genie</p>
+        </div>
+      </div>
+      
+      <div style={{ padding: 20 }}>
+        {output ? (
+          <div className="animate-fade-in">
+            <div style={{ maxHeight: 200, overflowY: 'auto', paddingRight: 8, marginBottom: 16 }}>
+              <p style={{ fontSize: 13, color: 'var(--slate-600)', lineHeight: 1.6, margin: 0 }}>{output}</p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button 
+                className="btn btn-primary" 
+                style={{ flex: 1, fontSize: 12 }} 
+                onClick={async () => {
+                  setLoading(true);
+                  try {
+                    const { askGemini } = await import('../utils/ai');
+                    const draft = await askGemini(`
+                      Based on this grant concept: "${input}", generate a professional 3-paragraph "Executive Summary" for a grant proposal.
+                      Include an 'Introduction', 'Community Impact', and 'Proposed Solution'.
+                      Use formal grant-writing tone.
+                    `);
+                    setOutput(draft);
+                  } catch (err) {
+                    setError(err.message);
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+              >
+                {loading ? 'Drafting...' : 'One-Click Draft'}
+              </button>
+              <button 
+                className="btn btn-ghost" 
+                style={{ flex: 1, fontSize: 12 }} 
+                onClick={() => { setOutput(''); setInput(''); }}
+                disabled={loading}
+              >
+                Reset
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <textarea 
+              placeholder="Paste a grant mission or idea..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              style={{ 
+                width: '100%', 
+                height: 80, 
+                padding: 12, 
+                borderRadius: 8, 
+                border: '1px solid var(--slate-200)', 
+                fontSize: 13,
+                resize: 'none',
+                fontFamily: 'inherit'
+              }}
+            />
+            {error && <p style={{ fontSize: 11, color: 'var(--rose)', margin: 0 }}>{error}</p>}
+            <button 
+              className="btn btn-primary" 
+              style={{ width: '100%', gap: 8 }} 
+              onClick={handleAnalyze}
+              disabled={loading || !input.trim()}
+            >
+              {loading ? 'Consulting Oracle...' : <><Zap size={14} /> Analyze Concept</>}
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

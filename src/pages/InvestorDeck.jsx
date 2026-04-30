@@ -173,15 +173,45 @@ const InvestorDeck = () => {
           </div>
         </section>
 
-        {/* CTA */}
-        <section style={{ textAlign: 'center', padding: '48px 40px', background: 'var(--slate-900)', borderRadius: 24, color: 'white' }}>
-          <h2 style={{ fontSize: 36, fontWeight: 800, color: 'white', marginBottom: 16, letterSpacing: '-0.02em' }}>Ready to discuss the term sheet?</h2>
-          <p style={{ color: 'var(--slate-400)', fontSize: 16, marginBottom: 32 }}>
-            This is a seed-stage investment in a $50B market with 98% margins and a clear disruption path.
-          </p>
-          <button className="btn btn-lg" style={{ background: 'var(--teal)', color: 'white' }}>
-            Initialize Term Sheet <ArrowRight size={18} />
-          </button>
+        {/* Equity Opportunity */}
+        <section style={{ background: 'linear-gradient(135deg, var(--slate-900) 0%, #0f172a 100%)', borderRadius: 24, padding: '60px 48px', color: 'white', border: '1px solid rgba(255,255,255,0.1)', position: 'relative', overflow: 'hidden' }}>
+          {/* Accent Glow */}
+          <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: 300, height: 300, background: 'var(--teal)', filter: 'blur(100px)', opacity: 0.1, pointerEvents: 'none' }} />
+          
+          <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }}>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--teal)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 16 }}>Early Adopter Round</p>
+              <h2 style={{ fontSize: 40, fontWeight: 800, color: 'white', marginBottom: 20, letterSpacing: '-0.03em', lineHeight: 1.1 }}>Founding Investor <br />Equity Opportunity</h2>
+              <p style={{ color: 'var(--slate-400)', fontSize: 18, lineHeight: 1.7, marginBottom: 32 }}>
+                We are rewarding our first $10K in seed capital with aggressive equity incentives. Own a piece of the infrastructure that disrupts the $50B nonprofit tech market.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  '1% Equity per $1,000 investment',
+                  'Board Advisor seat for lead investor ($5K+)',
+                  'Lifetime Platform License for your organization',
+                  'Priority access to future funding rounds'
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 15, color: 'var(--slate-300)' }}>
+                    <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'rgba(13,148,136,0.2)', color: 'var(--teal)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>✓</div>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: 40, textAlign: 'center', backdropFilter: 'blur(12px)' }}>
+              <div style={{ fontSize: 14, color: 'var(--slate-400)', marginBottom: 8, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current Valuation Multiplier</div>
+              <div style={{ fontSize: 64, fontWeight: 800, color: 'white', marginBottom: 8, letterSpacing: '-0.04em' }}>10.0x</div>
+              <p style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginBottom: 32 }}>Targeting Series A in Q4 2026</p>
+              
+              <button className="btn btn-primary btn-lg" style={{ width: '100%', marginBottom: 16 }}>
+                Initialize Term Sheet <ArrowRight size={18} />
+              </button>
+              <p style={{ fontSize: 12, color: 'var(--slate-500)' }}>Legal review required. Accredited investors only.</p>
+            </div>
+          </div>
         </section>
 
       </div>

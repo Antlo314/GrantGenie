@@ -1,19 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import GlassCard from '../components/GlassCard';
-import { Settings as SettingsIcon, Key, Server, Cpu, CheckCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Key, Server, Cpu, CheckCircle, Info } from 'lucide-react';
 import './Settings.css';
 
 const Settings = () => {
-  const [openaiKey, setOpenaiKey] = useState('sk-proj-**********************************');
-  const [anthropicKey, setAnthropicKey] = useState('');
+  const [keys, setKeys] = useState({
+    openai: localStorage.getItem('gg_openai_key') || '',
+    anthropic: localStorage.getItem('gg_anthropic_key') || '',
+    gemini: localStorage.getItem('gg_gemini_key') || '',
+  });
+  
   const [saved, setSaved] = useState(false);
 
   const handleSave = (e) => {
     e.preventDefault();
+    localStorage.setItem('gg_openai_key', keys.openai);
+    localStorage.setItem('gg_anthropic_key', keys.anthropic);
+    localStorage.setItem('gg_gemini_key', keys.gemini);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
+
+  const isUsingDefaultGemini = !keys.gemini && import.meta.env.VITE_GEMINI_API_KEY;
 
   return (
     <div className="page-container">
@@ -38,33 +47,59 @@ const Settings = () => {
             </h3>
 
             <form onSubmit={handleSave} className="flex flex-col gap-6">
+              {/* Gemini Key - Hybrid Support */}
               <div className="input-group">
                 <label className="text-xs uppercase tracking-widest text-muted mb-2 block flex items-center justify-between">
-                  <span>OpenAI API Key (GPT-4o)</span>
-                  <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> Connected</span>
+                  <span>Google Gemini API Key (1.5 Flash)</span>
+                  {keys.gemini ? (
+                    <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> User Key Active</span>
+                  ) : isUsingDefaultGemini ? (
+                    <span className="text-blue-400 flex items-center gap-1"><Info size={12}/> System Default Active</span>
+                  ) : (
+                    <span className="text-slate-500">Not Configured</span>
+                  )}
                 </label>
                 <div className="auth-input-wrapper">
                   <input 
                     type="password" 
                     className="auth-input font-mono" 
-                    value={openaiKey}
-                    onChange={(e) => setOpenaiKey(e.target.value)}
+                    placeholder="Enter your Gemini key..."
+                    value={keys.gemini}
+                    onChange={(e) => setKeys({...keys, gemini: e.target.value})}
+                  />
+                </div>
+                <p className="text-xs text-secondary mt-1">Recommended for high-volume document analysis and long-context grants.</p>
+              </div>
+
+              <div className="input-group">
+                <label className="text-xs uppercase tracking-widest text-muted mb-2 block flex items-center justify-between">
+                  <span>OpenAI API Key (GPT-4o)</span>
+                  {keys.openai && <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> Active</span>}
+                </label>
+                <div className="auth-input-wrapper">
+                  <input 
+                    type="password" 
+                    className="auth-input font-mono" 
+                    placeholder="sk-proj-..."
+                    value={keys.openai}
+                    onChange={(e) => setKeys({...keys, openai: e.target.value})}
                   />
                 </div>
                 <p className="text-xs text-secondary mt-1">Used for Campaign Engine and fast generation.</p>
               </div>
 
               <div className="input-group">
-                <label className="text-xs uppercase tracking-widest text-muted mb-2 block">
-                  Anthropic API Key (Claude 3.5 Sonnet)
+                <label className="text-xs uppercase tracking-widest text-muted mb-2 block flex items-center justify-between">
+                  <span>Anthropic API Key (Claude 3.5 Sonnet)</span>
+                  {keys.anthropic && <span className="text-emerald flex items-center gap-1"><CheckCircle size={12}/> Active</span>}
                 </label>
                 <div className="auth-input-wrapper">
                   <input 
                     type="password" 
                     className="auth-input font-mono" 
                     placeholder="sk-ant-..."
-                    value={anthropicKey}
-                    onChange={(e) => setAnthropicKey(e.target.value)}
+                    value={keys.anthropic}
+                    onChange={(e) => setKeys({...keys, anthropic: e.target.value})}
                   />
                 </div>
                 <p className="text-xs text-secondary mt-1">Recommended for deep narrative grant writing (Oracle Writer).</p>
@@ -88,7 +123,7 @@ const Settings = () => {
             <GlassCard className="settings-info-card">
               <Cpu className="text-blue-400 mb-3" size={24} />
               <h4 className="font-display text-lg mb-2">Cost Analysis vs Vee.com</h4>
-              <p className="text-sm text-secondary leading-relaxed mb-4">
+              <p style={{ color: 'var(--slate-400)', fontSize: '14px', lineHeight: '1.6', marginBottom: '16px' }}>
                 Vee.com charges $249/mo for 1 grant. Using your own OpenAI key, a 2,000-word grant costs approximately <strong>$0.03</strong> in API compute.
               </p>
               <div className="p-3 bg-white/5 border border-white/10 rounded-md flex justify-between items-center text-sm">

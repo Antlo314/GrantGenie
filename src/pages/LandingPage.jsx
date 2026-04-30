@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Zap, Shield, Database, CheckCircle, Star, FileText, Users, TrendingUp } from 'lucide-react';
 
@@ -7,6 +7,8 @@ const tealDark = 'var(--teal-dark)';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const [grantsPerMonth, setGrantsPerMonth] = useState(5);
+  const [currentSpend, setCurrentSpend] = useState(300);
 
   const features = [
     { icon: <FileText size={22} />, title: 'Multi-Agent Oracle Writer', desc: 'Drafts complete, rubric-aligned grant applications using recursive AI logic — not just a ChatGPT wrapper.' },
@@ -47,22 +49,22 @@ const LandingPage = () => {
       {/* Hero with Nano Banner */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
         <img src="/nano-hero.png" alt="" style={{ width: '100%', height: 320, objectFit: 'cover', display: 'block' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.95) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, rgba(255,255,255,1) 100%)' }} />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: 40, textAlign: 'center', padding: '100px 24px 60px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 999, marginBottom: 20 }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 600, padding: '6px 14px', borderRadius: 999, marginBottom: 20, boxShadow: '0 2px 8px rgba(255,255,255,0.8)' }}>
             <Zap size={14} /> Built to beat Instrumentl, Vee & GrantAssistant
           </div>
-          <h1 style={{ fontSize: 'clamp(36px,5vw,68px)', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: 20 }}>
+          <h1 style={{ fontSize: 'clamp(36px,5vw,68px)', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: 20, textShadow: '0 4px 12px rgba(255,255,255,0.9)' }}>
             The AI Grant Platform<br /><span style={{ color: teal }}>That Has No Limits</span>
           </h1>
-          <p style={{ fontSize: 18, color: 'var(--slate-600)', maxWidth: 540, margin: '0 auto 36px', lineHeight: 1.75 }}>
+          <p style={{ fontSize: 18, color: 'var(--slate-700)', maxWidth: 540, margin: '0 auto 36px', lineHeight: 1.75, textShadow: '0 2px 4px rgba(255,255,255,0.9)', fontWeight: 500 }}>
             Stop paying $300+/mo for capped AI tools. Grant Genie automates your entire fundraising lifecycle with multi-agent intelligence.
           </p>
           <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-primary btn-lg" onClick={() => navigate('/auth')}>
               Start Free Trial <ArrowRight size={18} />
             </button>
-            <button className="btn btn-ghost btn-lg" onClick={() => navigate('/deck')}>
+            <button className="btn btn-ghost btn-lg" onClick={() => navigate('/deck')} style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)' }}>
               View Investor Deck
             </button>
           </div>
@@ -110,6 +112,74 @@ const LandingPage = () => {
         </div>
       </div>
 
+      {/* ROI Calculator Section */}
+      <section style={{ padding: '0 48px 100px', maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ background: 'var(--slate-900)', borderRadius: 24, padding: '60px 48px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+          {/* Background Glow */}
+          <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 400, height: 400, background: `radial-gradient(circle, ${teal} 0%, transparent 70%)`, opacity: 0.15, pointerEvents: 'none' }} />
+          
+          <div className="roi-grid">
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>ROI CALCULATOR</p>
+              <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 20, letterSpacing: '-0.02em' }}>See how much you save</h2>
+              <p style={{ color: 'var(--slate-400)', fontSize: 16, lineHeight: 1.6, marginBottom: 32 }}>
+                Stop overpaying for capped seats and limited AI. Grant Genie scales with your organization's ambitions, not its invoice.
+              </p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--slate-300)' }}>Grants Written Per Month</label>
+                    <span style={{ color: teal, fontWeight: 700 }}>{grantsPerMonth}</span>
+                  </div>
+                  <input 
+                    type="range" min="1" max="20" step="1" 
+                    value={grantsPerMonth} 
+                    onChange={(e) => setGrantsPerMonth(parseInt(e.target.value))}
+                    style={{ width: '100%', accentColor: teal }} 
+                  />
+                </div>
+                
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--slate-300)' }}>Current Software Spend (Monthly)</label>
+                    <span style={{ color: teal, fontWeight: 700 }}>${currentSpend}</span>
+                  </div>
+                  <input 
+                    type="range" min="50" max="1000" step="50" 
+                    value={currentSpend} 
+                    onChange={(e) => setCurrentSpend(parseInt(e.target.value))}
+                    style={{ width: '100%', accentColor: teal }} 
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 40, textAlign: 'center' }}>
+              <p style={{ fontSize: 14, color: 'var(--slate-400)', marginBottom: 8, fontWeight: 500 }}>Estimated Annual Savings</p>
+              <div style={{ fontSize: 64, fontWeight: 800, color: 'white', marginBottom: 24, letterSpacing: '-0.04em' }}>
+                ${((currentSpend - 150) * 12).toLocaleString()}
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                <div style={{ padding: 16, background: 'rgba(13,148,136,0.1)', borderRadius: 12 }}>
+                  <p style={{ fontSize: 12, color: 'var(--slate-400)', marginBottom: 4 }}>Hours Saved/Yr</p>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: teal }}>{grantsPerMonth * 4 * 12}h</p>
+                </div>
+                <div style={{ padding: 16, background: 'rgba(13,148,136,0.1)', borderRadius: 12 }}>
+                  <p style={{ fontSize: 12, color: 'var(--slate-400)', marginBottom: 4 }}>ROI Factor</p>
+                  <p style={{ fontSize: 20, fontWeight: 700, color: teal }}>{((currentSpend / 150) * 10).toFixed(1)}x</p>
+                </div>
+              </div>
+              
+              <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 32 }} onClick={() => navigate('/auth')}>
+                Get This Savings <ArrowRight size={18} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Comparison */}
       <section style={{ background: 'var(--slate-50)', padding: '80px 48px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -151,7 +221,7 @@ const LandingPage = () => {
           <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Simple Pricing</p>
           <h2 style={{ fontSize: 'clamp(28px,3vw,48px)', fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: 16 }}>Start saving today</h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, maxWidth: 860, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, maxWidth: 1100, margin: '0 auto' }}>
           {/* Disruptor */}
           <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div>
@@ -169,8 +239,8 @@ const LandingPage = () => {
           </div>
 
           {/* Enterprise */}
-          <div style={{ background: 'white', border: `2px solid ${teal}`, borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 0 0 4px rgba(13,148,136,0.08)` }}>
-            <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: teal, color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ background: 'white', border: `2px solid ${teal}`, borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 4px 20px rgba(13,148,136,0.1)` }}>
+            <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: teal, color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
               <Star size={11} /> Most Popular
             </div>
             <div>
@@ -185,6 +255,35 @@ const LandingPage = () => {
               ))}
             </div>
             <button className="btn btn-primary btn-lg" style={{ width: '100%' }} onClick={() => navigate('/auth')}>Start Free Trial <ArrowRight size={18} /></button>
+          </div>
+
+          {/* Founding Partner */}
+          <div style={{ background: 'var(--slate-900)', border: `2px solid var(--gold)`, borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 4px 30px rgba(245,158,11,0.2)` }}>
+            <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'var(--gold)', color: 'var(--slate-900)', fontSize: 11, fontWeight: 800, padding: '4px 14px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+              <Zap size={11} /> LIMITED SEED ROUND
+            </div>
+            <div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>FOUNDING PARTNER</div>
+              <div style={{ fontSize: 40, fontWeight: 800, color: 'white', lineHeight: 1 }}>$1,000<span style={{ fontSize: 16, color: 'var(--slate-400)', fontWeight: 400 }}> once</span></div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {[
+                <span key="1"><strong>1% Equity</strong> in the platform IP</span>,
+                'Lifetime Enterprise License',
+                'Zero Monthly Fees — Forever',
+                'Founding Board Advisor Seat',
+                'Direct channel to founders',
+                'Early access to all modules'
+              ].map((f, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: 10, fontSize: 14, color: 'var(--slate-300)', alignItems: 'center' }}>
+                  <CheckCircle size={16} style={{ color: 'var(--gold)', flexShrink: 0 }} /> {f}
+                </div>
+              ))}
+            </div>
+            <button className="btn btn-lg" style={{ width: '100%', background: 'var(--gold)', color: 'var(--slate-900)', fontWeight: 800 }} onClick={() => navigate('/deck')}>
+              Secure Your Equity <ArrowRight size={18} />
+            </button>
+            <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--slate-500)', fontWeight: 600 }}>ONLY 10 SLOTS AVAILABLE</div>
           </div>
         </div>
       </section>
