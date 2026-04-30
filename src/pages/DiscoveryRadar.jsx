@@ -121,8 +121,4 @@ const DiscoveryRadar = () => {
 };
 
 export default DiscoveryRadar;
-  );
-};
-
-export default DiscoveryRadar;
 
