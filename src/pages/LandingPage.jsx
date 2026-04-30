@@ -72,7 +72,7 @@ const LandingPage = () => {
       </div>
 
       {/* Social Proof */}
-      <div style={{ background: 'var(--slate-50)', borderTop: '1px solid var(--slate-200)', padding: '16px 48px', display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
+      <div className="section-padding" style={{ background: 'var(--slate-50)', borderTop: '1px solid var(--slate-200)', padding: '16px 48px', display: 'flex', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
         {['14-day free trial', 'No credit card required', '98% gross margin platform', 'Cancel anytime'].map(t => (
           <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--slate-500)', fontWeight: 500 }}>
             <CheckCircle size={15} style={{ color: teal }} /> {t}
@@ -81,7 +81,7 @@ const LandingPage = () => {
       </div>
 
       {/* Features */}
-      <section className="section">
+      <section className="section section-padding">
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Platform Features</p>
           <h2 style={{ fontSize: 'clamp(28px,3vw,48px)', fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: 16 }}>Everything your grant team needs</h2>
@@ -99,10 +99,10 @@ const LandingPage = () => {
       </section>
 
       {/* Intelligence Banner */}
-      <div style={{ padding: '0 48px 80px', maxWidth: 1200, margin: '0 auto' }}>
+      <div className="section-padding" style={{ padding: '0 48px 80px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-xl)', position: 'relative' }}>
           <img src="/nano-intelligence.png" alt="Grant Genie Intelligence" style={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(13,148,136,0.85) 0%, rgba(13,148,136,0.4) 50%, transparent 100%)', display: 'flex', alignItems: 'center', padding: 48 }}>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(13,148,136,0.85) 0%, rgba(13,148,136,0.4) 50%, transparent 100%)', display: 'flex', alignItems: 'center', padding: 'var(--main-padding)' }}>
             <div>
               <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: 12 }}>Oracle Active</p>
               <h3 style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>40,000+ Funders<br />Scanned in Real-Time</h3>
@@ -113,8 +113,8 @@ const LandingPage = () => {
       </div>
 
       {/* ROI Calculator Section */}
-      <section style={{ padding: '0 48px 100px', maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ background: 'var(--slate-900)', borderRadius: 24, padding: '60px 48px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+      <section className="section-padding" style={{ padding: '0 48px 100px', maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ background: 'var(--slate-900)', borderRadius: 24, padding: 'min(60px, var(--main-padding)) var(--main-padding)', color: 'white', position: 'relative', overflow: 'hidden' }}>
           {/* Background Glow */}
           <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 400, height: 400, background: `radial-gradient(circle, ${teal} 0%, transparent 70%)`, opacity: 0.15, pointerEvents: 'none' }} />
           
@@ -155,7 +155,7 @@ const LandingPage = () => {
               </div>
             </div>
             
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 40, textAlign: 'center' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 'var(--main-padding)', textAlign: 'center' }}>
               <p style={{ fontSize: 14, color: 'var(--slate-400)', marginBottom: 8, fontWeight: 500 }}>Estimated Annual Savings</p>
               <div style={{ fontSize: 64, fontWeight: 800, color: 'white', marginBottom: 24, letterSpacing: '-0.04em' }}>
                 ${((currentSpend - 150) * 12).toLocaleString()}
@@ -181,7 +181,7 @@ const LandingPage = () => {
       </section>
 
       {/* Comparison */}
-      <section style={{ background: 'var(--slate-50)', padding: '80px 48px' }}>
+      <section className="section-padding" style={{ background: 'var(--slate-50)', padding: '80px 48px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 48 }}>
             <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Competitive Analysis</p>
@@ -216,14 +216,14 @@ const LandingPage = () => {
       </section>
 
       {/* Pricing */}
-      <section className="section">
+      <section className="section section-padding">
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
           <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Simple Pricing</p>
           <h2 style={{ fontSize: 'clamp(28px,3vw,48px)', fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: 16 }}>Start saving today</h2>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, maxWidth: 1100, margin: '0 auto' }}>
           {/* Disruptor */}
-          <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ background: 'white', border: '1.5px solid var(--slate-200)', borderRadius: 20, padding: 'min(32px, var(--main-padding))', display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>DISRUPTOR</div>
               <div style={{ fontSize: 40, fontWeight: 800, color: 'var(--slate-900)', lineHeight: 1 }}>$150<span style={{ fontSize: 16, color: 'var(--slate-400)', fontWeight: 400 }}>/mo</span></div>
@@ -239,7 +239,7 @@ const LandingPage = () => {
           </div>
 
           {/* Enterprise */}
-          <div style={{ background: 'white', border: `2px solid ${teal}`, borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 4px 20px rgba(13,148,136,0.1)` }}>
+          <div style={{ background: 'white', border: `2px solid ${teal}`, borderRadius: 20, padding: 'min(32px, var(--main-padding))', display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 4px 20px rgba(13,148,136,0.1)` }}>
             <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: teal, color: 'white', fontSize: 11, fontWeight: 700, padding: '4px 14px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
               <Star size={11} /> Most Popular
             </div>
@@ -258,8 +258,8 @@ const LandingPage = () => {
           </div>
 
           {/* Founding Partner */}
-          <div style={{ background: 'var(--slate-900)', border: `2px solid var(--gold)`, borderRadius: 20, padding: 32, display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 4px 30px rgba(245,158,11,0.2)` }}>
-            <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'var(--gold)', color: 'var(--slate-900)', fontSize: 11, fontWeight: 800, padding: '4px 14px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
+          <div style={{ background: 'var(--slate-900)', border: `2px solid var(--gold)`, borderRadius: 20, padding: 'min(32px, var(--main-padding))', display: 'flex', flexDirection: 'column', gap: 24, position: 'relative', boxShadow: `0 4px 30px rgba(245,158,11,0.2)` }}>
+            <div style={{ position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)', background: 'var(--gold)', color: 'var(--slate-900)', fontSize: 11, fontWeight: 800, padding: '4px 14px', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', width: 'max-content' }}>
               <Zap size={11} /> LIMITED SEED ROUND
             </div>
             <div>
@@ -289,14 +289,14 @@ const LandingPage = () => {
       </section>
 
       {/* Growth Banner */}
-      <div style={{ padding: '0 48px 80px', maxWidth: 1200, margin: '0 auto' }}>
+      <div className="section-padding" style={{ padding: '0 48px 80px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-xl)' }}>
           <img src="/nano-growth.png" alt="Growth" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }} />
         </div>
       </div>
 
       {/* CTA */}
-      <section style={{ background: teal, padding: '80px 48px', textAlign: 'center' }}>
+      <section className="section-padding" style={{ background: teal, padding: '80px 48px', textAlign: 'center' }}>
         <h2 style={{ fontSize: 40, fontWeight: 800, color: 'white', marginBottom: 16, letterSpacing: '-0.02em' }}>Ready to deploy your Genie?</h2>
         <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 18, marginBottom: 40, maxWidth: 500, margin: '0 auto 40px' }}>
           Join organizations that have moved off Instrumentl and Vee — and never looked back.
@@ -307,7 +307,7 @@ const LandingPage = () => {
       </section>
 
       {/* Footer */}
-      <footer style={{ background: 'var(--slate-900)', padding: '40px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
+      <footer className="section-padding" style={{ background: 'var(--slate-900)', padding: '40px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'white', fontWeight: 700 }}>
           <img src="/logo.png" alt="Grant Genie" style={{ width: 28, height: 28, objectFit: 'contain' }} />
           Grant Genie

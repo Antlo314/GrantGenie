@@ -74,9 +74,9 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 24 }}>
         {/* Active Grants Table */}
-        <div style={{ gridColumn: 'span 2' }}>
+        <div className="dashboard-grid-span">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--slate-900)' }}>Active Grant Pipeline</h2>
             <button className="btn btn-ghost" style={{ fontSize: 13 }}>View All <ArrowRight size={14} /></button>

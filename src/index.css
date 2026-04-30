@@ -749,15 +749,42 @@ tr:hover td {
   }
 
   .sidebar { display: none; }
-  .landing-nav { padding: 0 24px; }
-  .section { padding: 60px 24px; }
+  .landing-nav { padding: 0 var(--main-padding); }
+  .section { padding: 60px var(--main-padding); }
   .content-area { padding: 20px; }
+  
+  .roi-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  
+  .comparison-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 calc(var(--main-padding) * -1);
+    padding: 0 var(--main-padding);
+  }
+  
+  table {
+    min-width: 600px;
+  }
+  
+  .dashboard-grid-span {
+    grid-column: span 1;
+  }
 }
 
 @media (max-width: 768px) {
   .feature-grid { grid-template-columns: 1fr; }
   .landing-nav-links { display: none; }
   .landing-nav { justify-content: center; }
+  .section-padding { padding-left: var(--main-padding) !important; padding-right: var(--main-padding) !important; }
+}
+
+@media (min-width: 901px) {
+  .dashboard-grid-span {
+    grid-column: span 2;
+  }
 }
 
 html {
