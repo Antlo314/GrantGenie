@@ -27,14 +27,12 @@ const sampleStewardship = [
   { id: 2, name: 'Urban STEM Initiative', funder: 'Schmidt Futures', status: 'Submitted', nextAction: 'Request status check-in', copy: 'Hello, we are following up on our proposal submitted last month. We have updated data on teacher training...', due: 'Nov 08', confidence: 92 },
   { id: 3, name: 'Global Health Equity', funder: 'Gates Foundation', status: 'Reporting', nextAction: 'Draft Q3 Financial Report', copy: 'This report details the allocation of the $500k disbursement toward community health mapping...', due: 'Nov 15', confidence: 85 },
   { id: 4, name: 'AI for Good Grant', funder: 'Google.org', status: 'In Progress', nextAction: 'Submit hardware budget update', copy: 'Thank you for the recent feedback. We have adjusted the hardware procurement timeline as requested...', due: 'Nov 20', confidence: 88 },
-  { id: 5, name: 'Social Justice Fund', funder: 'Ford Foundation', status: 'Awarded', nextAction: 'Schedule strategy call', copy: 'We would love to invite you to our upcoming advisor-style strategy call to discuss the 2027 roadmap...', due: 'Nov 25', confidence: 95 },
-  { id: 6, name: 'Clean Air for Cities', funder: 'Bloomberg Philanthropies', status: 'Submitted', nextAction: 'Send supplemental pilot video', copy: 'We have just released a short 2-minute video showing the air quality monitors in action at local schools...', due: 'Nov 05', confidence: 76 }
+  { id: 5, name: 'Social Justice Fund', funder: 'Ford Foundation', status: 'Awarded', nextAction: 'Schedule strategy call', copy: 'We would love to invite you to our upcoming advisor-style strategy call to discuss the 2027 roadmap...', due: 'Nov 25', confidence: 95 }
 ];
 
 const CampaignEngine = () => {
   const [activeTab, setActiveTab] = useState('All');
   const [selectedCampaign, setSelectedCampaign] = useState(null);
-  const [isChatting, setIsChatting] = useState(false);
   const [chatInput, setChatInput] = useState('');
   const [chatMessages, setChatMessages] = useState([
     { role: 'ai', text: "Hi! I'm Donna. I've analyzed your awarded grants. We have 3 reports due in the next 14 days. Should I start drafting the Bezos Earth Fund highlights?" }
@@ -75,46 +73,46 @@ const CampaignEngine = () => {
         
         {/* Header */}
         <div style={{ background: 'white', padding: '24px 32px', borderBottom: '1px solid var(--slate-200)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 20, marginBottom: 24 }}>
             <div>
               <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 4 }}>Donna Auto-Stewardship</h1>
               <p style={{ color: 'var(--slate-500)', fontSize: 14 }}>Your proactive AI agent for funder relations and campaign success.</p>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
               <button className="btn btn-ghost" style={{ gap: 8 }}><FileText size={16} /> Export Report</button>
-              <button className="btn btn-ghost" style={{ gap: 8 }}><Mail size={16} /> Batch Follow-ups</button>
-              <button className="btn btn-primary" style={{ gap: 8 }}><Plus size={16} /> Start New Campaign</button>
+              <button className="btn btn-primary" style={{ gap: 8 }}><Plus size={16} /> <span className="desktop-only">Start New Campaign</span><span className="mobile-only">New</span></button>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
             <div className="stat-card" style={{ padding: '16px 20px' }}>
               <div className="stat-label">Active Campaigns</div>
-              <div className="stat-value" style={{ fontSize: 24 }}>8</div>
-              <div style={{ fontSize: 11, color: 'var(--slate-400)', marginTop: 4 }}>4 foundations, 4 corporate</div>
+              <div style={{ fontSize: 24, fontWeight: 800 }}>8</div>
             </div>
             <div className="stat-card" style={{ padding: '16px 20px' }}>
               <div className="stat-label">Follow-ups Needed</div>
-              <div className="stat-value" style={{ fontSize: 24, color: 'var(--gold)' }}>3 Open</div>
-              <div style={{ fontSize: 11, color: 'var(--slate-400)', marginTop: 4 }}>Avg. response time: 2.1 days</div>
-            </div>
-            <div className="stat-card" style={{ padding: '16px 20px' }}>
-              <div className="stat-label">Reports Due</div>
-              <div className="stat-value" style={{ fontSize: 24, color: 'var(--rose)' }}>2 In 14d</div>
-              <div style={{ fontSize: 11, color: 'var(--slate-400)', marginTop: 4 }}>Next: Bezos Foundation (Nov 12)</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--gold)' }}>3 Open</div>
             </div>
             <div className="stat-card" style={{ padding: '16px 20px' }}>
               <div className="stat-label">Avg. Response Rate</div>
-              <div className="stat-value" style={{ fontSize: 24, color: 'var(--teal)' }}>62%</div>
-              <div style={{ fontSize: 11, color: 'var(--slate-400)', marginTop: 4 }}>↑ 12% since Donna v2.1</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--teal)' }}>62%</div>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: 'row' }} className="responsive-campaign-layout">
+          <style>{`
+            @media (max-width: 1024px) {
+              .responsive-campaign-layout { flex-direction: column !important; overflow-y: auto !important; }
+              .campaign-list { padding: 16px !important; }
+              .campaign-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid var(--slate-200) !important; padding: 24px !important; }
+              .campaign-card { grid-template-columns: 1fr !important; gap: 16px !important; }
+            }
+          `}</style>
+          
           {/* Main List Area */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
-            <div style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, marginBottom: 24, width: 'fit-content' }}>
+          <div className="campaign-list" style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+            <div style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, marginBottom: 24, width: 'fit-content', overflowX: 'auto' }}>
               {tabs.map(tab => (
                 <button 
                   key={tab} 
@@ -129,7 +127,8 @@ const CampaignEngine = () => {
                     color: activeTab === tab ? 'var(--slate-900)' : 'var(--slate-500)',
                     cursor: 'pointer',
                     boxShadow: activeTab === tab ? 'var(--shadow-sm)' : 'none',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   {tab}
@@ -142,13 +141,14 @@ const CampaignEngine = () => {
                 <div 
                   key={c.id} 
                   onClick={() => setSelectedCampaign(c)}
+                  className="campaign-card"
                   style={{ 
                     background: 'white', 
                     borderRadius: 16, 
                     border: `1px solid ${selectedCampaign?.id === c.id ? 'var(--teal)' : 'var(--slate-200)'}`,
                     padding: 24,
                     display: 'grid',
-                    gridTemplateColumns: '1.2fr 120px 1.5fr 100px 100px',
+                    gridTemplateColumns: '1.2fr 120px 1.5fr 100px',
                     alignItems: 'center',
                     gap: 24,
                     cursor: 'pointer',
@@ -165,7 +165,7 @@ const CampaignEngine = () => {
                     <span style={{ 
                       fontSize: 11, 
                       fontWeight: 700, 
-                      background: c.status === 'Awarded' ? 'var(--emerald)15' : 'var(--slate-100)', 
+                      background: c.status === 'Awarded' ? 'rgba(16,185,129,0.1)' : 'var(--slate-100)', 
                       color: c.status === 'Awarded' ? 'var(--emerald)' : 'var(--slate-600)',
                       padding: '4px 10px',
                       borderRadius: 999,
@@ -184,37 +184,25 @@ const CampaignEngine = () => {
                     <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Due</div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)' }}>{c.due}</div>
                   </div>
-
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Confidence</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--teal)' }}>{c.confidence}%</div>
-                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Right Sidebar */}
-          <aside style={{ width: 360, background: 'white', borderLeft: '1px solid var(--slate-200)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }} className="desktop-only">
+          <aside className="campaign-sidebar" style={{ width: 360, background: 'white', borderLeft: '1px solid var(--slate-200)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div style={{ flex: 1, overflowY: 'auto', padding: 32 }}>
               <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 24, display: 'flex', gap: 8, alignItems: 'center' }}>
-                <Sparkles size={16} style={{ color: 'var(--teal)' }} /> Donna's Recommendations
+                <Sparkles size={16} style={{ color: 'var(--teal)' }} /> Donna's Insights
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 40 }}>
                 <div style={{ padding: 16, background: 'rgba(13,148,136,0.03)', border: '1px solid rgba(13,148,136,0.1)', borderRadius: 16 }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-dark)', marginBottom: 8 }}>High Priority: Lumina Update</div>
                   <p style={{ fontSize: 13, color: 'var(--slate-600)', lineHeight: 1.5, margin: 0 }}>
-                    Lumina Foundation typically awards follow-on grants to organizations that provide <strong>video evidence</strong> of hardware deployment. Send thank-you note with video link today.
+                    Lumina Foundation typically awards follow-on grants to organizations that provide video evidence.
                   </p>
-                  <button className="btn" style={{ marginTop: 12, width: '100%', fontSize: 12, background: 'var(--teal)', color: 'white' }}>Generate Note</button>
-                </div>
-                <div style={{ padding: 16, background: 'rgba(245,158,11,0.03)', border: '1px solid rgba(245,158,11,0.1)', borderRadius: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--gold)', marginBottom: 8 }}>Reporting Deadline</div>
-                  <p style={{ fontSize: 13, color: 'var(--slate-600)', lineHeight: 1.5, margin: 0 }}>
-                    Bezos Earth Fund Q3 report is due in 9 days. I have synced your <strong>Oracle Budget</strong> data for easy export.
-                  </p>
-                  <button className="btn" style={{ marginTop: 12, width: '100%', fontSize: 12, background: 'white', border: '1px solid var(--slate-200)', color: 'var(--slate-700)' }}>Review Data</button>
+                  <button className="btn btn-primary" style={{ marginTop: 12, width: '100%', fontSize: 12 }}>Generate Note</button>
                 </div>
               </div>
 
@@ -230,12 +218,11 @@ const CampaignEngine = () => {
                       {msg.text}
                     </div>
                   ))}
-                  {isThinking && <div style={{ fontSize: 11, color: 'var(--slate-400)' }}>Donna is typing...</div>}
                 </div>
                 <div style={{ padding: 12, borderTop: '1px solid var(--slate-100)', display: 'flex', gap: 8 }}>
                   <input 
                     type="text" 
-                    placeholder="Ask for advice..." 
+                    placeholder="Ask Donna..." 
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
@@ -248,47 +235,40 @@ const CampaignEngine = () => {
           </aside>
         </div>
 
-        {/* Detail Side Panel */}
+        {/* Selected Campaign Overlay */}
         {selectedCampaign && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 1000 }} className="animate-fade-in">
+          <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', justifyContent: 'flex-end' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(4px)' }} onClick={() => setSelectedCampaign(null)} />
-            <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 440, background: 'white', boxShadow: 'var(--shadow-2xl)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ padding: '24px 32px', borderBottom: '1px solid var(--slate-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 style={{ fontSize: 18, fontWeight: 800 }}>Stewardship Detail</h2>
-                <button onClick={() => setSelectedCampaign(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--slate-400)' }}><X size={24} /></button>
+            <aside style={{ position: 'relative', width: '100%', maxWidth: 440, background: 'white', height: '100%', display: 'flex', flexDirection: 'column', boxShadow: '-10px 0 50px rgba(0,0,0,0.1)', padding: 32, animation: 'slideInRight 0.4s ease' }}>
+              <style>{`
+                @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+              `}</style>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 32 }}>
+                <div style={{ width: 48, height: 48, background: 'var(--teal-xlight)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--teal)' }}>
+                  <Megaphone size={24} />
+                </div>
+                <button onClick={() => setSelectedCampaign(null)} style={{ background: 'var(--slate-100)', border: 'none', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={18} /></button>
               </div>
 
-              <div style={{ flex: 1, overflowY: 'auto', padding: 32, display: 'flex', flexDirection: 'column', gap: 32 }}>
-                <div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 4 }}>{selectedCampaign.name}</h3>
-                  <p style={{ fontSize: 15, color: 'var(--teal)', fontWeight: 700 }}>{selectedCampaign.funder}</p>
-                </div>
+              <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{selectedCampaign.name}</h2>
+              <p style={{ color: 'var(--slate-500)', marginBottom: 32 }}>{selectedCampaign.funder}</p>
 
-                <div style={{ padding: 20, background: 'var(--slate-50)', borderRadius: 16, border: '1px solid var(--slate-200)' }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal)', textTransform: 'uppercase', marginBottom: 12, display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <Sparkles size={14} /> Donna's Draft Follow-up
-                  </div>
-                  <p style={{ fontSize: 14, color: 'var(--slate-700)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 }}>
-                    "{selectedCampaign.copy}"
-                  </p>
-                </div>
+              <div style={{ background: 'var(--slate-50)', borderRadius: 16, padding: 20, marginBottom: 32 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal)', textTransform: 'uppercase', marginBottom: 12 }}>Drafted Follow-up</div>
+                <p style={{ fontSize: 14, color: 'var(--slate-700)', lineHeight: 1.6, fontStyle: 'italic', margin: 0 }}>"{selectedCampaign.copy}"</p>
+              </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <button className="btn btn-primary" style={{ width: '100%', height: 52, borderRadius: 12, gap: 10 }}>
-                    <Mail size={18} /> Send Follow-up Email
-                  </button>
-                  <button className="btn btn-ghost" style={{ width: '100%', height: 52, borderRadius: 12, gap: 10 }}>
-                    <FileText size={18} /> Draft Impact Report
-                  </button>
-                  <button className="btn btn-ghost" style={{ width: '100%', height: 52, borderRadius: 12, gap: 10 }}>
-                    <Calendar size={18} /> Schedule Check-in
-                  </button>
-                  <button className="btn btn-ghost" style={{ width: '100%', height: 52, borderRadius: 12, gap: 10 }}>
-                    <Zap size={18} /> Auto-Reply Templates
-                  </button>
+              <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <button className="btn btn-primary" style={{ width: '100%', height: 56, borderRadius: 14, gap: 10 }}>
+                  <Mail size={18} />
+                  <span>Send Follow-up</span>
+                </button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <button className="btn btn-secondary" style={{ height: 48 }}>Draft Report</button>
+                  <button className="btn btn-ghost" style={{ height: 48 }}>Schedule</button>
                 </div>
               </div>
-            </div>
+            </aside>
           </div>
         )}
       </div>

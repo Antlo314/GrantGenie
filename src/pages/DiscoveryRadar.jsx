@@ -1,203 +1,152 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import { 
   Search, 
-  Zap, 
-  Activity, 
-  Heart, 
-  X, 
   Filter, 
-  Loader2, 
   Sparkles, 
-  ArrowRight, 
+  ArrowUpRight, 
+  CheckCircle, 
+  X, 
   ChevronRight, 
-  Globe, 
-  Calendar, 
-  DollarSign, 
-  CheckCircle2, 
-  AlertCircle,
-  Download,
-  PlusCircle,
-  FileText
+  Loader2, 
+  Zap,
+  Target,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
-import { askGemini } from '../utils/ai';
 
 const sampleGrants = [
-  { 
-    id: 1, 
-    title: 'Climate Education Catalyst Grant', 
-    funder: 'Bezos Earth Fund', 
-    amount: '$250,000 - $1,000,000', 
-    deadline: 'Dec 15, 2026', 
+  {
+    id: 1,
+    title: "Climate Education Catalyst",
+    funder: "Bezos Earth Fund",
+    amount: "$500,000 - $1,500,000",
+    deadline: "Dec 15, 2026",
     matchScore: 98,
-    type: 'Foundation',
-    successRate: '12%',
-    location: 'Global / US Priority',
-    aiReason: 'Direct alignment with your "Quantum Lab" mobile initiative and focus on underserved urban Title I districts.',
-    eligibility: ['501(c)(3) Status', 'Documented 3-year track record', 'Focus on STEM/Climate education'],
-    fullDescription: 'The Bezos Earth Fund is seeking applications for innovative education programs that bridge the gap between climate science and local community action. Priority is given to projects that leverage technology to reach marginalized student populations.'
+    type: "Foundation",
+    aiReason: "Directly matches your STEM focus and geographic priority for urban California districts.",
+    eligibility: ["501(c)(3) Status", "Urban Focus", "3+ Years Operation"],
+    summary: "Supporting innovative K-12 climate education programs that leverage technology to drive student engagement in underserved communities."
   },
-  { 
-    id: 2, 
-    title: 'Environmental Justice Small Grants', 
-    funder: 'EPA (Environmental Protection Agency)', 
-    amount: '$50,000 - $100,000', 
-    deadline: 'Jan 10, 2027', 
-    matchScore: 91,
-    type: 'Federal',
-    successRate: '24%',
-    location: 'United States',
-    aiReason: 'Matches your localized air quality monitoring program for community resilience mapping.',
-    eligibility: ['Nonprofit organizations', 'Tribal governments', 'Localized community focus'],
-    fullDescription: 'Supports community-driven projects that address environmental and public health issues in areas disproportionately affected by pollution and climate change.'
+  {
+    id: 2,
+    title: "Urban STEM Initiative",
+    funder: "Schmidt Futures",
+    amount: "$250,000",
+    deadline: "Nov 24, 2026",
+    matchScore: 92,
+    type: "Philanthropy",
+    aiReason: "High alignment with your mobile 'Quantum Lab' technology deployment model.",
+    eligibility: ["Nonprofit Status", "Technology Focus", "Scalable Model"],
+    summary: "Funding for scalable technology solutions that improve STEM education outcomes in urban environments."
   },
-  { 
-    id: 3, 
-    title: 'Urban Green Space Innovation', 
-    funder: 'Bloomberg Philanthropies', 
-    amount: '$500,000', 
-    deadline: 'Nov 01, 2026', 
-    matchScore: 87,
-    type: 'Foundation',
-    successRate: '8%',
-    location: 'C40 Cities Network',
-    aiReason: 'Fits your scalable model for urban carbon sequestration education in metropolitan areas.',
-    eligibility: ['Registered non-profits', 'City government partnership required'],
-    fullDescription: 'Accelerating the development of urban green infrastructure through community engagement and education.'
+  {
+    id: 3,
+    title: "Global Health Equity Grant",
+    funder: "Bill & Melinda Gates Foundation",
+    amount: "$1,000,000+",
+    deadline: "Jan 10, 2027",
+    matchScore: 85,
+    type: "International",
+    aiReason: "Matches your long-term goal for international expansion, though less immediate than local grants.",
+    eligibility: ["Global Reach", "Health/Education Nexus", "Evidence-based"],
+    summary: "Improving health outcomes through education and technological intervention in developing regions."
   },
-  { 
-    id: 4, 
-    title: 'Digital Equity & Climate Awareness', 
-    funder: 'Google.org', 
-    amount: '$150,000', 
-    deadline: 'Feb 20, 2027', 
-    matchScore: 84,
-    type: 'Corporate',
-    successRate: '15%',
-    location: 'United States',
-    aiReason: 'Matches your integration of tech hardware with environmental awareness curriculum.',
-    eligibility: ['501(c)(3) Status', 'Technology-driven approach'],
-    fullDescription: 'Funding organizations that use technology to solve the worlds biggest challenges, with a focus on climate resilience and digital inclusion.'
-  },
-  { 
-    id: 5, 
-    title: 'K-12 STEM Excellence Fund', 
-    funder: 'National Science Foundation (NSF)', 
-    amount: '$300,000 - $750,000', 
-    deadline: 'Dec 01, 2026', 
-    matchScore: 79,
-    type: 'Federal',
-    successRate: '10%',
-    location: 'United States',
-    aiReason: 'Strong for your teacher professional development pillar, though more academic focus required.',
-    eligibility: ['Educational institutions', 'Associated non-profits'],
-    fullDescription: 'Promoting excellence in STEM education through research-driven instructional models and teacher training.'
-  },
-  { 
-    id: 6, 
-    title: 'Community Resilience Building', 
-    funder: 'Rockefeller Foundation', 
-    amount: '$200,000', 
-    deadline: 'Rolling', 
-    matchScore: 76,
-    type: 'Foundation',
-    successRate: '5%',
-    location: 'Global',
-    aiReason: 'General match for community mapping, but requires stronger emphasis on healthcare nexus.',
-    eligibility: ['Global non-profits', 'Evidence of systemic impact'],
-    fullDescription: 'Building resilience for individuals, communities, and systems to survive, adapt, and grow in the face of climate shocks.'
+  {
+    id: 4,
+    title: "Digital Literacy for All",
+    funder: "Google.org",
+    amount: "$100,000 - $500,000",
+    deadline: "Feb 02, 2027",
+    matchScore: 88,
+    type: "Corporate",
+    aiReason: "Perfect fit for your teacher professional development pillar in climate pedagogy.",
+    eligibility: ["US-based 501(c)(3)", "Digital Content", "K-12 Scope"],
+    summary: "Grants for organizations bridging the digital divide through innovative curriculum and teacher training."
   }
 ];
 
 const DiscoveryRadar = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedGrant, setSelectedGrant] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [grants, setGrants] = useState(sampleGrants);
+  const [selectedGrant, setSelectedGrant] = useState(null);
 
   const handleSearch = (e) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate real-time scanning
     setTimeout(() => {
       setLoading(false);
+      // In a real app, this would be an API call
     }, 1500);
-  };
-
-  const getScoreColor = (score) => {
-    if (score >= 90) return 'var(--emerald)';
-    if (score >= 80) return 'var(--teal)';
-    return 'var(--gold)';
   };
 
   return (
     <AppLayout title="Discovery Radar">
-      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', gap: 0, overflow: 'hidden', margin: '-32px' }}>
+      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', gap: 0, margin: '-32px', overflow: 'hidden' }}>
         
-        {/* Search & Header Section */}
-        <div style={{ background: 'white', borderBottom: '1px solid var(--slate-200)', padding: '24px 32px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{ padding: '8px 16px', background: 'var(--slate-900)', borderRadius: 999, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--emerald)', animation: 'pulse 2s infinite' }} />
-                <span style={{ color: 'white', fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Quantum Radar Active</span>
-              </div>
-              <span style={{ color: 'var(--slate-400)', fontSize: 13, fontWeight: 500 }}>Scanning 42,817 Global Funders</span>
-            </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn btn-ghost" style={{ gap: 8 }}><Download size={16} /> Export List</button>
-              <button className="btn btn-primary" style={{ gap: 8 }}><Zap size={16} /> Save to Pipeline</button>
-            </div>
-          </div>
-
-          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 12 }}>
+        {/* Search Header */}
+        <div style={{ background: 'white', padding: '24px 32px', borderBottom: '1px solid var(--slate-200)', flexShrink: 0 }}>
+          <form onSubmit={handleSearch} style={{ display: 'flex', gap: 16, maxWidth: 1000, margin: '0 auto' }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <Search size={20} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', color: 'var(--slate-400)' }} />
               <input 
                 type="text" 
-                placeholder="Search via natural language (e.g. 'climate education for small nonprofits in California')..." 
+                placeholder="Describe your project (e.g., 'climate education for small nonprofits in California')..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ paddingLeft: 48, height: 52, fontSize: 15, borderRadius: 12 }}
+                style={{ paddingLeft: 48, height: 56, borderRadius: 16, fontSize: 15, background: 'var(--slate-50)', border: '1px solid var(--slate-200)' }}
               />
             </div>
-            <button className="btn btn-primary" style={{ padding: '0 24px', height: 52, borderRadius: 12 }}>Search Funders</button>
-            <button className="btn btn-ghost" style={{ padding: '0 16px', height: 52, borderRadius: 12 }}><Filter size={20} /></button>
+            <button type="submit" className="btn btn-primary" style={{ padding: '0 32px', height: 56, borderRadius: 16, gap: 10 }}>
+              {loading ? <Loader2 size={20} className="animate-spin" /> : <Zap size={20} />}
+              <span>Scan Funders</span>
+            </button>
           </form>
         </div>
 
         {/* Filter Bar */}
-        <div style={{ background: 'var(--slate-50)', padding: '12px 32px', borderBottom: '1px solid var(--slate-200)', display: 'flex', gap: 24, flexShrink: 0 }}>
-          <div className="filter-group">
-            <span className="filter-label">Urgency:</span>
-            <select className="filter-select"><option>All Deadlines</option><option>Next 30 Days</option><option>Next 90 Days</option></select>
+        <div style={{ background: 'var(--slate-50)', padding: '12px 32px', borderBottom: '1px solid var(--slate-200)', display: 'flex', gap: 24, flexShrink: 0, overflowX: 'auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase' }}>Urgency:</span>
+            <select style={{ background: 'transparent', border: 'none', fontSize: 13, fontWeight: 600, color: 'var(--slate-700)', cursor: 'pointer', outline: 'none' }}>
+              <option>All Deadlines</option>
+              <option>Next 30 Days</option>
+              <option>Next 90 Days</option>
+            </select>
           </div>
-          <div className="filter-group">
-            <span className="filter-label">Funding Type:</span>
-            <select className="filter-select"><option>All Types</option><option>Foundation</option><option>Federal</option><option>Corporate</option></select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase' }}>Funding Type:</span>
+            <select style={{ background: 'transparent', border: 'none', fontSize: 13, fontWeight: 600, color: 'var(--slate-700)', cursor: 'pointer', outline: 'none' }}>
+              <option>All Types</option>
+              <option>Foundation</option>
+              <option>Federal</option>
+              <option>Corporate</option>
+            </select>
           </div>
-          <div className="filter-group">
-            <span className="filter-label">Amount:</span>
-            <select className="filter-select"><option>Any Amount</option><option>$50k+</option><option>$250k+</option><option>$1M+</option></select>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase' }}>Success Rate:</span>
+            <select style={{ background: 'transparent', border: 'none', fontSize: 13, fontWeight: 600, color: 'var(--slate-700)', cursor: 'pointer', outline: 'none' }}>
+              <option>All Rates</option>
+              <option>High ({'>'}15%)</option>
+              <option>Medium ({'>'}8%)</option>
+            </select>
           </div>
-          <div className="filter-group">
-            <span className="filter-label">Success Rate:</span>
-            <select className="filter-select"><option>All Rates</option><option>High ({'>'}15%)</option><option>Medium ({'>'}8%)</option></select>
-          </div>
-          <style>{`
-            .filter-group { display: flex; alignItems: center; gap: 8; }
-            .filter-label { font-size: 11px; font-weight: 700; color: var(--slate-400); text-transform: uppercase; }
-            .filter-select { background: transparent; border: none; font-size: 13px; font-weight: 600; color: var(--slate-700); cursor: pointer; outline: none; }
-          `}</style>
         </div>
 
         {/* Main Content Area */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: 'row' }} className="responsive-radar-layout">
+          <style>{`
+            @media (max-width: 1024px) {
+              .responsive-radar-layout { flex-direction: column !important; overflow-y: auto !important; }
+              .radar-results { padding: 16px !important; }
+              .radar-card { grid-template-columns: 1fr !important; gap: 16px !important; }
+              .radar-card-metrics { flex-direction: row !important; justify-content: flex-start !important; gap: 24px !important; text-align: left !important; }
+            }
+          `}</style>
           
           {/* Results Table */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 32 }}>
+          <div className="radar-results" style={{ flex: 1, overflowY: 'auto', padding: 32 }}>
             {loading ? (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 16 }}>
                 <Loader2 size={40} className="animate-spin" style={{ color: 'var(--teal)' }} />
@@ -205,25 +154,25 @@ const DiscoveryRadar = () => {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--slate-400)', marginBottom: 8 }}>Scanning 40,000+ funders in real-time · <span style={{ color: 'var(--teal)' }}>142 Matches Found</span></div>
                 {grants.map((grant) => (
                   <div 
                     key={grant.id} 
                     onClick={() => setSelectedGrant(grant)}
+                    className="radar-card"
                     style={{ 
                       background: 'white', 
                       borderRadius: 16, 
                       border: `1px solid ${selectedGrant?.id === grant.id ? 'var(--teal)' : 'var(--slate-200)'}`,
                       padding: 24,
                       display: 'grid',
-                      gridTemplateColumns: '1fr 150px 120px 140px',
+                      gridTemplateColumns: '1fr 140px 120px 100px',
                       alignItems: 'center',
                       gap: 24,
                       cursor: 'pointer',
                       transition: 'all 0.2s',
                       boxShadow: selectedGrant?.id === grant.id ? 'var(--shadow-md)' : 'none'
                     }}
-                    onMouseEnter={(e) => { if (selectedGrant?.id !== grant.id) e.currentTarget.style.borderColor = 'var(--teal-light)'; }}
-                    onMouseLeave={(e) => { if (selectedGrant?.id !== grant.id) e.currentTarget.style.borderColor = 'var(--slate-200)'; }}
                   >
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
@@ -233,28 +182,23 @@ const DiscoveryRadar = () => {
                       <p style={{ fontSize: 13, color: 'var(--teal)', fontWeight: 600, marginBottom: 8 }}>{grant.funder}</p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--slate-500)' }}>
                         <Sparkles size={14} style={{ color: 'var(--gold)' }} />
-                        <span style={{ fontStyle: 'italic' }}>{grant.aiReason.substring(0, 80)}...</span>
+                        <span style={{ fontStyle: 'italic' }}>{grant.aiReason}</span>
                       </div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Amount</div>
+                    <div className="radar-card-metrics" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 2 }}>Amount</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)' }}>{grant.amount.split(' - ')[0]}</div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Deadline</div>
+                    <div className="radar-card-metrics" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 2 }}>Deadline</div>
                       <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)' }}>{grant.deadline.split(', ')[0]}</div>
                     </div>
 
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Match Score</div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
-                        <span style={{ fontSize: 16, fontWeight: 800, color: getScoreColor(grant.matchScore) }}>{grant.matchScore}%</span>
-                        <div style={{ width: 40, height: 4, background: 'var(--slate-100)', borderRadius: 999, overflow: 'hidden' }}>
-                          <div style={{ width: `${grant.matchScore}%`, height: '100%', background: getScoreColor(grant.matchScore) }}></div>
-                        </div>
-                      </div>
+                    <div className="radar-card-metrics" style={{ textAlign: 'right', display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 2 }}>Match</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: grant.matchScore > 95 ? 'var(--emerald)' : 'var(--teal)' }}>{grant.matchScore}%</div>
                     </div>
                   </div>
                 ))}
@@ -262,66 +206,63 @@ const DiscoveryRadar = () => {
             )}
           </div>
 
-          {/* Detail Side Panel */}
+          {/* Right Panel: Detail View */}
           {selectedGrant && (
-            <aside style={{ width: 440, background: 'white', borderLeft: '1px solid var(--slate-200)', display: 'flex', flexDirection: 'column', overflow: 'hidden' }} className="animate-fade-in">
-              <div style={{ padding: '24px 32px', borderBottom: '1px solid var(--slate-100)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 style={{ fontSize: 18, fontWeight: 800 }}>Grant Details</h2>
-                <button onClick={() => setSelectedGrant(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--slate-400)' }}><X size={24} /></button>
-              </div>
-
-              <div style={{ flex: 1, overflowY: 'auto', padding: 32, display: 'flex', flexDirection: 'column', gap: 32 }}>
-                <div>
-                  <h3 style={{ fontSize: 20, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 8 }}>{selectedGrant.title}</h3>
-                  <p style={{ fontSize: 15, color: 'var(--teal)', fontWeight: 700, marginBottom: 20 }}>{selectedGrant.funder}</p>
-                  
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-                    <div style={{ background: 'var(--slate-50)', padding: 16, borderRadius: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Amount</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--slate-900)' }}>{selectedGrant.amount}</div>
-                    </div>
-                    <div style={{ background: 'var(--slate-50)', padding: 16, borderRadius: 12 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', marginBottom: 4 }}>Success Rate</div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--emerald)' }}>{selectedGrant.successRate}</div>
-                    </div>
+            <aside style={{ width: 440, background: 'white', borderLeft: '1px solid var(--slate-200)', overflowY: 'auto', display: 'flex', flexDirection: 'column' }} className="radar-detail-panel">
+              <style>{`
+                @media (max-width: 1024px) {
+                  .radar-detail-panel { width: 100% !important; border-left: none !important; border-top: 1px solid var(--slate-200) !important; position: fixed !important; bottom: 0 !important; height: 80vh !important; z-index: 1000 !important; box-shadow: 0 -20px 50px rgba(0,0,0,0.1) !important; animation: slideInUp 0.4s ease !important; }
+                }
+                @keyframes slideInUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+              `}</style>
+              <div style={{ padding: 32 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+                  <div style={{ width: 64, height: 64, background: 'var(--slate-100)', borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--teal)' }}>
+                    <Target size={32} />
                   </div>
+                  <button onClick={() => setSelectedGrant(null)} style={{ background: 'var(--slate-100)', border: 'none', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}><X size={18} /></button>
                 </div>
 
-                <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Sparkles size={16} style={{ color: 'var(--gold)' }} /> Why it matches
-                  </h4>
-                  <p style={{ fontSize: 14, color: 'var(--slate-600)', lineHeight: 1.6, background: 'rgba(245,158,11,0.03)', border: '1px solid rgba(245,158,11,0.1)', padding: 16, borderRadius: 12 }}>
-                    {selectedGrant.aiReason}
-                  </p>
+                <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 8 }}>{selectedGrant.title}</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}>
+                  <span className="badge badge-teal">{selectedGrant.type}</span>
+                  <span style={{ fontSize: 14, color: 'var(--slate-500)', fontWeight: 600 }}>{selectedGrant.funder}</span>
                 </div>
 
-                <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 12 }}>Eligibility Checklist</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ background: 'var(--slate-50)', borderRadius: 16, padding: 20, marginBottom: 32 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--teal)', fontWeight: 700, fontSize: 14, marginBottom: 12 }}>
+                    <Sparkles size={18} /> AI Match Reasoning
+                  </div>
+                  <p style={{ fontSize: 14, color: 'var(--slate-600)', lineHeight: 1.6 }}>{selectedGrant.aiReason}</p>
+                </div>
+
+                <div style={{ marginBottom: 32 }}>
+                  <h3 style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 16 }}>Funding Summary</h3>
+                  <p style={{ fontSize: 15, color: 'var(--slate-700)', lineHeight: 1.7 }}>{selectedGrant.summary}</p>
+                </div>
+
+                <div style={{ marginBottom: 40 }}>
+                  <h3 style={{ fontSize: 12, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 16 }}>Eligibility Checklist</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {selectedGrant.eligibility.map((item, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center', fontSize: 14, color: 'var(--slate-600)' }}>
-                        <CheckCircle2 size={16} style={{ color: 'var(--emerald)' }} /> {item}
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, color: 'var(--slate-600)' }}>
+                        <CheckCircle size={16} color="var(--emerald)" />
+                        {item}
                       </div>
                     ))}
                   </div>
                 </div>
 
-                <div>
-                  <h4 style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 12 }}>Grant Overview</h4>
-                  <p style={{ fontSize: 14, color: 'var(--slate-500)', lineHeight: 1.7 }}>
-                    {selectedGrant.fullDescription}
-                  </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <button className="btn btn-primary" style={{ width: '100%', height: 56, borderRadius: 14, gap: 10 }} onClick={() => navigate('/oracle')}>
+                    <span>Start Draft in Oracle</span>
+                    <ArrowRight size={18} />
+                  </button>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                    <button className="btn btn-secondary" style={{ height: 48, borderRadius: 12 }}>Save to Pipeline</button>
+                    <button className="btn btn-ghost" style={{ height: 48, borderRadius: 12 }}>Full Funder Profile</button>
+                  </div>
                 </div>
-              </div>
-
-              <div style={{ padding: 32, borderTop: '1px solid var(--slate-100)', display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <button className="btn btn-primary" style={{ height: 52, borderRadius: 12, gap: 10 }} onClick={() => navigate('/oracle')}>
-                  <FileText size={18} /> Start Draft in Oracle
-                </button>
-                <button className="btn btn-ghost" style={{ height: 52, borderRadius: 12, gap: 10 }}>
-                  <PlusCircle size={18} /> Add to Pipeline Commander
-                </button>
               </div>
             </aside>
           )}

@@ -26,13 +26,17 @@
   --slate-800: #1e293b;
   --slate-900: #0f172a;
   --white: #ffffff;
-  --radius: 16px;
+  --radius: 12px;
   --radius-sm: 8px;
+  --radius-md: 16px;
   --radius-lg: 24px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
-  --shadow-xl: 0 20px 25px rgba(0,0,0,0.1), 0 10px 10px rgba(0,0,0,0.04);
+  --radius-full: 9999px;
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.1), 0 2px 4px -1px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+  --gradient-teal: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+  --gradient-slate: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 }
 
 html, body {
@@ -43,6 +47,8 @@ html, body {
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* ── Typography ── */
@@ -115,15 +121,16 @@ p {
 /* ── Card ── */
 .card {
   background: var(--white);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   border: 1px solid var(--slate-200);
   padding: 24px;
   box-shadow: var(--shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card:hover {
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  border-color: var(--slate-300);
 }
 
 /* ── Inputs ── */
@@ -380,37 +387,77 @@ input::placeholder, textarea::placeholder {
   transition: width 0.5s ease;
 }
 
-/* ── Table ── */
-table {
-  width: 100%;
-  border-collapse: collapse;
+/* ── Tables - Responsive ── */
+@media (max-width: 900px) {
+  table, thead, tbody, th, td, tr { display: block; }
+  thead tr { position: absolute; top: -9999px; left: -9999px; }
+  tr { border: 1px solid var(--slate-200); border-radius: var(--radius); margin-bottom: 16px; background: white; padding: 8px; }
+  td { border: none; border-bottom: 1px solid var(--slate-50); position: relative; padding-left: 50%; text-align: right; }
+  td:last-child { border-bottom: none; }
+  td:before { 
+    content: attr(data-label); 
+    position: absolute; left: 16px; width: 45%; padding-right: 10px; 
+    white-space: nowrap; text-align: left; font-weight: 700; color: var(--slate-500); font-size: 11px; text-transform: uppercase;
+  }
 }
 
-th {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--slate-500);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 12px 16px;
-  text-align: left;
-  border-bottom: 1px solid var(--slate-200);
-  background: var(--slate-50);
+/* ── Bento Grid ── */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(160px, auto);
+  gap: 20px;
 }
 
-td {
-  padding: 14px 16px;
-  font-size: 14px;
-  color: var(--slate-700);
-  border-bottom: 1px solid var(--slate-100);
+@media (max-width: 1024px) {
+  .bento-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
-tr:last-child td {
-  border-bottom: none;
+@media (max-width: 640px) {
+  .bento-grid { grid-template-columns: 1fr; }
 }
 
-tr:hover td {
-  background: var(--slate-50);
+.bento-card {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.bento-span-2 { grid-column: span 2; }
+.bento-span-3 { grid-column: span 3; }
+.bento-row-2 { grid-row: span 2; }
+
+/* ── Hamburger Sidebar Overlay ── */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.mobile-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  background: white;
+  z-index: 1001;
+  box-shadow: 20px 0 50px rgba(0,0,0,0.1);
+  animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ── Landing Page ── */
