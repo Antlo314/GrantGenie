@@ -8,6 +8,8 @@ import CampaignEngine from './pages/CampaignEngine';
 import DiscoveryRadar from './pages/DiscoveryRadar';
 import Settings from './pages/Settings';
 import InvestorDeck from './pages/InvestorDeck';
+import FoundingPartners from './pages/FoundingPartners';
+import Beta from './pages/Beta';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
         <Route path="/radar" element={<DiscoveryRadar />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/deck" element={<InvestorDeck />} />
+        <Route path="/founding-partners" element={<FoundingPartners />} />
+        <Route path="/beta" element={<Beta />} />
       </Routes>
     </Router>
   );
