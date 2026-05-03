@@ -106,7 +106,7 @@ const DiscoveryRadar = () => {
         </div>
 
         {/* Filter Bar */}
-        <div style={{ background: 'var(--slate-50)', padding: '12px 32px', borderBottom: '1px solid var(--slate-200)', display: 'flex', gap: 24, flexShrink: 0, overflowX: 'auto' }}>
+        <div className="scroll-x hide-scrollbar" style={{ background: 'var(--slate-50)', padding: '12px 32px', borderBottom: '1px solid var(--slate-200)', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase' }}>Urgency:</span>
             <select style={{ background: 'transparent', border: 'none', fontSize: 13, fontWeight: 600, color: 'var(--slate-700)', cursor: 'pointer', outline: 'none' }}>

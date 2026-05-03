@@ -86,7 +86,7 @@ const PipelineCommander = () => {
           {/* Main List Area */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-              <div style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, overflowX: 'auto' }}>
+              <div className="scroll-x hide-scrollbar" style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4 }}>
                 {tabs.map(tab => (
                   <button 
                     key={tab} 

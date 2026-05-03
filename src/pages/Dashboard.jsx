@@ -103,9 +103,10 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {[
-                    { name: 'Climate Education Catalyst', funder: 'Bezos Earth Fund', amount: '$1.2M', status: 'In Progress', deadline: 'Dec 15' },
-                    { name: 'Urban STEM Initiative', funder: 'Schmidt Futures', amount: '$250k', status: 'Review', deadline: 'Nov 24' },
-                    { name: 'Global Health Equity', funder: 'Gates Foundation', amount: '$500k', status: 'Drafting', deadline: 'Jan 10' }
+                    { name: 'Climate Resilience Fund', funder: 'Bezos Earth Fund', amount: '$1.2M', status: 'In Progress', deadline: 'Dec 15' },
+                    { name: 'Urban STEM Initiative', funder: 'Schmidt Futures', amount: '$250K', status: 'Review', deadline: 'Nov 24' },
+                    { name: 'Digital Equity Grant', funder: 'Lumina Foundation', amount: '$150K', status: 'Drafting', deadline: 'Jan 10' },
+                    { name: 'Social Justice Fund', funder: 'Ford Foundation', amount: '$400K', status: 'Awarded', deadline: 'Feb 01' }
                   ].map((grant, i) => (
                     <tr key={i}>
                       <td data-label="Grant Name" style={{ fontWeight: 700, color: 'var(--slate-900)' }}>{grant.name}</td>
@@ -113,11 +114,11 @@ const Dashboard = () => {
                       <td data-label="Amount" style={{ fontWeight: 600 }}>{grant.amount}</td>
                       <td data-label="Status">
                         <span style={{ 
-                          padding: '4px 10px', 
-                          background: grant.status === 'In Progress' ? 'rgba(13,148,136,0.1)' : 'var(--slate-100)', 
-                          color: grant.status === 'In Progress' ? 'var(--teal)' : 'var(--slate-500)',
-                          fontSize: 11,
-                          fontWeight: 700,
+                          fontSize: 11, 
+                          fontWeight: 700, 
+                          background: grant.status === 'Awarded' ? 'var(--emerald)15' : 'var(--slate-100)', 
+                          color: grant.status === 'Awarded' ? 'var(--emerald)' : 'var(--slate-500)',
+                          padding: '4px 10px',
                           borderRadius: 999
                         }}>{grant.status}</span>
                       </td>

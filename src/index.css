@@ -388,17 +388,34 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ── Tables - Responsive ── */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   table, thead, tbody, th, td, tr { display: block; }
   thead tr { position: absolute; top: -9999px; left: -9999px; }
-  tr { border: 1px solid var(--slate-200); border-radius: var(--radius); margin-bottom: 16px; background: white; padding: 8px; }
-  td { border: none; border-bottom: 1px solid var(--slate-50); position: relative; padding-left: 50%; text-align: right; }
+  tr { border: 1px solid var(--slate-200); border-radius: var(--radius-md); margin-bottom: 16px; background: white; padding: 8px; box-shadow: var(--shadow-sm); }
+  td { border: none; border-bottom: 1px solid var(--slate-50); position: relative; padding-left: 45%; text-align: right; min-height: 44px; display: flex; align-items: center; justify-content: flex-end; }
   td:last-child { border-bottom: none; }
   td:before { 
     content: attr(data-label); 
-    position: absolute; left: 16px; width: 45%; padding-right: 10px; 
+    position: absolute; left: 16px; width: 40%; padding-right: 10px; 
     white-space: nowrap; text-align: left; font-weight: 700; color: var(--slate-500); font-size: 11px; text-transform: uppercase;
   }
+}
+
+/* ── Utility: Horizontal Scroll ── */
+.scroll-x {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ── Bento Grid ── */

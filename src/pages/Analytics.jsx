@@ -73,7 +73,7 @@ const Analytics = () => {
 
         <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
           {/* Main Tabs */}
-          <div style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, marginBottom: 24, width: 'fit-content', overflowX: 'auto' }}>
+          <div className="scroll-x hide-scrollbar" style={{ background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, marginBottom: 24, width: 'fit-content' }}>
             {['Pipeline Performance', 'Win/Loss Analysis', 'Funder Insights', 'Impact Reports'].map(tab => (
               <button 
                 key={tab} 

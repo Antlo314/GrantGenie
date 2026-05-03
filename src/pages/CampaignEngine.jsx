@@ -112,7 +112,7 @@ const CampaignEngine = () => {
           
           {/* Main List Area */}
           <div className="campaign-list" style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
-            <div style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, marginBottom: 24, width: 'fit-content', overflowX: 'auto' }}>
+            <div className="scroll-x hide-scrollbar" style={{ background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4, marginBottom: 24, width: 'fit-content' }}>
               {tabs.map(tab => (
                 <button 
                   key={tab} 

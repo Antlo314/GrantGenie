@@ -109,7 +109,7 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
             <button className="mobile-only" onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', padding: 8, marginLeft: -8 }}>
               <Menu size={24} color="var(--slate-600)" />
             </button>
-            <div className="topbar-title" style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em' }}>{title}</div>
+            <div className="topbar-title" style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200 }}>{title}</div>
             
             {/* Desktop Agent Status */}
             <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'white', borderRadius: 99, border: '1px solid var(--slate-200)', marginLeft: 8 }}>
@@ -122,15 +122,15 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
             </div>
           </div>
 
-          <div className="topbar-actions">
-            <div style={{ position: 'relative', marginRight: 8 }} className="desktop-only">
+          <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+            <div style={{ position: 'relative' }} className="desktop-only">
               <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--slate-400)' }} />
               <input type="text" placeholder="Search commands..." style={{ paddingLeft: 40, width: 240, height: 40, borderRadius: 12, background: 'var(--slate-100)', border: 'none', fontSize: 14 }} />
             </div>
-            <button className="btn btn-ghost" style={{ padding: 10, borderRadius: 12, border: 'none', background: 'var(--slate-100)' }}>
+            <button className="btn btn-ghost" style={{ padding: 10, borderRadius: 12, border: 'none', background: 'var(--slate-100)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Bell size={20} color="var(--slate-600)" />
             </button>
-            <div className="avatar" onClick={() => navigate('/settings')} style={{ width: 40, height: 40, borderRadius: 12, fontSize: 14 }}>D</div>
+            <div className="avatar" onClick={() => navigate('/settings')} style={{ width: 40, height: 40, borderRadius: 12, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>D</div>
           </div>
         </header>
 
