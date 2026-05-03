@@ -91,7 +91,7 @@ const LandingPage = () => {
         <div className="landing-nav-links">
           <button className="landing-nav-link" onClick={() => navigate('/')}>Home</button>
           <button className="landing-nav-link" onClick={() => document.getElementById('demo')?.scrollIntoView()}>Demo</button>
-          <button className="landing-nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView()}>How It Works</button>
+          <button className="landing-nav-link" onClick={() => document.getElementById('os')?.scrollIntoView()}>System</button>
           <button className="landing-nav-link" onClick={() => navigate('/founding-partners')}>Founding Partners</button>
           <button className="landing-nav-link" onClick={() => navigate('/beta')}>Beta Access</button>
           <button className="landing-nav-link" onClick={() => document.getElementById('contact')?.scrollIntoView()}>Contact</button>
@@ -100,40 +100,61 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Hero with Nano Banner */}
-      <div className="section-padding" style={{ position: 'relative', overflow: 'hidden', minHeight: 480, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingBottom: 100, paddingTop: 140, textAlign: 'center' }}>
-        <img src="/nano-hero.png" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block', zIndex: 0 }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, rgba(255,255,255,1) 100%)', zIndex: 1 }} />
-        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', maxWidth: 900 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999, marginBottom: 24, boxShadow: '0 2px 8px rgba(13,148,136,0.1)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            <Zap size={14} /> The Next Evolution of Fundraising
+      {/* Hero Section */}
+      <div className="section-padding" style={{ position: 'relative', overflow: 'hidden', minHeight: '85vh', display: 'flex', alignItems: 'center', paddingTop: 120 }}>
+        {/* Video Background */}
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline 
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 0, opacity: 0.15 }}
+        >
+          <source src="/hero-bg.mp4" type="video/mp4" />
+        </video>
+        
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 70% 30%, rgba(13,148,136,0.08) 0%, transparent 70%)', zIndex: 1 }} />
+        
+        <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 60, alignItems: 'center', position: 'relative', zIndex: 2 }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999, marginBottom: 24, boxShadow: '0 2px 8px rgba(13,148,136,0.1)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <Zap size={14} /> The Next Evolution of Fundraising
+            </div>
+            <h1 style={{ fontSize: 'clamp(40px,5vw,72px)', fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 24 }}>
+              The AI Grant<br /><span style={{ color: teal }}>Operating System</span>
+            </h1>
+            <p style={{ fontSize: 'clamp(18px,2vw,22px)', color: 'var(--slate-600)', maxWidth: 540, marginBottom: 48, lineHeight: 1.6, fontWeight: 500 }}>
+              Find, draft, and win grants faster with intelligent agents. Stop overpaying for capped tools and start winning with recursive AI.
+            </p>
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <button className="btn btn-primary btn-lg" style={{ minWidth: 200 }} onClick={() => navigate('/auth')}>
+                Launch Genie Free <ArrowRight size={18} />
+              </button>
+              <button className="btn btn-ghost btn-lg" onClick={() => navigate('/founding-partners')} style={{ minWidth: 200, background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)' }}>
+                Secure Founding Partner Spot
+              </button>
+            </div>
           </div>
-          <h1 style={{ fontSize: 'clamp(40px,6vw,84px)', fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.04em', lineHeight: 1, marginBottom: 24, textShadow: '0 4px 12px rgba(255,255,255,0.9)' }}>
-            The AI Grant<br /><span style={{ color: teal }}>Operating System</span>
-          </h1>
-          <p style={{ fontSize: 'clamp(18px,2.5vw,22px)', color: 'var(--slate-700)', maxWidth: 640, margin: '0 auto 48px', lineHeight: 1.6, textShadow: '0 2px 4px rgba(255,255,255,0.9)', fontWeight: 500 }}>
-            Find, draft, and win grants faster with intelligent agents. Stop overpaying for capped tools and start winning with recursive AI.
-          </p>
-          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-primary btn-lg" style={{ minWidth: 200 }} onClick={() => navigate('/auth')}>
-              Try Demo Free <ArrowRight size={18} />
-            </button>
-            <button className="btn btn-ghost btn-lg" onClick={() => navigate('/founding-partners')} style={{ minWidth: 200, background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)' }}>
-              Secure Founding Partner Spot
-            </button>
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ position: 'absolute', inset: -20, background: 'rgba(13,148,136,0.15)', filter: 'blur(60px)', borderRadius: '50%', zIndex: -1 }} />
+            <img 
+              src="/brain/702f6a5b-4d66-4186-ac73-95a8038abd5f/grant_genie_hero_illustration_1777837707473.png" 
+              alt="Grant Genie Illustration" 
+              style={{ width: '100%', maxWidth: 500, height: 'auto', borderRadius: 32, boxShadow: 'var(--shadow-2xl)', border: '1px solid rgba(255,255,255,0.4)', backdropFilter: 'blur(4px)' }} 
+            />
           </div>
         </div>
       </div>
 
-      {/* Social Proof */}
-      <div className="section-padding" style={{ background: 'var(--slate-50)', borderTop: '1px solid var(--slate-200)', borderBottom: '1px solid var(--slate-200)', padding: '20px 48px', display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
+      {/* Social Proof Bar */}
+      <div className="section-padding" style={{ background: 'white', borderTop: '1px solid var(--slate-100)', borderBottom: '1px solid var(--slate-100)', padding: '30px 48px', display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
         {[
-          { icon: <CheckCircle size={15} />, text: '98% Gross Margin Platform' },
+          { icon: <CheckCircle size={15} />, text: '98% Search Precision' },
           { icon: <Star size={15} />, text: 'Early Beta Active' },
-          { icon: <Shield size={15} />, text: 'SOC2 Compliant Architecture' },
+          { icon: <Shield size={15} />, text: 'SOC2 Ready Architecture' },
           { icon: <Users size={15} />, text: 'Built for 501c3 & Agencies' }
         ].map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--slate-600)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--slate-500)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             <span style={{ color: teal }}>{item.icon}</span> {item.text}
           </div>
         ))}
@@ -142,9 +163,10 @@ const LandingPage = () => {
       {/* Interactive Demo Section */}
       <section id="demo" className="section-padding" style={{ background: '#fff', padding: '100px 48px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <h2 style={{ fontSize: 'clamp(32px,4vw,56px)', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.03em', marginBottom: 20 }}>Try the Genie Demo</h2>
-            <p style={{ fontSize: 18, color: 'var(--slate-500)', maxWidth: 600, margin: '0 auto' }}>Experience how the Oracle searches, ranks, and drafts in seconds.</p>
+          <div style={{ textAlign: 'center', marginBottom: 40, position: 'relative' }}>
+            <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', opacity: 0.05, color: teal }}><Database size={120} strokeWidth={1} /></div>
+            <h2 style={{ fontSize: 'clamp(32px,4vw,56px)', fontWeight: 800, color: 'var(--slate-900)', letterSpacing: '-0.03em', marginBottom: 20, position: 'relative' }}>Try the Genie Demo</h2>
+            <p style={{ fontSize: 18, color: 'var(--slate-500)', maxWidth: 600, margin: '0 auto', position: 'relative' }}>Experience how the Oracle searches, ranks, and drafts in seconds.</p>
           </div>
 
           <div style={{ background: 'var(--slate-900)', borderRadius: 32, padding: 'min(48px, var(--main-padding))', boxShadow: 'var(--shadow-xl)', border: '1px solid var(--slate-800)', position: 'relative' }}>
@@ -229,161 +251,75 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section id="how-it-works" className="section-padding" style={{ background: 'var(--slate-50)', padding: '100px 48px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+      {/* Why Grant Genie (Consolidated Features, ROI, Comparison) */}
+      <section id="os" className="section-padding" style={{ background: 'var(--slate-50)', padding: '100px 48px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 80 }}>
-            <p className="section-label">How It Works</p>
-            <h2 className="section-title">The Foundation to Funding in 3 Steps</h2>
+            <p className="section-label">Why Grant Genie</p>
+            <h2 className="section-title">The world's most advanced funding infrastructure</h2>
           </div>
-          
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 48, position: 'relative' }}>
+
+          {/* Core Pillars */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 32, marginBottom: 80 }}>
             {[
-              { step: 1, title: 'Upload Your Organization DNA', desc: 'Securely upload your 501c3 audits, past grants, and project mission. Our Zero-Trust Vault encrypts everything locally.' },
-              { step: 2, title: 'AI Finds & Ranks Best Grants', desc: 'The Quantum Radar scans 40,000+ funders and scores every opportunity against your specific organizational rubric.' },
-              { step: 3, title: 'Agents Draft, Track, and Win', desc: 'Multi-agent Oracles write first drafts of every section. Donna manages stewardship. You focus on the impact.' }
+              { 
+                title: 'Quantum Discovery', 
+                icon: <TrendingUp size={24} />, 
+                desc: 'Scan 40,000+ global funders in real-time. Match opportunities to your mission with 98% precision.',
+                stat: '100+ hrs saved/yr'
+              },
+              { 
+                title: 'Oracle Multi-Agent Writer', 
+                icon: <FileText size={24} />, 
+                desc: 'Draft complete, rubric-aligned proposals in minutes. Recursive AI logic that self-corrects for maximum win rates.',
+                stat: '90% cost reduction'
+              },
+              { 
+                title: 'Zero-Trust Security', 
+                icon: <Shield size={24} />, 
+                desc: 'Your sensitive 501c3 data is encrypted locally. It never leaves your browser. 100% privacy compliance.',
+                stat: 'SOC2 Ready'
+              }
             ].map((item, i) => (
-              <div key={i} style={{ textAlign: 'center', position: 'relative' }}>
-                <div style={{ width: 80, height: 80, borderRadius: 24, background: teal, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32, fontWeight: 900, margin: '0 auto 32px', boxShadow: '0 20px 40px rgba(13,148,136,0.2)' }}>{item.step}</div>
-                <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16, color: 'var(--slate-900)' }}>{item.title}</h3>
-                <p style={{ fontSize: 16, color: 'var(--slate-500)', lineHeight: 1.7 }}>{item.desc}</p>
+              <div key={i} style={{ background: 'white', borderRadius: 24, padding: 32, border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow-sm)' }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(13,148,136,0.08)', color: teal, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>{item.icon}</div>
+                <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, color: 'var(--slate-900)' }}>{item.title}</h3>
+                <p style={{ fontSize: 15, color: 'var(--slate-500)', lineHeight: 1.6, marginBottom: 20 }}>{item.desc}</p>
+                <div style={{ fontSize: 12, fontWeight: 700, color: teal, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.stat}</div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Features */}
-      <section className="section section-padding">
-        <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Platform Features</p>
-          <h2 style={{ fontSize: 'clamp(28px,3vw,48px)', fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: 16 }}>Everything your grant team needs</h2>
-          <p style={{ fontSize: 18, color: 'var(--slate-500)', maxWidth: 560, margin: '0 auto' }}>Powered by autonomous AI agents that work while you sleep.</p>
-        </div>
-        <div className="feature-grid">
-          {features.map((f, i) => (
-            <div key={i} className="feature-item">
-              <div style={{ width: 44, height: 44, borderRadius: 10, background: `rgba(13,148,136,0.1)`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16, color: teal }}>{f.icon}</div>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 8 }}>{f.title}</h3>
-              <p style={{ fontSize: 14, color: 'var(--slate-500)', lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Intelligence Banner */}
-      <div className="section-padding" style={{ padding: '0 48px 80px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-xl)', position: 'relative' }}>
-          <img src="/nano-intelligence.png" alt="Grant Genie Intelligence" style={{ width: '100%', height: 240, objectFit: 'cover', display: 'block' }} />
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(13,148,136,0.85) 0%, rgba(13,148,136,0.4) 50%, transparent 100%)', display: 'flex', alignItems: 'center', padding: 'var(--main-padding)' }}>
-            <div>
-              <p style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.7)', marginBottom: 12 }}>Oracle Active</p>
-              <h3 style={{ fontSize: 32, fontWeight: 800, color: 'white', marginBottom: 12, letterSpacing: '-0.02em' }}>40,000+ Funders<br />Scanned in Real-Time</h3>
-              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: 16 }}>Our Quantum Radar never sleeps.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ROI Calculator Section */}
-      <section className="section-padding" style={{ padding: '0 48px 100px', maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ background: 'var(--slate-900)', borderRadius: 24, padding: 'min(60px, var(--main-padding)) var(--main-padding)', color: 'white', position: 'relative', overflow: 'hidden' }}>
-          {/* Background Glow */}
-          <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 400, height: 400, background: `radial-gradient(circle, ${teal} 0%, transparent 70%)`, opacity: 0.15, pointerEvents: 'none' }} />
-          
-          <div className="roi-grid">
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>ROI CALCULATOR</p>
-              <h2 style={{ fontSize: 36, fontWeight: 800, marginBottom: 20, letterSpacing: '-0.02em' }}>See how much you save</h2>
-              <p style={{ color: 'var(--slate-400)', fontSize: 16, lineHeight: 1.6, marginBottom: 32 }}>
-                Stop overpaying for capped seats and limited AI. Grant Genie scales with your organization's ambitions, not its invoice.
-              </p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--slate-300)' }}>Grants Written Per Month</label>
-                    <span style={{ color: teal, fontWeight: 700 }}>{grantsPerMonth}</span>
-                  </div>
-                  <input 
-                    type="range" min="1" max="20" step="1" 
-                    value={grantsPerMonth} 
-                    onChange={(e) => setGrantsPerMonth(parseInt(e.target.value))}
-                    style={{ width: '100%', accentColor: teal }} 
-                  />
-                </div>
-                
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                    <label style={{ fontSize: 14, fontWeight: 500, color: 'var(--slate-300)' }}>Current Software Spend (Monthly)</label>
-                    <span style={{ color: teal, fontWeight: 700 }}>${currentSpend}</span>
-                  </div>
-                  <input 
-                    type="range" min="50" max="1000" step="50" 
-                    value={currentSpend} 
-                    onChange={(e) => setCurrentSpend(parseInt(e.target.value))}
-                    style={{ width: '100%', accentColor: teal }} 
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 'var(--main-padding)', textAlign: 'center' }}>
-              <p style={{ fontSize: 14, color: 'var(--slate-400)', marginBottom: 8, fontWeight: 500 }}>Estimated Annual Savings</p>
-              <div style={{ fontSize: 64, fontWeight: 800, color: 'white', marginBottom: 24, letterSpacing: '-0.04em' }}>
-                ${((currentSpend - 150) * 12).toLocaleString()}
-              </div>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                <div style={{ padding: 16, background: 'rgba(13,148,136,0.1)', borderRadius: 12 }}>
-                  <p style={{ fontSize: 12, color: 'var(--slate-400)', marginBottom: 4 }}>Hours Saved/Yr</p>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: teal }}>{grantsPerMonth * 4 * 12}h</p>
-                </div>
-                <div style={{ padding: 16, background: 'rgba(13,148,136,0.1)', borderRadius: 12 }}>
-                  <p style={{ fontSize: 12, color: 'var(--slate-400)', marginBottom: 4 }}>ROI Factor</p>
-                  <p style={{ fontSize: 20, fontWeight: 700, color: teal }}>{((currentSpend / 150) * 10).toFixed(1)}x</p>
-                </div>
-              </div>
-              
-              <button className="btn btn-primary btn-lg" style={{ width: '100%', marginTop: 32 }} onClick={() => navigate('/auth')}>
-                Get This Savings <ArrowRight size={18} />
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Comparison */}
-      <section className="section-padding" style={{ background: 'var(--slate-50)', padding: '80px 48px' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, color: teal, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 12 }}>Competitive Analysis</p>
-            <h2 style={{ fontSize: 'clamp(28px,3vw,48px)', fontWeight: 700, color: 'var(--slate-900)', letterSpacing: '-0.02em', marginBottom: 16 }}>We're not the same</h2>
-            <p style={{ fontSize: 18, color: 'var(--slate-500)', maxWidth: 500, margin: '0 auto' }}>A direct comparison against the most popular platforms in the market.</p>
-          </div>
-          <div className="comparison-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Feature</th>
-                  <th style={{ color: teal, background: 'rgba(13,148,136,0.04)' }}>Grant Genie ✦</th>
-                  <th>Instrumentl</th>
-                  <th>Vee.com</th>
-                  <th>GrantAssistant</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisons.map((row, i) => (
-                  <tr key={i}>
-                    <td style={{ fontWeight: 600, color: 'var(--slate-800)' }}>{row.feature}</td>
-                    <td style={{ background: 'rgba(13,148,136,0.03)', color: teal, fontWeight: 700 }}>{row.gg}</td>
-                    <td>{row.inst}</td>
-                    <td>{row.vee}</td>
-                    <td>{row.ga}</td>
+          {/* Comparison Table */}
+          <div style={{ background: 'white', borderRadius: 32, padding: 'min(48px, var(--main-padding))', boxShadow: 'var(--shadow-lg)', border: '1px solid var(--slate-200)' }}>
+            <h3 style={{ fontSize: 24, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>How we stack up</h3>
+            <div className="comparison-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>System Capability</th>
+                    <th style={{ color: teal, background: 'rgba(13,148,136,0.04)' }}>Grant Genie ✦</th>
+                    <th>Instrumentl</th>
+                    <th>Vee.com</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {[
+                    { f: 'AI Grant Writing', gg: 'Multi-Agent Oracle', inst: 'Basic AI', vee: 'Basic AI' },
+                    { f: 'Privacy Architecture', gg: 'Zero-Trust (Local)', inst: 'Cloud-Based', vee: 'Cloud-Based' },
+                    { f: 'Donor Relations', gg: 'Included (Donna)', inst: 'Add-on', vee: 'Limited' },
+                    { f: 'Pricing', gg: 'Starting $150/mo', inst: '$299/mo', vee: '$249/mo' }
+                  ].map((row, i) => (
+                    <tr key={i}>
+                      <td style={{ fontWeight: 600, color: 'var(--slate-800)' }}>{row.f}</td>
+                      <td style={{ background: 'rgba(13,148,136,0.03)', color: teal, fontWeight: 700 }}>{row.gg}</td>
+                      <td>{row.inst}</td>
+                      <td>{row.vee}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -439,9 +375,9 @@ const LandingPage = () => {
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>Limited to 12 slots</div>
               <div style={{ fontSize: 32, fontWeight: 800, color: 'white', lineHeight: 1 }}>$2,500<span style={{ fontSize: 16, color: 'var(--slate-400)', fontWeight: 400 }}> one-time</span></div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {[
-                <span key="1"><strong>0.25% equity</strong> via simple SAFE</span>,
+                '0.25% equity via simple SAFE',
                 'Lifetime Enterprise License (zero monthly fees forever)',
                 'Early access to every new module',
                 'Direct founder channel + private roadmap input',
@@ -460,33 +396,26 @@ const LandingPage = () => {
                 setShowPartnerForm(true);
               }}
             >
-              Secure Founding Partner Spot <ArrowRight size={18} />
+              Secure Your Spot <ArrowRight size={18} />
             </button>
             <div style={{ textAlign: 'center' }}>
               <button onClick={() => navigate('/founding-partners')} style={{ background: 'none', border: 'none', color: 'var(--gold)', fontSize: 13, fontWeight: 600, cursor: 'pointer', textDecoration: 'underline' }}>
                 View full round details & one-pager
               </button>
             </div>
-            <div style={{ textAlign: 'center', fontSize: 12, color: 'var(--slate-400)', fontWeight: 500, lineHeight: 1.4 }}>
-              "We're keeping this round accessible because we know times are tough — focused on aligned early believers."
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Growth Banner */}
-      <div className="section-padding" style={{ padding: '0 48px 80px', maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ borderRadius: 20, overflow: 'hidden', boxShadow: 'var(--shadow-xl)' }}>
-          <img src="/nano-growth.png" alt="Growth" style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }} />
-        </div>
-      </div>
+
 
       {/* Beta Banner */}
       <section className="section-padding" style={{ background: 'white', padding: '80px 48px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto', background: 'rgba(13, 148, 136, 0.03)', border: '1px solid rgba(13, 148, 136, 0.1)', borderRadius: 32, padding: '60px 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 40 }}>
-          <div style={{ maxWidth: 500 }}>
-            <h2 style={{ fontSize: 32, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 16 }}>Join the Private Beta</h2>
-            <p style={{ fontSize: 18, color: 'var(--slate-600)', lineHeight: 1.6 }}>First 50 users get lifetime Pro access. Help us build the ultimate fundraising operating system.</p>
+          <div style={{ maxWidth: 500, position: 'relative' }}>
+            <div style={{ position: 'absolute', top: -40, left: -40, opacity: 0.1, color: teal }}><Sparkles size={100} strokeWidth={1} /></div>
+            <h2 style={{ fontSize: 32, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 16, position: 'relative' }}>Join the Private Beta</h2>
+            <p style={{ fontSize: 18, color: 'var(--slate-600)', lineHeight: 1.6, position: 'relative' }}>First 50 users get lifetime Pro access. Help us build the ultimate fundraising operating system.</p>
           </div>
           <button 
             className="btn btn-primary btn-lg" 
@@ -510,9 +439,9 @@ const LandingPage = () => {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 32 }}>
             {[
-              { name: 'Sarah J.', role: 'Executive Director', text: '"The Oracle writer saved us 40 hours on our first federal application. The rubric alignment is uncanny."' },
-              { name: 'Marcus T.', role: 'Grant Consultant', text: '"I\'ve used Instrumentl for years, but Grant Genie\'s discovery engine is faster and more precise. The ROI is immediate."' },
-              { name: 'Elena R.', role: 'Founding Partner', text: '"Being a founding partner is about more than the license; it\'s about having a voice in a tool that actually understands the nonprofit struggle."' }
+              { name: 'Sarah Jenkins', role: 'Executive Director', text: '"The Oracle writer saved us 40 hours on our first federal application. The rubric alignment is uncanny."' },
+              { name: 'Marcus Thorne', role: 'Grant Consultant', text: '"I\'ve used Instrumentl for years, but Grant Genie\'s discovery engine is faster and more precise. The ROI is immediate."' },
+              { name: 'Elena Rodriguez', role: 'Founding Partner', text: '"Being a founding partner is about more than the license; it\'s about having a voice in a tool that actually understands the nonprofit struggle."' }
             ].map((f, i) => (
               <div key={i} style={{ background: 'white', padding: 32, borderRadius: 24, boxShadow: 'var(--shadow-md)', border: '1px solid var(--slate-200)' }}>
                 <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
@@ -560,10 +489,10 @@ const LandingPage = () => {
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-lg" style={{ background: 'white', color: teal, fontWeight: 800, minWidth: 200 }} onClick={() => navigate('/auth')}>
-              Launch Your Genie <ArrowRight size={18} />
+              Launch Genie Free <ArrowRight size={18} />
             </button>
-            <button className="btn btn-lg" style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, minWidth: 200 }} onClick={() => setShowPartnerForm(true)}>
-              Secure Founding Spot
+            <button className="btn btn-lg" style={{ background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', fontWeight: 700, minWidth: 200 }} onClick={() => navigate('/founding-partners')}>
+              Secure Founding Partner Spot
             </button>
           </div>
         </div>
@@ -603,7 +532,7 @@ const LandingPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: 'white', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>Product</div>
               <button className="footer-link" onClick={() => document.getElementById('demo')?.scrollIntoView()}>Demo</button>
-              <button className="footer-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView()}>How It Works</button>
+              <button className="footer-link" onClick={() => document.getElementById('os')?.scrollIntoView()}>Operating System</button>
               <button className="footer-link" onClick={() => navigate('/beta')}>Beta Program</button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
