@@ -184,7 +184,7 @@ const DiscoveryRadar = () => {
           </div>
           <div className="filter-group">
             <span className="filter-label">Success Rate:</span>
-            <select className="filter-select"><option>All Rates</option><option>High (>15%)</option><option>Medium (>8%)</option></select>
+            <select className="filter-select"><option>All Rates</option><option>High ({'>'}15%)</option><option>Medium ({'>'}8%)</option></select>
           </div>
           <style>{`
             .filter-group { display: flex; alignItems: center; gap: 8; }
