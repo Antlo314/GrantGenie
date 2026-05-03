@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
-import { TrendingUp, FileText, Search, Zap, ArrowRight, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { TrendingUp, FileText, Search, Zap, ArrowRight, Clock, CheckCircle, AlertCircle, Activity } from 'lucide-react';
 
 const grants = [
   { name: 'Lumina Catalyst Grant', funder: 'Lumina Foundation', match: 98, status: 'In Progress', deadline: '14 days', amount: '$150,000' },
@@ -27,9 +27,41 @@ const StatusBadge = ({ status }) => {
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem('hasSeenTour');
+    if (!hasSeenTour) {
+      setTimeout(() => setShowTour(true), 1000);
+    }
+  }, []);
+
+  const closeTour = () => {
+    localStorage.setItem('hasSeenTour', 'true');
+    setShowTour(false);
+  };
 
   return (
     <AppLayout title="Dashboard">
+      {/* Onboarding Modal */}
+      {showTour && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="animate-fade-in">
+          <div style={{ position: 'absolute', inset: 0, background: 'rgba(15, 23, 42, 0.6)', backdropFilter: 'blur(8px)' }} onClick={closeTour} />
+          <div style={{ position: 'relative', width: 440, background: 'white', borderRadius: 24, boxShadow: 'var(--shadow-2xl)', padding: 40, textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div style={{ width: 80, height: 80, background: 'var(--teal-xlight)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+              <Sparkles size={40} style={{ color: 'var(--teal)' }} />
+            </div>
+            <div>
+              <h2 style={{ fontSize: 24, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 8 }}>Welcome to Grant Genie</h2>
+              <p style={{ fontSize: 15, color: 'var(--slate-500)', lineHeight: 1.6 }}>Your AI-powered operating system for finding, drafting, and winning grants is now active.</p>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <button className="btn btn-primary" style={{ width: '100%', height: 52, borderRadius: 12 }} onClick={closeTour}>Get Started</button>
+              <button className="btn btn-ghost" style={{ width: '100%', height: 52, borderRadius: 12 }} onClick={() => navigate('/radar')}>Watch Video Demo</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Stats Row - Desktop */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, marginBottom: 32 }} className="desktop-only">
         <div className="stat-card">
@@ -123,15 +155,43 @@ const Dashboard = () => {
           <div className="card">
             <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--slate-900)', marginBottom: 16 }}>Quick Actions</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }} onClick={() => navigate('/oracle')}>
+              <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'flex-start', gap: 12, borderRadius: 12 }} onClick={() => navigate('/oracle')}>
                 <Zap size={16} /> Start New Grant Draft
               </button>
-              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }} onClick={() => navigate('/radar')}>
-                <Search size={16} /> Discover Funders
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12, borderRadius: 12 }} onClick={() => navigate('/radar')}>
+                <Search size={16} /> Scan New Funders
               </button>
-              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12 }} onClick={() => navigate('/campaigns')}>
-                <FileText size={16} /> Generate Impact Report
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12, borderRadius: 12 }} onClick={() => navigate('/oracle')}>
+                <FileText size={16} /> Generate Full Proposal
               </button>
+              <button className="btn btn-ghost" style={{ width: '100%', justifyContent: 'flex-start', gap: 12, borderRadius: 12 }} onClick={() => navigate('/campaigns')}>
+                <Activity size={16} /> Generate Impact Report
+              </button>
+            </div>
+          </div>
+
+          {/* AI Agents Status */}
+          <div className="card" style={{ background: 'var(--slate-900)', color: 'white' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 700, color: 'var(--slate-400)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>AI Agents Status</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: 'var(--emerald)', fontWeight: 700 }}>
+                <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', animation: 'pulse 2s infinite' }} /> Operational
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {[
+                { name: 'Oracle Multi-Agent', status: 'Active', load: '12%' },
+                { name: 'Quantum Radar', status: 'Active', load: '24%' },
+                { name: 'Donna Stewardship', status: 'Active', load: '5%' }
+              ].map((agent, i) => (
+                <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 2 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>{agent.name}</div>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Load: {agent.load}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--emerald)' }}>{agent.status}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
