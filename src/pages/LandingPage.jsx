@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Zap, Shield, Database, CheckCircle, Star, FileText, Users, TrendingUp, X } from 'lucide-react';
+import { ArrowRight, Zap, Shield, Database, CheckCircle, Star, FileText, Users, TrendingUp, X, Sparkles } from 'lucide-react';
 
 const teal = 'var(--teal)';
 const tealDark = 'var(--teal-dark)';
@@ -57,7 +57,7 @@ const LandingPage = () => {
 
   const features = [
     { icon: <FileText size={22} />, title: 'Oracle Multi-Agent Writer', desc: 'Win more grants by drafting rubric-aligned applications in minutes, not weeks. Recursive logic that beats generic AI.' },
-    { icon: <Shield size={22} />, title: 'Zero-Trust Data Security', desc: 'Your sensitive 501c3 data never leaves your browser. Local encryption ensures 100% privacy and compliance.' },
+    { icon: <Shield size={22} />, title: 'Secure Data Governance', desc: 'Your sensitive 501c3 data never leaves your browser. Local encryption ensures 100% privacy and compliance.' },
     { icon: <Database size={22} />, title: 'Scalable Program Management', desc: 'Track every initiative and deadline without per-project fees. Built for growing nonprofits and agencies.' },
     { icon: <TrendingUp size={22} />, title: 'Quantum Funder Discovery', desc: 'Scan 40,000+ active foundations in real-time to surface hidden matches before your competition does.' },
     { icon: <Users size={22} />, title: 'Donna Auto-Stewardship', desc: 'Turn wins into long-term funding with automated donor updates and impact reports generated from your grants.' },
@@ -75,7 +75,7 @@ const LandingPage = () => {
     { feature: 'AI Grant Writing', gg: 'Multi-Agent Oracle', inst: 'Basic Assistant', vee: 'Basic AI', ga: 'Collaborative AI' },
     { feature: 'Monthly Grant Limit', gg: '5 + Unlimited Overage', inst: 'Capped', vee: 'Capped (3)', ga: 'Strict Quotas' },
     { feature: 'Active Programs', gg: 'Unlimited', inst: 'Limited', vee: 'Limited (3)', ga: 'Limited' },
-    { feature: 'Data Privacy', gg: 'Zero-Trust Vault', inst: 'Centralized Cloud', vee: 'Centralized Cloud', ga: 'Centralized Cloud' },
+    { feature: 'Data Privacy', gg: 'Secure Local Vault', inst: 'Centralized Cloud', vee: 'Centralized Cloud', ga: 'Centralized Cloud' },
     { feature: 'Donor Relations', gg: 'Included (Donna)', inst: 'Add-on', vee: 'Premium Only', ga: 'Limited' },
     { feature: 'Funder Discovery', gg: 'Quantum Real-time', inst: 'Standard', vee: 'Standard', ga: 'Standard' },
   ];
@@ -117,8 +117,11 @@ const LandingPage = () => {
         
         <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 60, alignItems: 'center', position: 'relative', zIndex: 2 }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999, marginBottom: 24, boxShadow: '0 2px 8px rgba(13,148,136,0.1)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999, marginBottom: 24, boxShadow: '0 2px 8px rgba(13,148,136,0.1)', textTransform: 'uppercase', letterSpacing: '0.05em', position: 'relative' }}>
               <Zap size={14} /> The Next Evolution of Fundraising
+              <div style={{ position: 'absolute', top: -15, right: -15, opacity: 0.6, animation: 'float 3s ease-in-out infinite' }}>
+                <Zap size={20} color="var(--gold)" fill="var(--gold)" />
+              </div>
             </div>
             <h1 style={{ fontSize: 'clamp(40px,5vw,72px)', fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 24 }}>
               The AI Grant<br /><span style={{ color: teal }}>Operating System</span>
@@ -126,19 +129,25 @@ const LandingPage = () => {
             <p style={{ fontSize: 'clamp(18px,2vw,22px)', color: 'var(--slate-600)', maxWidth: 540, marginBottom: 48, lineHeight: 1.6, fontWeight: 500 }}>
               Find, draft, and win grants faster with intelligent agents. Stop overpaying for capped tools and start winning with recursive AI.
             </p>
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <button className="btn btn-primary btn-lg" style={{ minWidth: 200 }} onClick={() => navigate('/auth')}>
-                Launch Genie Free <ArrowRight size={18} />
-              </button>
-              <button className="btn btn-ghost btn-lg" onClick={() => navigate('/founding-partners')} style={{ minWidth: 200, background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)' }}>
-                Secure Founding Partner Spot
-              </button>
-            </div>
+            <button 
+              className="btn btn-primary btn-lg" 
+              style={{ minWidth: 200, borderRadius: 12, fontWeight: 700, letterSpacing: '-0.01em' }} 
+              onClick={() => navigate('/auth')}
+            >
+              Launch Genie Free <ArrowRight size={18} />
+            </button>
+            <button 
+              className="btn btn-ghost btn-lg" 
+              style={{ minWidth: 200, borderRadius: 12, fontWeight: 700, letterSpacing: '-0.01em', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)' }} 
+              onClick={() => navigate('/founding-partners')}
+            >
+              Secure Founding Partner Spot
+            </button>
           </div>
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
             <div style={{ position: 'absolute', inset: -20, background: 'rgba(13,148,136,0.15)', filter: 'blur(60px)', borderRadius: '50%', zIndex: -1 }} />
             <img 
-              src="/brain/702f6a5b-4d66-4186-ac73-95a8038abd5f/grant_genie_hero_illustration_1777837707473.png" 
+              src="/hero-illustration.png" 
               alt="Grant Genie Illustration" 
               style={{ width: '100%', maxWidth: 500, height: 'auto', borderRadius: 32, boxShadow: 'var(--shadow-2xl)', border: '1px solid rgba(255,255,255,0.4)', backdropFilter: 'blur(4px)' }} 
             />
@@ -183,7 +192,7 @@ const LandingPage = () => {
               <TrendingUp size={24} style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', color: teal }} />
               <button 
                 className="btn btn-primary" 
-                style={{ position: 'absolute', right: 8, top: 8, bottom: 8, padding: '0 32px', borderRadius: 12 }}
+                style={{ position: 'absolute', right: 8, top: 8, bottom: 8, padding: '0 32px', borderRadius: 12, fontWeight: 700 }}
                 onClick={() => runDemoSearch(searchTerm || 'climate change research for small nonprofits')}
               >
                 Search Demo
@@ -264,25 +273,25 @@ const LandingPage = () => {
             {[
               { 
                 title: 'Quantum Discovery', 
-                icon: <TrendingUp size={24} />, 
+                icon: <img src="/quantum-radar.png" alt="Quantum Radar" style={{ width: 64, height: 64, objectFit: 'contain' }} />, 
                 desc: 'Scan 40,000+ global funders in real-time. Match opportunities to your mission with 98% precision.',
                 stat: '100+ hrs saved/yr'
               },
               { 
                 title: 'Oracle Multi-Agent Writer', 
-                icon: <FileText size={24} />, 
+                icon: <img src="/oracle-writer.png" alt="Oracle Writer" style={{ width: 64, height: 64, objectFit: 'contain' }} />, 
                 desc: 'Draft complete, rubric-aligned proposals in minutes. Recursive AI logic that self-corrects for maximum win rates.',
                 stat: '90% cost reduction'
               },
               { 
-                title: 'Zero-Trust Security', 
-                icon: <Shield size={24} />, 
+                title: 'Private Stewardship', 
+                icon: <img src="/donna-stewardship.png" alt="Donna Stewardship" style={{ width: 80, height: 80, objectFit: 'contain' }} />, 
                 desc: 'Your sensitive 501c3 data is encrypted locally. It never leaves your browser. 100% privacy compliance.',
                 stat: 'SOC2 Ready'
               }
             ].map((item, i) => (
-              <div key={i} style={{ background: 'white', borderRadius: 24, padding: 32, border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: 'rgba(13,148,136,0.08)', color: teal, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>{item.icon}</div>
+              <div key={i} style={{ background: 'white', borderRadius: 24, padding: 32, border: '1px solid var(--slate-200)', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s ease, box-shadow 0.3s ease', cursor: 'default' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = 'var(--shadow-xl)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; }}>
+                <div style={{ marginBottom: 24 }}>{item.icon}</div>
                 <h3 style={{ fontSize: 20, fontWeight: 800, marginBottom: 12, color: 'var(--slate-900)' }}>{item.title}</h3>
                 <p style={{ fontSize: 15, color: 'var(--slate-500)', lineHeight: 1.6, marginBottom: 20 }}>{item.desc}</p>
                 <div style={{ fontSize: 12, fontWeight: 700, color: teal, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.stat}</div>
@@ -338,7 +347,7 @@ const LandingPage = () => {
               <div style={{ fontSize: 40, fontWeight: 800, color: 'var(--slate-900)', lineHeight: 1 }}>$150<span style={{ fontSize: 16, color: 'var(--slate-400)', fontWeight: 400 }}>/mo</span></div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {['5 AI grants per month', 'Unlimited funder discovery', 'Zero-Trust Vault', '50 campaign posts/mo', 'Donna donor relations'].map(f => (
+              {['5 AI grants per month', 'Unlimited funder discovery', 'Secure Local Vault', '50 campaign posts/mo', 'Donna donor relations'].map(f => (
                 <div key={f} style={{ display: 'flex', gap: 10, fontSize: 14, color: 'var(--slate-700)', alignItems: 'center' }}>
                   <CheckCircle size={16} style={{ color: 'var(--emerald)', flexShrink: 0 }} /> {f}
                 </div>
@@ -419,7 +428,7 @@ const LandingPage = () => {
           </div>
           <button 
             className="btn btn-primary btn-lg" 
-            style={{ minWidth: 200 }} 
+            style={{ minWidth: 200, borderRadius: 12, fontWeight: 700 }} 
             onClick={() => {
               if (window.gtag) window.gtag('event', 'beta_signup_click');
               navigate('/beta');
