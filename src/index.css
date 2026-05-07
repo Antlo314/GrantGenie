@@ -37,6 +37,22 @@
   --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
   --gradient-teal: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
   --gradient-slate: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --container-px: 32px;
+  --section-py: 80px;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --container-px: 20px;
+    --section-py: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --container-px: 16px;
+    --section-py: 48px;
+  }
 }
 
 html, body {
@@ -203,7 +219,7 @@ input::placeholder, textarea::placeholder {
 
 .content-area {
   flex: 1;
-  padding: 32px;
+  padding: var(--container-px);
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
@@ -308,7 +324,7 @@ input::placeholder, textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32px;
+  padding: 0 var(--container-px);
   height: 64px;
   background: var(--white);
   border-bottom: 1px solid var(--slate-200);
@@ -440,7 +456,16 @@ input::placeholder, textarea::placeholder {
 }
 
 .bento-span-2 { grid-column: span 2; }
+@media (max-width: 640px) {
+  .bento-span-2 { grid-column: span 1; }
+}
 .bento-span-3 { grid-column: span 3; }
+@media (max-width: 1024px) {
+  .bento-span-3 { grid-column: span 2; }
+}
+@media (max-width: 640px) {
+  .bento-span-3 { grid-column: span 1; }
+}
 .bento-row-2 { grid-row: span 2; }
 
 /* ── Hamburger Sidebar Overlay ── */
@@ -573,6 +598,11 @@ input::placeholder, textarea::placeholder {
   flex-wrap: wrap;
 }
 
+@media (max-width: 480px) {
+  .hero-cta { flex-direction: column; width: 100%; }
+  .hero-cta .btn { width: 100%; }
+}
+
 .hero-logos {
   display: flex;
   align-items: center;
@@ -646,7 +676,7 @@ input::placeholder, textarea::placeholder {
 
 /* ── Section ── */
 .section {
-  padding: 80px 48px;
+  padding: var(--section-py) var(--container-px);
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -814,9 +844,9 @@ input::placeholder, textarea::placeholder {
   }
 
   .sidebar { display: none; }
-  .landing-nav { padding: 0 var(--main-padding); }
-  .section { padding: 60px var(--main-padding); }
-  .content-area { padding: 20px; }
+  .landing-nav { padding: 0 var(--container-px); }
+  .section { padding: var(--section-py) var(--container-px); }
+  .content-area { padding: var(--container-px); }
   
   .roi-grid {
     grid-template-columns: 1fr;

@@ -51,50 +51,59 @@ const PipelineCommander = () => {
 
   return (
     <AppLayout title="Pipeline Commander">
-      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', gap: 0, margin: '-32px', overflow: 'hidden' }}>
+      <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 140px)', gap: 0, margin: 'calc(var(--container-px) * -1)', overflow: 'hidden' }}>
         
         {/* Top Header */}
-        <div style={{ background: 'white', padding: '24px 32px', borderBottom: '1px solid var(--slate-200)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 20, marginBottom: 24 }}>
+        <div style={{ background: 'white', padding: 'var(--container-px)', borderBottom: '1px solid var(--slate-200)', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 20 }}>
             <div>
-              <h1 style={{ fontSize: 24, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 4 }}>Pipeline Commander</h1>
-              <p style={{ color: 'var(--slate-500)', fontSize: 14 }}>Managing <span style={{ color: 'var(--teal)', fontWeight: 700 }}>$3.8M</span> in active grant opportunities.</p>
+              <h1 style={{ fontSize: 20, fontWeight: 800, color: 'var(--slate-900)', marginBottom: 2 }}>Pipeline Commander</h1>
+              <p style={{ color: 'var(--slate-500)', fontSize: 13 }}>Managing <span style={{ color: 'var(--teal)', fontWeight: 700 }}>$3.8M</span> active value.</p>
             </div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn btn-secondary" style={{ gap: 8 }}><Plus size={18} /> Add Opportunity</button>
-              <button className="btn btn-primary" style={{ gap: 8 }} onClick={() => navigate('/radar')}><Search size={18} /> Discovery Radar</button>
+            <div style={{ display: 'flex', gap: 10, width: '100%', maxWidth: 'max-content' }}>
+              <button className="btn btn-secondary" style={{ gap: 6, flex: 1, padding: '8px 12px', fontSize: 13 }}><Plus size={16} /> Add</button>
+              <button className="btn btn-primary" style={{ gap: 6, flex: 1, padding: '8px 12px', fontSize: 13 }} onClick={() => navigate('/radar')}><Search size={16} /> Discovery</button>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 20 }}>
-            <div className="stat-card" style={{ padding: '16px 20px' }}>
-              <div className="stat-label">Total Opportunities</div>
-              <div style={{ fontSize: 24, fontWeight: 800 }}>24</div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12 }}>
+            <div className="stat-card" style={{ padding: '12px 16px' }}>
+              <div className="stat-label" style={{ fontSize: 11 }}>Opportunities</div>
+              <div style={{ fontSize: 20, fontWeight: 800 }}>24</div>
             </div>
-            <div className="stat-card" style={{ padding: '16px 20px' }}>
-              <div className="stat-label">Projected Win Value</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--emerald)' }}>$1.8M</div>
+            <div className="stat-card" style={{ padding: '12px 16px' }}>
+              <div className="stat-label" style={{ fontSize: 11 }}>Projected Win</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--emerald)' }}>$1.8M</div>
             </div>
-            <div className="stat-card" style={{ padding: '16px 20px' }}>
-              <div className="stat-label">Win Probability</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--teal)' }}>72%</div>
+            <div className="stat-card" style={{ padding: '12px 16px' }}>
+              <div className="stat-label" style={{ fontSize: 11 }}>Win Prob.</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--teal)' }}>72%</div>
             </div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: 'row' }} className="responsive-pipeline-layout">
+          <style>{`
+            @media (max-width: 1024px) {
+              .responsive-pipeline-layout { flex-direction: column !important; overflow-y: auto !important; height: auto !important; }
+              .pipeline-main { padding: 16px !important; overflow-y: visible !important; }
+              .pipeline-tabs { width: 100% !important; margin-bottom: 16px !important; }
+              .pipeline-search-wrap { width: 100% !important; max-width: none !important; }
+            }
+          `}</style>
+          
           {/* Main List Area */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-              <div className="scroll-x hide-scrollbar" style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4 }}>
+          <div className="pipeline-main" style={{ flex: 1, overflowY: 'auto', padding: 'var(--container-px)' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+              <div className="scroll-x hide-scrollbar pipeline-tabs" style={{ display: 'flex', background: 'var(--slate-100)', borderRadius: 10, padding: 4, gap: 4 }}>
                 {tabs.map(tab => (
                   <button 
                     key={tab} 
                     onClick={() => setActiveTab(tab)}
                     style={{ 
-                      padding: '8px 16px', 
+                      padding: '6px 14px', 
                       borderRadius: 8, 
-                      fontSize: 13, 
+                      fontSize: 12, 
                       fontWeight: 600, 
                       border: 'none', 
                       background: activeTab === tab ? 'white' : 'transparent',
@@ -109,7 +118,7 @@ const PipelineCommander = () => {
                   </button>
                 ))}
               </div>
-              <div style={{ display: 'flex', gap: 12, flex: 1, maxWidth: 400 }}>
+              <div className="pipeline-search-wrap" style={{ display: 'flex', gap: 12, flex: 1, maxWidth: 400 }}>
                 <div style={{ position: 'relative', flex: 1 }}>
                   <Search size={16} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--slate-400)' }} />
                   <input 
@@ -117,56 +126,58 @@ const PipelineCommander = () => {
                     placeholder="Search grants..." 
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{ paddingLeft: 36, height: 40, borderRadius: 10, width: '100%' }} 
+                    style={{ paddingLeft: 36, height: 38, borderRadius: 10, width: '100%', fontSize: 13 }} 
                   />
                 </div>
-                <button className="btn btn-ghost" style={{ padding: '0 12px', height: 40, borderRadius: 10 }}><Filter size={18} /></button>
+                <button className="btn btn-ghost" style={{ padding: '0 10px', height: 38, borderRadius: 10 }}><Filter size={18} /></button>
               </div>
             </div>
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-              <table style={{ width: '100%' }}>
-                <thead>
-                  <tr>
-                    <th>Grant / Funder</th>
-                    <th>Match</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Deadline</th>
-                    <th className="desktop-only">Win Prob.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredGrants.map((grant) => (
-                    <tr key={grant.id} onClick={() => setSelectedGrant(grant)} style={{ cursor: 'pointer' }}>
-                      <td data-label="Grant / Funder">
-                        <div style={{ fontWeight: 700, color: 'var(--slate-900)', fontSize: 14 }}>{grant.name}</div>
-                        <div style={{ fontSize: 12, color: 'var(--slate-500)', marginTop: 2 }}>{grant.funder}</div>
-                      </td>
-                      <td data-label="Match">
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>{grant.match}%</div>
-                      </td>
-                      <td data-label="Amount" style={{ fontWeight: 600, fontSize: 14 }}>{grant.amount}</td>
-                      <td data-label="Status">
-                        <span style={{ 
-                          background: `${getStatusColor(grant.status)}15`, 
-                          color: getStatusColor(grant.status),
-                          fontSize: 11,
-                          fontWeight: 700,
-                          padding: '4px 10px',
-                          borderRadius: 999
-                        }}>{grant.status}</span>
-                      </td>
-                      <td data-label="Deadline" style={{ fontSize: 13, color: 'var(--slate-500)' }}>{grant.deadline.split(', ')[0]}</td>
-                      <td data-label="Win Prob." className="desktop-only">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, color: 'var(--slate-700)' }}>
-                          {grant.winProb}
-                        </div>
-                      </td>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%' }}>
+                  <thead>
+                    <tr>
+                      <th>Grant / Funder</th>
+                      <th>Match</th>
+                      <th>Amount</th>
+                      <th>Status</th>
+                      <th>Deadline</th>
+                      <th className="desktop-only">Win Prob.</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredGrants.map((grant) => (
+                      <tr key={grant.id} onClick={() => setSelectedGrant(grant)} style={{ cursor: 'pointer' }}>
+                        <td data-label="Grant / Funder">
+                          <div style={{ fontWeight: 700, color: 'var(--slate-900)', fontSize: 13 }}>{grant.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--slate-500)', marginTop: 2 }}>{grant.funder}</div>
+                        </td>
+                        <td data-label="Match">
+                          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal)' }}>{grant.match}%</div>
+                        </td>
+                        <td data-label="Amount" style={{ fontWeight: 600, fontSize: 13 }}>{grant.amount}</td>
+                        <td data-label="Status">
+                          <span style={{ 
+                            background: `${getStatusColor(grant.status)}15`, 
+                            color: getStatusColor(grant.status),
+                            fontSize: 10,
+                            fontWeight: 700,
+                            padding: '3px 8px',
+                            borderRadius: 999
+                          }}>{grant.status}</span>
+                        </td>
+                        <td data-label="Deadline" style={{ fontSize: 12, color: 'var(--slate-500)' }}>{grant.deadline.split(', ')[0]}</td>
+                        <td data-label="Win Prob." className="desktop-only">
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 12, color: 'var(--slate-700)' }}>
+                            {grant.winProb}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
 

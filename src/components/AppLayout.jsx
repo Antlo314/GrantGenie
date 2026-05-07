@@ -104,25 +104,25 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
 
       {/* Main Panel */}
       <div className="main-panel" style={{ position: 'relative' }}>
-        <header className="topbar" style={{ padding: '0 24px', height: 72 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <button className="mobile-only" onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', padding: 8, marginLeft: -8 }}>
+        <header className="topbar" style={{ height: 72 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+            <button className="mobile-only" onClick={() => setIsSidebarOpen(true)} style={{ background: 'none', border: 'none', padding: 8, marginLeft: -8, flexShrink: 0 }}>
               <Menu size={24} color="var(--slate-600)" />
             </button>
-            <div className="topbar-title" style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 200 }}>{title}</div>
+            <div className="topbar-title" style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</div>
             
             {/* Desktop Agent Status */}
-            <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'white', borderRadius: 99, border: '1px solid var(--slate-200)', marginLeft: 8 }}>
+            <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'white', borderRadius: 99, border: '1px solid var(--slate-200)', marginLeft: 8, flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: 4 }}>
                 {['O', 'R', 'D'].map(agent => (
                   <div key={agent} style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 8px var(--emerald)' }} />
                 ))}
               </div>
-              <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>AI Systems Active</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: 'var(--slate-500)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>AI Active</span>
             </div>
           </div>
 
-          <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+          <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
             <div style={{ position: 'relative' }} className="desktop-only">
               <Search size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--slate-400)' }} />
               <input type="text" placeholder="Search commands..." style={{ paddingLeft: 40, width: 240, height: 40, borderRadius: 12, background: 'var(--slate-100)', border: 'none', fontSize: 14 }} />
@@ -134,7 +134,7 @@ const AppLayout = ({ children, title = 'Dashboard' }) => {
           </div>
         </header>
 
-        <main style={{ flex: 1, overflowX: 'hidden', overflowY: 'auto', padding: '24px', position: 'relative' }}>
+        <main style={{ flex: 1, overflowX: 'hidden', overflowY: 'auto', padding: 'var(--container-px)', position: 'relative' }}>
           <div style={{ maxWidth: 1400, margin: '0 auto', width: '100%' }}>
             {children}
           </div>

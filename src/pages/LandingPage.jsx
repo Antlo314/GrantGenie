@@ -16,6 +16,7 @@ const LandingPage = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [demoResults, setDemoResults] = useState([]);
   const [activeDraft, setActiveDraft] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
@@ -83,12 +84,23 @@ const LandingPage = () => {
   return (
     <div style={{ background: '#fff' }}>
       {/* Nav */}
+      {/* Nav */}
       <nav className="landing-nav">
         <div className="landing-nav-logo">
           <img src="/logo.png" alt="Grant Genie" style={{ width: 34, height: 34, objectFit: 'contain' }} />
           <span>Grant <span style={{ color: teal }}>Genie</span></span>
         </div>
-        <div className="landing-nav-links">
+        
+        {/* Mobile Menu Toggle */}
+        <button 
+          className="mobile-only" 
+          onClick={() => setIsMobileMenuOpen(true)}
+          style={{ background: 'none', border: 'none', color: 'var(--slate-600)', padding: 8, cursor: 'pointer' }}
+        >
+          <Menu size={24} />
+        </button>
+
+        <div className="landing-nav-links desktop-only">
           <button className="landing-nav-link" onClick={() => navigate('/')}>Home</button>
           <button className="landing-nav-link" onClick={() => document.getElementById('demo')?.scrollIntoView()}>Demo</button>
           <button className="landing-nav-link" onClick={() => document.getElementById('os')?.scrollIntoView()}>System</button>
@@ -99,6 +111,32 @@ const LandingPage = () => {
           <button className="btn btn-primary" onClick={() => navigate('/auth')}>Get Started Free</button>
         </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="sidebar-overlay" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="mobile-sidebar" style={{ width: '85%', maxWidth: 320 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px var(--container-px)', borderBottom: '1px solid var(--slate-100)' }}>
+              <div className="landing-nav-logo">
+                <img src="/logo.png" alt="Grant Genie" style={{ width: 28, height: 28, objectFit: 'contain' }} />
+                <span>Grant <span style={{ color: teal }}>Genie</span></span>
+              </div>
+              <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--slate-400)' }}><X size={24} /></button>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', padding: 20, gap: 8 }}>
+              <button className="sidebar-link" onClick={() => { navigate('/'); setIsMobileMenuOpen(false); }}>Home</button>
+              <button className="sidebar-link" onClick={() => { document.getElementById('demo')?.scrollIntoView(); setIsMobileMenuOpen(false); }}>Demo</button>
+              <button className="sidebar-link" onClick={() => { document.getElementById('os')?.scrollIntoView(); setIsMobileMenuOpen(false); }}>System</button>
+              <button className="sidebar-link" onClick={() => { navigate('/founding-partners'); setIsMobileMenuOpen(false); }}>Founding Partners</button>
+              <button className="sidebar-link" onClick={() => { navigate('/beta'); setIsMobileMenuOpen(false); }}>Beta Access</button>
+              <div className="divider" style={{ margin: '16px 0' }} />
+              <button className="btn btn-ghost" style={{ width: '100%' }} onClick={() => navigate('/auth')}>Sign In</button>
+              <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => navigate('/auth')}>Get Started Free</button>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Hero Section */}
       <div className="section-padding" style={{ position: 'relative', overflow: 'hidden', minHeight: '85vh', display: 'flex', alignItems: 'center', paddingTop: 120 }}>
@@ -115,7 +153,7 @@ const LandingPage = () => {
         
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 70% 30%, rgba(13,148,136,0.08) 0%, transparent 70%)', zIndex: 1 }} />
         
-        <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 60, alignItems: 'center', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', width: '100%', padding: '0 var(--container-px)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'min(60px, 8vw)', alignItems: 'center', position: 'relative', zIndex: 2 }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: `rgba(13,148,136,0.1)`, color: teal, fontSize: 13, fontWeight: 700, padding: '6px 14px', borderRadius: 999, marginBottom: 24, boxShadow: '0 2px 8px rgba(13,148,136,0.1)', textTransform: 'uppercase', letterSpacing: '0.05em', position: 'relative' }}>
               <Zap size={14} /> The Next Evolution of Fundraising
@@ -126,23 +164,25 @@ const LandingPage = () => {
             <h1 style={{ fontSize: 'clamp(40px,5vw,72px)', fontWeight: 900, color: 'var(--slate-900)', letterSpacing: '-0.04em', lineHeight: 1.1, marginBottom: 24 }}>
               The AI Grant<br /><span style={{ color: teal }}>Operating System</span>
             </h1>
-            <p style={{ fontSize: 'clamp(18px,2vw,22px)', color: 'var(--slate-600)', maxWidth: 540, marginBottom: 48, lineHeight: 1.6, fontWeight: 500 }}>
+            <p style={{ fontSize: 'clamp(16px,2vw,20px)', color: 'var(--slate-600)', maxWidth: 540, marginBottom: 40, lineHeight: 1.6, fontWeight: 500 }}>
               Find, draft, and win grants faster with intelligent agents. Stop overpaying for capped tools and start winning with recursive AI.
             </p>
-            <button 
-              className="btn btn-primary btn-lg" 
-              style={{ minWidth: 200, borderRadius: 12, fontWeight: 700, letterSpacing: '-0.01em' }} 
-              onClick={() => navigate('/auth')}
-            >
-              Launch Genie Free <ArrowRight size={18} />
-            </button>
-            <button 
-              className="btn btn-ghost btn-lg" 
-              style={{ minWidth: 200, borderRadius: 12, fontWeight: 700, letterSpacing: '-0.01em', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)' }} 
-              onClick={() => navigate('/founding-partners')}
-            >
-              Secure Founding Partner Spot
-            </button>
+            <div className="hero-cta">
+              <button 
+                className="btn btn-primary btn-lg" 
+                style={{ minWidth: 200, borderRadius: 12, fontWeight: 700, letterSpacing: '-0.01em' }} 
+                onClick={() => navigate('/auth')}
+              >
+                Launch Genie Free <ArrowRight size={18} />
+              </button>
+              <button 
+                className="btn btn-ghost btn-lg" 
+                style={{ minWidth: 200, borderRadius: 12, fontWeight: 700, letterSpacing: '-0.01em', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)' }} 
+                onClick={() => navigate('/founding-partners')}
+              >
+                Secure Founding Partner Spot
+              </button>
+            </div>
           </div>
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
             <div style={{ position: 'absolute', inset: -20, background: 'rgba(13,148,136,0.15)', filter: 'blur(60px)', borderRadius: '50%', zIndex: -1 }} />
@@ -156,14 +196,14 @@ const LandingPage = () => {
       </div>
 
       {/* Social Proof Bar */}
-      <div className="section-padding" style={{ background: 'white', borderTop: '1px solid var(--slate-100)', borderBottom: '1px solid var(--slate-100)', padding: '30px 48px', display: 'flex', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
+      <div className="section-padding" style={{ background: 'white', borderTop: '1px solid var(--slate-100)', borderBottom: '1px solid var(--slate-100)', padding: '24px var(--container-px)', display: 'flex', justifyContent: 'center', gap: 'min(40px, 5vw)', flexWrap: 'wrap' }}>
         {[
           { icon: <CheckCircle size={15} />, text: '98% Search Precision' },
           { icon: <Star size={15} />, text: 'Early Beta Active' },
           { icon: <Shield size={15} />, text: 'SOC2 Ready Architecture' },
           { icon: <Users size={15} />, text: 'Built for 501c3 & Agencies' }
         ].map((item, i) => (
-          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--slate-500)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: 'var(--slate-500)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             <span style={{ color: teal }}>{item.icon}</span> {item.text}
           </div>
         ))}
@@ -183,21 +223,29 @@ const LandingPage = () => {
             <div style={{ position: 'relative', marginBottom: 24 }}>
               <input 
                 type="text" 
-                placeholder="Describe your project (e.g., climate change research for small nonprofits)..." 
+                placeholder="Describe your project..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && runDemoSearch(searchTerm)}
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '24px 32px', borderRadius: 16, fontSize: 18, width: '100%', paddingLeft: 64, outline: 'none' }}
+                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', padding: '16px 20px', paddingLeft: 52, paddingRight: 140, borderRadius: 16, fontSize: 16, width: '100%', outline: 'none' }}
               />
-              <TrendingUp size={24} style={{ position: 'absolute', left: 24, top: '50%', transform: 'translateY(-50%)', color: teal }} />
+              <TrendingUp size={20} style={{ position: 'absolute', left: 20, top: '50%', transform: 'translateY(-50%)', color: teal }} />
               <button 
-                className="btn btn-primary" 
-                style={{ position: 'absolute', right: 8, top: 8, bottom: 8, padding: '0 32px', borderRadius: 12, fontWeight: 700 }}
+                className="btn btn-primary desktop-only" 
+                style={{ position: 'absolute', right: 8, top: 8, bottom: 8, padding: '0 24px', borderRadius: 12, fontWeight: 700 }}
                 onClick={() => runDemoSearch(searchTerm || 'climate change research for small nonprofits')}
               >
-                Search Demo
+                Search
               </button>
             </div>
+            
+            <button 
+              className="btn btn-primary mobile-only" 
+              style={{ width: '100%', marginBottom: 24, borderRadius: 12 }}
+              onClick={() => runDemoSearch(searchTerm || 'climate change research for small nonprofits')}
+            >
+              Search Demo
+            </button>
 
             {/* Quick Presets */}
             <div style={{ display: 'flex', gap: 12, marginBottom: 48, flexWrap: 'wrap' }}>
@@ -217,7 +265,7 @@ const LandingPage = () => {
 
             {/* Results Grid */}
             {!isSearching && demoResults.length > 0 && (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
                 {demoResults.map((grant) => (
                   <div key={grant.id} className="animate-fade-in" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -269,7 +317,7 @@ const LandingPage = () => {
           </div>
 
           {/* Core Pillars */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: 32, marginBottom: 80 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, marginBottom: 80 }}>
             {[
               { 
                 title: 'Quantum Discovery', 
