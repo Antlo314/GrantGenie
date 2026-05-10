@@ -115,13 +115,18 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
     }
   };
 
-  const handleGlobalSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchTerm.trim() !== '') {
+  const handleGlobalSearch = async (e?: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((!e || e.key === 'Enter') && searchTerm.trim() !== '') {
       setLoading(true);
+      const query = searchTerm;
       try {
-        const aiResults = await searchGlobalGrants(searchTerm);
+        const aiResults = await searchGlobalGrants(query);
         if (aiResults && aiResults.length > 0) {
           setGrants(prev => [...aiResults, ...prev]);
+          setSearchTerm(''); // Clear to show all (including new ones)
+        } else {
+          // If no results, we still clear search to show the user it finished
+          alert("No grants found for that keyword on Grants.gov. Try a broader term.");
         }
       } catch (err) {
         console.error("AI Search failed:", err);
@@ -170,7 +175,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                   </button>
                 )}
                 <button 
-                  onClick={() => handleGlobalSearch({ key: 'Enter' } as any)}
+                  onClick={() => handleGlobalSearch()}
                   className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-600/10"
                 >
                   Search

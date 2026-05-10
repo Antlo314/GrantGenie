@@ -114,53 +114,70 @@ export const searchGlobalGrants = async (query: string): Promise<any[]> => {
 
     const data = await response.json();
     
-    if (!data.oppHits || data.oppHits.length === 0) {
+    if (data.oppHits && data.oppHits.length > 0) {
+      // Take top 5 results and map them to our schema
+      const mappedGrants = data.oppHits.slice(0, 5).map((opp: any) => {
+        // Safely parse the date (Grants.gov uses MM/DD/YYYY)
+        let deadline = new Date().toISOString(); 
+        try {
+          if (opp.closeDate) {
+            const parts = opp.closeDate.split('/');
+            if (parts.length === 3) {
+              const isoDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+              const d = new Date(isoDate);
+              if (!isNaN(d.getTime())) {
+                deadline = d.toISOString();
+              }
+            } else {
+               const d = new Date(opp.closeDate);
+               if (!isNaN(d.getTime())) {
+                 deadline = d.toISOString();
+               }
+            }
+          }
+        } catch (e) {
+          console.warn("Date parse failed for", opp.closeDate);
+        }
+
+        return {
+          id: opp.id || opp.number,
+          title: opp.title,
+          funder: opp.agency || 'Federal Grant',
+          amount: 0,
+          deadline: deadline,
+          description: `Opportunity Number: ${opp.number}. Federal grant matching your search.`,
+          matchScore: 0,
+          matchExplanation: 'Awaiting deep scan.',
+          tags: opp.cfdaList || ['Federal'],
+          sourceUrl: `https://www.grants.gov/search-results-detail/${opp.id}`,
+          active: true
+        };
+      });
+
+      return mappedGrants;
+    }
+    
+    // Fallback to AI synthesis if no results found on Grants.gov
+    throw new Error("No results on Grants.gov, falling back to AI.");
+
+  } catch (error) {
+    console.warn("Real API search failed or returned no results, using AI fallback:", error);
+    
+    // AI Fallback logic
+    const prompt = `Find 3 real or highly realistic grant opportunities matching: "${query}".
+Return a JSON array with: {id, title, funder, amount, deadline (ISO), description, matchScore: 0, matchExplanation: "", tags: [], sourceUrl: "#", active: true}.
+Return ONLY the JSON array.`;
+
+    try {
+      const response = await ai.models.generateContent({
+        model: MODEL_NAME,
+        contents: prompt,
+        config: { responseMimeType: "application/json" }
+      });
+      return JSON.parse(response.text || '[]');
+    } catch (innerError) {
+      console.error("AI Fallback failed:", innerError);
       return [];
     }
-
-    // Take top 5 results and map them to our schema
-    const mappedGrants = data.oppHits.slice(0, 5).map((opp: any) => {
-      // Safely parse the date (Grants.gov uses MM/DD/YYYY)
-      let deadline = new Date().toISOString(); // Default to now if fail
-      try {
-        if (opp.closeDate) {
-          const parts = opp.closeDate.split('/');
-          if (parts.length === 3) {
-            // Convert MM/DD/YYYY to YYYY-MM-DD for reliable parsing
-            const isoDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
-            const d = new Date(isoDate);
-            if (!isNaN(d.getTime())) {
-              deadline = d.toISOString();
-            }
-          } else {
-             const d = new Date(opp.closeDate);
-             if (!isNaN(d.getTime())) {
-               deadline = d.toISOString();
-             }
-          }
-        }
-      } catch (e) {
-        console.warn("Date parse failed for", opp.closeDate);
-      }
-
-      return {
-        id: opp.id || opp.number,
-        title: opp.title,
-        funder: opp.agency || 'Federal Grant',
-        amount: 0,
-        deadline: deadline,
-        description: `Opportunity Number: ${opp.number}. This is a federal grant fetched from Grants.gov matching your search. For full details, view the source on Grants.gov.`,
-        matchScore: 0,
-        matchExplanation: 'Awaiting deep scan.',
-        tags: opp.cfdaList || ['Federal'],
-        sourceUrl: `https://www.grants.gov/search-results-detail/${opp.id}`,
-        active: true
-      };
-    });
-
-    return mappedGrants;
-  } catch (error) {
-    console.error("Global search failed:", error);
-    return [];
   }
 };
