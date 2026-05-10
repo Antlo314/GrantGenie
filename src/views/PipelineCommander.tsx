@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Search, 
@@ -13,13 +13,34 @@ import {
   Send,
   Flag
 } from 'lucide-react';
+import { useAuth } from '../components/AuthProvider';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function PipelineCommander() {
+  const { organization } = useAuth();
+  const [pipeline, setPipeline] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!organization) return;
+    const fetchPipeline = async () => {
+      try {
+        const q = query(collection(db, 'pipeline_grants'), where('orgId', '==', organization.id));
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setPipeline(data);
+      } catch (e) {
+        console.error("Error fetching pipeline:", e);
+      }
+    };
+    fetchPipeline();
+  }, [organization]);
+
   const stages = [
-    { id: 'discovery', label: 'Discovery', color: 'emerald', count: 3 },
-    { id: 'drafting', label: 'Drafting', color: 'slate', count: 2 },
-    { id: 'review', label: 'In Review', color: 'amber', count: 1 },
-    { id: 'submitted', label: 'Submitted', color: 'emerald', count: 5 }
+    { id: 'discovery', label: 'Discovery', color: 'emerald', count: pipeline.filter(p => p.stage === 'discovery').length || 0 },
+    { id: 'drafting', label: 'Drafting', color: 'slate', count: pipeline.filter(p => p.stage === 'drafting').length || 0 },
+    { id: 'review', label: 'In Review', color: 'amber', count: pipeline.filter(p => p.stage === 'review').length || 0 },
+    { id: 'submitted', label: 'Submitted', color: 'emerald', count: pipeline.filter(p => p.stage === 'submitted').length || 0 }
   ];
 
   return (
@@ -107,38 +128,30 @@ export default function PipelineCommander() {
                   </tr>
                </thead>
                <tbody className="divide-y divide-slate-50">
-                  <PipelineRow 
-                    grant="Global Health & Tech Infrastructure" 
-                    funder="Gates Foundation" 
-                    stage="Drafting" 
-                    match="88%" 
-                    value="$1.5M" 
-                    icon={<FileEdit className="w-4 h-4 text-slate-900" />}
-                  />
-                  <PipelineRow 
-                    grant="Community Environmental Justice" 
-                    funder="EPA" 
-                    stage="Review" 
-                    match="76%" 
-                    value="$250K" 
-                    icon={<Clock className="w-4 h-4 text-amber-500" />}
-                  />
-                  <PipelineRow 
-                    grant="Educational Equity AI" 
-                    funder="Google.org" 
-                    stage="Discovery" 
-                    match="92%" 
-                    value="$500K" 
-                    icon={<Inbox className="w-4 h-4 text-emerald-600" />}
-                  />
-                  <PipelineRow 
-                    grant="Sustainable Cities Initiative" 
-                    funder="Bloomberg Philanthropies" 
-                    stage="Submitted" 
-                    match="81%" 
-                    value="$800K" 
-                    icon={<Send className="w-4 h-4 text-emerald-600" />}
-                  />
+                  {pipeline.length > 0 ? (
+                    pipeline.map(grant => (
+                      <PipelineRow 
+                        key={grant.id}
+                        grant={grant.title} 
+                        funder={grant.funder} 
+                        stage={grant.stage} 
+                        match={`${grant.matchScore}%`} 
+                        value={`$${grant.amount.toLocaleString()}`} 
+                        icon={
+                          grant.stage === 'drafting' ? <FileEdit className="w-4 h-4 text-slate-900" /> :
+                          grant.stage === 'review' ? <Clock className="w-4 h-4 text-amber-500" /> :
+                          grant.stage === 'submitted' ? <Send className="w-4 h-4 text-emerald-600" /> :
+                          <Inbox className="w-4 h-4 text-emerald-600" />
+                        }
+                      />
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={5} className="px-8 py-12 text-center text-slate-400 font-medium text-sm">
+                        No active grants in your pipeline. Head to the Discovery Radar to find opportunities.
+                      </td>
+                    </tr>
+                  )}
                </tbody>
             </table>
          </div>

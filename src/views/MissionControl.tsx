@@ -7,9 +7,31 @@ import {
   Search
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
+import { db } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 export default function MissionControl({ onNavigate, onStartDraft }: { onNavigate: (v: any) => void, onStartDraft: (g: any) => void }) {
   const { organization } = useAuth();
+  const [pipelineValue, setPipelineValue] = React.useState(0);
+  const [pipelineCount, setPipelineCount] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!organization) return;
+    const fetchPipeline = async () => {
+      try {
+        const q = query(collection(db, 'pipeline_grants'), where('orgId', '==', organization.id));
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map(doc => doc.data());
+        
+        const totalValue = data.reduce((acc, grant) => acc + (grant.amount || 0), 0);
+        setPipelineValue(totalValue);
+        setPipelineCount(data.length);
+      } catch (e) {
+        console.error("Error fetching pipeline:", e);
+      }
+    };
+    fetchPipeline();
+  }, [organization]);
 
   return (
     <div className="space-y-8 pb-12">
@@ -39,7 +61,7 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
             <div>
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Funding Velocity</h3>
               <div className="text-5xl font-bold text-slate-900 tracking-tighter flex items-baseline gap-3">
-                $450,000
+                ${pipelineValue.toLocaleString()}
                 <span className="text-lg font-semibold text-emerald-600">+28%</span>
               </div>
             </div>
@@ -47,7 +69,7 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
               <div className="h-16 w-px bg-slate-100" />
               <div className="text-right">
                 <div className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Active AI Scans</div>
-                <div className="text-2xl font-mono font-bold text-slate-800">14,208</div>
+                <div className="text-2xl font-mono font-bold text-slate-800">{pipelineCount}</div>
               </div>
             </div>
           </div>

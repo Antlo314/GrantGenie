@@ -15,7 +15,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
-import { getOracleAdvice } from '../services/geminiService';
+import { getOracleAdvice, transformText } from '../services/geminiService';
 
 export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: () => void }) {
   const { organization } = useAuth();
@@ -24,6 +24,8 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
   const [loadingAdvice, setLoadingAdvice] = useState(false);
   const [advice, setAdvice] = useState<any>(null);
   const [showHelp, setShowHelp] = useState(false);
+  const [transforming, setTransforming] = useState<string | null>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const fetchOracleAdvice = async () => {
     if (!organization) return;
@@ -35,6 +37,34 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       console.error("Oracle advice failed:", err);
     } finally {
       setLoadingAdvice(false);
+    }
+  };
+
+  const handleTransform = async (action: 'simplify' | 'amplify' | 'tone_shift') => {
+    if (!textareaRef.current) return;
+    const start = textareaRef.current.selectionStart;
+    const end = textareaRef.current.selectionEnd;
+    if (start === end) return; // No text selected
+
+    const selectedText = draft.substring(start, end);
+    setTransforming(action);
+
+    try {
+      const transformed = await transformText(selectedText, action);
+      const newDraft = draft.substring(0, start) + transformed + draft.substring(end);
+      setDraft(newDraft);
+      
+      // Keep selection on the newly transformed text
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          textareaRef.current.setSelectionRange(start, start + transformed.length);
+        }
+      }, 0);
+    } catch (e) {
+      console.error("Transform failed", e);
+    } finally {
+      setTransforming(null);
     }
   };
 
@@ -85,19 +115,38 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                 <div className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.2em] font-bold">Draft Saved 2m ago</div>
              </div>
              <textarea 
+               ref={textareaRef}
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
                placeholder="Begin crafting your narrative here... Let the Oracle guide your strategic signals."
                className="flex-1 bg-transparent p-12 text-xl leading-relaxed focus:outline-none resize-none custom-scrollbar font-serif italic text-slate-800 selection:bg-emerald-100"
              />
              
-             {/* Text Selection Tools (Mocked) */}
+             {/* Text Selection Tools */}
              <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-800 rounded-2xl px-8 py-4 flex gap-8 shadow-2xl backdrop-blur-xl">
-                <button className="text-[10px] font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-widest">Simplify Strategy</button>
+                <button 
+                  onClick={() => handleTransform('simplify')}
+                  disabled={!!transforming}
+                  className="text-[10px] font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-widest disabled:opacity-50"
+                >
+                  {transforming === 'simplify' ? 'Simplifying...' : 'Simplify Strategy'}
+                </button>
                 <div className="w-px h-4 bg-slate-800 self-center" />
-                <button className="text-[10px] font-black text-white hover:text-emerald-300 uppercase tracking-widest">Amplify Impact</button>
+                <button 
+                  onClick={() => handleTransform('amplify')}
+                  disabled={!!transforming}
+                  className="text-[10px] font-black text-white hover:text-emerald-300 uppercase tracking-widest disabled:opacity-50"
+                >
+                  {transforming === 'amplify' ? 'Amplifying...' : 'Amplify Impact'}
+                </button>
                 <div className="w-px h-4 bg-slate-800 self-center" />
-                <button className="text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-widest">Tone Shift: 2026 Tech</button>
+                <button 
+                  onClick={() => handleTransform('tone_shift')}
+                  disabled={!!transforming}
+                  className="text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-widest disabled:opacity-50"
+                >
+                  {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Tone Shift: 2026 Tech'}
+                </button>
              </div>
           </motion.div>
 

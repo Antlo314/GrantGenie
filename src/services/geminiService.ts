@@ -52,3 +52,42 @@ export const getOracleAdvice = async (mission: string, draft: string, guidelines
 
   return JSON.parse(response.text || '{}');
 };
+
+export const transformText = async (text: string, action: 'simplify' | 'amplify' | 'tone_shift'): Promise<string> => {
+  let instruction = "";
+  if (action === 'simplify') {
+    instruction = "Rewrite the following text to be simpler, clearer, and more concise without losing the core meaning.";
+  } else if (action === 'amplify') {
+    instruction = "Rewrite the following text to be more persuasive, impactful, and compelling for a grant proposal.";
+  } else {
+    instruction = "Rewrite the following text to have a modern, high-tech, and forward-looking tone (e.g., '2026 Tech').";
+  }
+
+  const prompt = `${instruction}\n\nText:\n"${text}"`;
+
+  const response = await ai.models.generateContent({
+    model: MODEL_NAME,
+    contents: prompt
+  });
+
+  return response.text?.trim() || text;
+};
+
+export const getGlobalAdvice = async (mission: string, activeView: string): Promise<string> => {
+  const prompt = `You are Grant Genie, an AI assistant for a non-profit organization.
+Mission: "${mission}"
+Current App View: "${activeView}"
+
+Provide a short, punchy (2-3 sentences max) piece of strategic advice, encouragement, or an actionable next step for the user, based on their mission and the view they are currently looking at. Use an inspiring, high-tech tone.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt
+    });
+    return response.text?.trim() || "Standing by to assist.";
+  } catch (error) {
+    console.error("Global advice failed:", error);
+    return "I am currently syncing with the main network. Please try again in a moment.";
+  }
+};

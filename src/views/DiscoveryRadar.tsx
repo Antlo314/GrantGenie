@@ -18,7 +18,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { db } from '../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../components/AuthProvider';
 import { Grant } from '../types';
 import { generateGrantIntel } from '../services/geminiService';
@@ -446,7 +446,23 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
             </div>
 
             <button 
-              onClick={() => onStartDraft(selectedGrant)}
+              onClick={async () => {
+                try {
+                  if (organization && selectedGrant) {
+                     await addDoc(collection(db, 'pipeline_grants'), {
+                       grantId: selectedGrant.id,
+                       orgId: organization.id,
+                       title: selectedGrant.title,
+                       funder: selectedGrant.funder,
+                       amount: selectedGrant.amount,
+                       matchScore: selectedGrant.matchScore || 0,
+                       stage: 'drafting',
+                       addedAt: new Date().toISOString()
+                     });
+                  }
+                } catch(e) { console.error("Error adding to pipeline", e); }
+                onStartDraft(selectedGrant);
+              }}
               className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/20 active:scale-[0.98]"
             >
               Add to Pipeline <ChevronRight className="w-4 h-4" />

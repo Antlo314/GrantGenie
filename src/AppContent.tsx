@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from './components/AuthProvider';
 import { loginWithGoogle, logout } from './auth';
+import { getGlobalAdvice } from './services/geminiService';
 
 // Views
 import MissionControl from './views/MissionControl';
@@ -34,6 +35,14 @@ export default function AppContent() {
   const [activeView, setActiveView] = React.useState<View>('mission');
   const [selectedGrantForDraft, setSelectedGrantForDraft] = React.useState<any>(null);
   const [genieOpen, setGenieOpen] = React.useState(false);
+  const [globalAdvice, setGlobalAdvice] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (genieOpen && organization) {
+      setGlobalAdvice(null);
+      getGlobalAdvice(organization.mission, activeView).then(setGlobalAdvice);
+    }
+  }, [genieOpen, activeView, organization]);
 
   if (loading) {
     return (
@@ -252,9 +261,17 @@ export default function AppContent() {
                     <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">Consulting Active</div>
                   </div>
                 </div>
-                <p className="text-sm text-slate-300 leading-relaxed mb-6 italic">
-                  "I've analyzed your Data Vault. The 2026 'Climate Resilience Fund' matches your mission by 94.2%. Shall we begin?"
-                </p>
+                {globalAdvice ? (
+                  <p className="text-sm text-slate-300 leading-relaxed mb-6 italic">
+                    "{globalAdvice}"
+                  </p>
+                ) : (
+                  <div className="flex items-center justify-center py-6 mb-6">
+                    <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                      <Sparkles className="w-8 h-8 text-emerald-500/50" />
+                    </motion.div>
+                  </div>
+                )}
                 <div className="space-y-2">
                   <button className="w-full text-xs text-center px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-widest transition-colors shadow-lg shadow-emerald-900/20">
                     Draft with Oracle
