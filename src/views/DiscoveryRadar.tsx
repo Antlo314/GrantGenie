@@ -304,66 +304,80 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                  <button onClick={() => { setSearchTerm(''); setMinMatchScore(0); setActiveTags([]); }} className="mt-6 text-emerald-600 font-black text-[10px] uppercase tracking-widest hover:underline">Reset Intelligence Stack</button>
               </div>
             ) : (
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-slate-50 text-[10px] uppercase font-bold text-slate-400 sticky top-0 z-10 border-b border-slate-100">
-                  <tr>
-                    <th className="px-6 py-4">Opportunity Signal</th>
-                    <th className="px-6 py-4">Trust Provider</th>
-                    <th className="px-6 py-4">Match Intel</th>
-                    <th className="px-6 py-4 text-right">Window</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
+              <div className="flex flex-col divide-y divide-slate-100">
+                {/* Desktop Header */}
+                <div className="hidden md:flex items-center px-6 py-4 bg-slate-50 text-[10px] uppercase font-bold text-slate-400 sticky top-0 z-10 border-b border-slate-100">
+                  <div className="flex-[2]">Opportunity Signal</div>
+                  <div className="flex-1">Trust Provider</div>
+                  <div className="flex-1">Match Intel</div>
+                  <div className="flex-1 text-right">Window</div>
+                </div>
+                
+                {/* List Body */}
+                <div className="flex flex-col">
                   {filteredGrants.map((grant) => (
-                    <tr 
+                    <div 
                       key={grant.id}
                       onClick={() => setSelectedGrant(grant)}
                       className={`
-                        cursor-pointer transition-colors group
+                        cursor-pointer transition-colors group flex flex-col md:flex-row md:items-center px-4 md:px-6 py-5 gap-4 md:gap-0
                         ${selectedGrant?.id === grant.id ? 'bg-emerald-50/50' : 'hover:bg-slate-50'}
                       `}
                     >
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                           <div className={`w-2 h-2 rounded-full ${grant.matchScore && grant.matchScore > 80 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-200'}`} />
-                           <div>
-                              <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">{grant.title}</div>
-                              <div className="flex gap-1 mt-1">
-                                {grant.tags.slice(0, 3).map(tag => (
-                                  <span key={tag} className="px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-bold text-slate-400 uppercase">
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 hidden md:table-cell">
-                        <span className="text-xs font-semibold text-slate-500 italic">{grant.funder}</span>
-                      </td>
-                      <td className="px-6 py-5 hidden sm:table-cell">
+                      {/* Title & Tags */}
+                      <div className="flex-[2] flex items-start md:items-center gap-3">
+                         <div className={`w-2 h-2 rounded-full mt-1.5 md:mt-0 shrink-0 ${grant.matchScore && grant.matchScore > 80 ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-slate-200'}`} />
+                         <div>
+                            <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-tight">{grant.title}</div>
+                            <div className="flex gap-1 mt-2 md:mt-1 flex-wrap">
+                              {grant.tags.slice(0, 3).map(tag => (
+                                <span key={tag} className="px-1.5 py-0.5 bg-slate-100 rounded text-[9px] font-bold text-slate-400 uppercase">
+                                  {tag}
+                                </span>
+                              ))}
+                            </div>
+                         </div>
+                      </div>
+
+                      {/* Mobile Metadata Row */}
+                      <div className="flex items-center justify-between md:hidden pl-5">
+                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{grant.funder}</span>
+                         <span className="font-mono text-[10px] font-bold text-slate-500 uppercase">
+                           {new Date(grant.deadline).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                         </span>
+                      </div>
+                      
+                      {/* Funder Desktop */}
+                      <div className="flex-1 hidden md:block pr-4">
+                        <span className="text-xs font-semibold text-slate-500 italic line-clamp-2">{grant.funder}</span>
+                      </div>
+                      
+                      {/* Match Score */}
+                      <div className="flex-1 pl-5 md:pl-0 flex items-center md:block">
                         {grant.matchScore ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
                               <motion.div 
                                 initial={{ width: 0 }}
                                 animate={{ width: `${grant.matchScore}%` }}
                                 className={`h-full ${grant.matchScore > 80 ? 'bg-emerald-500' : 'bg-blue-400'}`} 
                               />
                             </div>
-                            <span className="text-xs font-black text-slate-900">{grant.matchScore}%</span>
+                            <span className="text-xs font-black text-slate-900">Match: {grant.matchScore}%</span>
                           </div>
                         ) : (
                           <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Awaiting Analysis</span>
                         )}
-                      </td>
-                      <td className="px-6 py-5 text-right font-mono text-xs font-bold text-slate-500 uppercase">
+                      </div>
+                      
+                      {/* Deadline Desktop */}
+                      <div className="flex-1 text-right hidden md:block font-mono text-xs font-bold text-slate-500 uppercase">
                         {new Date(grant.deadline).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
             )}
           </div>
         </motion.div>

@@ -107,7 +107,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
 
   return (
     <div className="h-full flex flex-col">
-       <div className="flex items-center justify-between mb-8">
+       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-8 gap-4">
           <div className="flex items-center gap-4">
             <button 
               onClick={onBack}
@@ -120,8 +120,8 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               <p className="text-slate-400 text-sm font-medium">Proposal: <span className="text-emerald-600">{grant?.title || 'New Grant Draft'}</span></p>
             </div>
           </div>
-          <div className="flex gap-3 items-center">
-            {saveMessage && <span className="text-xs font-bold text-emerald-600 mr-2">{saveMessage}</span>}
+          <div className="flex flex-wrap gap-2 md:gap-3 items-center w-full md:w-auto">
+            {saveMessage && <span className="text-xs font-bold text-emerald-600 mr-2 w-full md:w-auto">{saveMessage}</span>}
             <button 
               onClick={() => setShowHelp(true)}
               className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
@@ -145,15 +145,15 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
           </div>
        </div>
 
-       <div className="flex-1 flex gap-8 min-h-0">
+       <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-8 min-h-0 overflow-y-auto xl:overflow-hidden pb-8 xl:pb-0">
           {/* Main Editing Area */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex-1 bg-white border border-slate-200 rounded-[2.5rem] flex flex-col relative overflow-hidden shadow-sm"
+            className="flex-1 min-h-[400px] xl:min-h-0 bg-white border border-slate-200 rounded-[2.5rem] flex flex-col relative overflow-hidden shadow-sm shrink-0"
           >
-             <div className="h-16 border-b border-slate-100 flex items-center px-8 justify-between bg-slate-50/50">
-                <div className="flex gap-8 h-full">
+             <div className="h-16 border-b border-slate-100 flex items-center px-4 md:px-8 justify-between bg-slate-50/50 shrink-0">
+                <div className="flex gap-4 md:gap-8 h-full overflow-x-auto custom-scrollbar no-scrollbar whitespace-nowrap">
                    <button className="text-[10px] font-black text-emerald-600 border-b-2 border-emerald-600 h-full uppercase tracking-widest">Mission & Need</button>
                    <button className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors h-full">Budget Narrative</button>
                    <button className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors h-full">Sustainability</button>
@@ -162,9 +162,9 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
              </div>
              
              {/* Text Selection Tools Toolbar */}
-             <div className="bg-slate-900 border-b border-slate-800 px-8 py-3 flex items-center justify-between shadow-inner">
-                <div className="flex items-center gap-6">
-                  <div className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-2">
+             <div className="bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-3 flex items-center overflow-x-auto custom-scrollbar shadow-inner shrink-0 no-scrollbar">
+                <div className="flex items-center gap-4 md:gap-6 w-max">
+                  <div className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-2 shrink-0">
                     <Zap className="w-3 h-3" /> AI Tools
                   </div>
                   <div className="w-px h-4 bg-slate-700" />
@@ -197,12 +197,12 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
                placeholder="Begin crafting your narrative here... Select text and use the AI tools above to refine your strategy."
-               className="flex-1 bg-transparent p-12 text-xl leading-relaxed focus:outline-none resize-none custom-scrollbar font-serif italic text-slate-800 selection:bg-emerald-100"
+               className="flex-1 bg-transparent p-6 md:p-12 text-base md:text-xl leading-relaxed focus:outline-none resize-none custom-scrollbar font-serif italic text-slate-800 selection:bg-emerald-100"
              />
           </motion.div>
 
           {/* Intelligence Sidebar */}
-          <div className="w-[450px] flex flex-col gap-6 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="w-full xl:w-[450px] flex flex-col gap-6 xl:overflow-y-auto pr-0 xl:pr-2 custom-scrollbar shrink-0">
              {/* Grant Specs */}
              <motion.div 
                initial={{ opacity: 0, x: 20 }}

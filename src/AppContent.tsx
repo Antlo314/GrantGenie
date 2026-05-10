@@ -14,7 +14,8 @@ import {
   ChevronRight,
   ShieldCheck,
   BrainCircuit,
-  Zap
+  Zap,
+  Menu
 } from 'lucide-react';
 import { useAuth } from './components/AuthProvider';
 import { loginWithGoogle, logout } from './auth';
@@ -36,6 +37,7 @@ export default function AppContent() {
   const [activeView, setActiveView] = React.useState<View>('mission');
   const [selectedGrantForDraft, setSelectedGrantForDraft] = React.useState<any>(null);
   const [genieOpen, setGenieOpen] = React.useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [globalAdvice, setGlobalAdvice] = React.useState<string | null>(null);
 
   React.useEffect(() => {
@@ -127,8 +129,8 @@ export default function AppContent() {
 
   return (
     <div className="h-screen w-screen bg-slate-50 text-slate-900 flex overflow-hidden font-sans">
-      {/* Sidebar */}
-      <aside className="w-20 lg:w-64 border-r border-slate-200 flex flex-col items-center lg:items-stretch bg-white">
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-20 lg:w-64 border-r border-slate-200 flex-col items-center lg:items-stretch bg-white">
         <div className="p-6 border-b border-slate-50">
           <div className="flex items-center gap-3">
             <div className="bg-emerald-600 p-2 rounded-lg">
@@ -195,8 +197,14 @@ export default function AppContent() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-16 border-b border-slate-200 flex items-center justify-between px-8 bg-white z-10">
-          <div className="flex items-center gap-6">
+        <header className="h-16 border-b border-slate-200 flex items-center justify-between px-4 md:px-8 bg-white z-10 shrink-0">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-2 -ml-2 rounded-lg hover:bg-slate-100 text-slate-600"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
             <div className="flex gap-2 hidden lg:flex">
               <span className="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold text-slate-500 uppercase tracking-widest">Quantum Scanning Active</span>
               <span className="px-2 py-1 bg-emerald-100 rounded text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Neural Link Optimal</span>
@@ -213,7 +221,7 @@ export default function AppContent() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-8 relative custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeView}
@@ -286,6 +294,93 @@ export default function AppContent() {
            </AnimatePresence>
         </div>
       </main>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 md:hidden"
+            />
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: "spring", bounce: 0, duration: 0.3 }}
+              className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white shadow-2xl z-50 md:hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-emerald-600 p-2 rounded-lg">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="font-bold text-xl tracking-tight text-slate-800">Grant Genie</span>
+                </div>
+                <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-slate-400 hover:text-slate-900">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <nav className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-2">
+                <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operational</div>
+                <MobileMenuItem 
+                  icon={<BarChart3 />} 
+                  label="Mission Control" 
+                  active={activeView === 'mission'} 
+                  onClick={() => { setActiveView('mission'); setMobileMenuOpen(false); }} 
+                />
+                <MobileMenuItem 
+                  icon={<Radar />} 
+                  label="Discovery Radar" 
+                  active={activeView === 'radar'} 
+                  onClick={() => { setActiveView('radar'); setMobileMenuOpen(false); }} 
+                />
+                
+                <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Intelligence</div>
+                <MobileMenuItem 
+                  icon={<Database />} 
+                  label="Data Vault" 
+                  active={activeView === 'vault'} 
+                  onClick={() => { setActiveView('vault'); setMobileMenuOpen(false); }} 
+                />
+                <MobileMenuItem 
+                  icon={<Zap />} 
+                  label="Pipeline Commander" 
+                  active={activeView === 'pipeline'} 
+                  onClick={() => { setActiveView('pipeline'); setMobileMenuOpen(false); }} 
+                />
+                <MobileMenuItem 
+                  icon={<PenTool />} 
+                  label="Genie Writer" 
+                  active={activeView === 'writer'} 
+                  onClick={() => { setActiveView('writer'); setMobileMenuOpen(false); }} 
+                />
+              </nav>
+
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex flex-col gap-2">
+                <button 
+                  onClick={() => { setActiveView('settings'); setMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl transition-all border border-slate-200 bg-white shadow-sm"
+                >
+                  <Settings className="w-5 h-5 text-slate-600" />
+                  <span className="text-sm font-semibold text-slate-700">Settings</span>
+                </button>
+                <button 
+                  onClick={logout}
+                  className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-200 transition-all text-slate-600"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="text-sm font-semibold">Log out</span>
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -308,6 +403,25 @@ function SidebarItem({ icon, label, active, onClick }: { icon: React.ReactNode, 
       {active && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-emerald-600 rounded-l-full" />
       )}
+    </button>
+  );
+}
+
+function MobileMenuItem({ icon, label, active, onClick }: { icon: React.ReactNode, label: string, active: boolean, onClick: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`
+        flex items-center gap-4 p-4 rounded-xl transition-all duration-200 w-full text-left
+        ${active ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-600 hover:bg-slate-50 font-semibold'}
+      `}
+    >
+      <div className={`w-5 h-5 flex items-center justify-center ${active ? 'text-emerald-600' : 'text-slate-400'}`}>
+        {React.cloneElement(icon as React.ReactElement, { strokeWidth: 2.5 })}
+      </div>
+      <span className="text-sm tracking-tight flex-1">
+        {label}
+      </span>
     </button>
   );
 }

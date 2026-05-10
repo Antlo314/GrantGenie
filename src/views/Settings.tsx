@@ -39,8 +39,8 @@ export default function Settings() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 h-full flex flex-col pb-12">
-      <div className="flex items-center justify-between">
+    <div className="max-w-4xl mx-auto space-y-8 h-full flex flex-col pb-12 w-full">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -82,7 +82,7 @@ export default function Settings() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">EIN / Tax ID</label>
                   <input 

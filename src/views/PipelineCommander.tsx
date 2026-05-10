@@ -116,17 +116,17 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
          </div>
 
          <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <table className="w-full text-left border-collapse">
-               <thead className="sticky top-0 bg-slate-50 border-b border-slate-100 z-10">
-                  <tr>
-                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Grant / Funder</th>
-                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage</th>
-                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alignment</th>
-                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Valuation</th>
-                     <th className="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>
-                  </tr>
-               </thead>
-               <tbody className="divide-y divide-slate-50">
+            <div className="flex flex-col min-w-0">
+               {/* Desktop Header */}
+               <div className="hidden lg:flex items-center px-8 py-5 bg-slate-50 border-b border-slate-100 z-10 sticky top-0">
+                  <div className="flex-[2] text-[10px] font-black text-slate-400 uppercase tracking-widest">Grant / Funder</div>
+                  <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage</div>
+                  <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alignment</div>
+                  <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Valuation</div>
+                  <div className="w-24 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</div>
+               </div>
+               
+               <div className="flex flex-col divide-y divide-slate-50">
                   {pipeline.length > 0 ? (
                     pipeline.map(grant => (
                       <PipelineRow 
@@ -155,14 +155,12 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
                       />
                     ))
                   ) : (
-                    <tr>
-                      <td colSpan={5} className="px-8 py-12 text-center text-slate-400 font-medium text-sm">
-                        No active grants in your pipeline. Head to the Discovery Radar to find opportunities.
-                      </td>
-                    </tr>
+                    <div className="px-8 py-12 text-center text-slate-400 font-medium text-sm">
+                      No active grants in your pipeline. Head to the Discovery Radar to find opportunities.
+                    </div>
                   )}
-               </tbody>
-            </table>
+               </div>
+            </div>
          </div>
       </motion.div>
     </div>
@@ -171,35 +169,36 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
 
 function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any) {
   return (
-    <tr className="hover:bg-slate-50 transition-colors group">
-       <td className="px-8 py-6">
-          <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight">{grant}</div>
-          <div className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">{funder}</div>
-       </td>
-       <td className="px-8 py-6">
-          <div className="flex items-center gap-3">
-             <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
-                {icon}
-             </div>
-             <span className="text-xs font-black uppercase tracking-widest text-slate-600">{stage}</span>
+    <div className="hover:bg-slate-50 transition-colors group flex flex-col lg:flex-row lg:items-center px-6 lg:px-8 py-6 gap-4 lg:gap-0 relative">
+       {/* Mobile Action Overlay - the whole card is clickable on mobile but not desktop to save space, but we have a button so we just keep button absolute or normal flow */}
+       <div className="flex-[2] pr-4">
+          <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight leading-tight">{grant}</div>
+          <div className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 lg:mt-1">{funder}</div>
+       </div>
+       
+       <div className="flex-1 flex items-center gap-3">
+          <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100 hidden lg:block">
+             {icon}
           </div>
-       </td>
-       <td className="px-8 py-6">
-          <div className="flex items-center gap-3">
-             <div className="flex-1 h-1.5 bg-slate-100 rounded-full max-w-[80px] overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: match }} className="h-full bg-emerald-500" />
-             </div>
-             <span className="text-xs font-black text-emerald-600 tracking-tighter">{match}</span>
+          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Stage: {stage}</span>
+       </div>
+       
+       <div className="flex-1 flex items-center gap-3">
+          <div className="flex-1 h-1.5 bg-slate-100 rounded-full max-w-[80px] overflow-hidden hidden sm:block">
+             <motion.div initial={{ width: 0 }} animate={{ width: match }} className="h-full bg-emerald-500" />
           </div>
-       </td>
-       <td className="px-8 py-6">
-          <div className="text-sm font-bold tracking-tight text-slate-900">{value}</div>
-       </td>
-       <td className="px-8 py-6 text-right">
-          <button onClick={onAction} className="p-3 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all shadow-sm hover:shadow-lg border border-slate-100 group-hover:border-transparent">
+          <span className="text-xs font-black text-emerald-600 tracking-tighter">Match: {match}</span>
+       </div>
+       
+       <div className="flex-1 text-sm font-bold tracking-tight text-slate-900">
+          Value: {value}
+       </div>
+       
+       <div className="lg:w-24 flex justify-end absolute lg:relative top-6 right-6 lg:top-0 lg:right-0">
+          <button onClick={onAction} className="p-3 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all shadow-sm hover:shadow-lg border border-slate-100 group-hover:border-transparent bg-white lg:bg-transparent">
              <ChevronRight className="w-5 h-5 flex-shrink-0" />
           </button>
-       </td>
-    </tr>
+       </div>
+    </div>
   );
 }

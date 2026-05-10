@@ -36,13 +36,13 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
   return (
     <div className="space-y-8 pb-12">
       {/* Header Info */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
           <h2 className="text-sm font-bold tracking-widest text-slate-400 mb-1 uppercase">Operational Dashboard</h2>
-          <h1 className="text-4xl font-bold tracking-tighter text-slate-900">Mission Control</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tighter text-slate-900 leading-none mt-1">Mission Control</h1>
         </motion.div>
         <div className="flex gap-3">
           <StatPill label="Genie Scanning" value="Live" color="emerald" />
@@ -55,9 +55,9 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:col-span-8 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm group hover:shadow-md transition-all"
+          className="md:col-span-8 bg-white border border-slate-200 rounded-3xl md:rounded-2xl p-6 md:p-8 shadow-sm group hover:shadow-md transition-all"
         >
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6 md:gap-0">
             <div>
               <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Funding Velocity</h3>
               <div className="text-5xl font-bold text-slate-900 tracking-tighter flex items-baseline gap-3">
@@ -65,7 +65,7 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
                 <span className="text-lg font-semibold text-emerald-600">+28%</span>
               </div>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 self-start md:self-auto">
               <div className="h-16 w-px bg-slate-100" />
               <div className="text-right">
                 <div className="text-[10px] text-slate-400 uppercase font-black tracking-widest mb-1">Active AI Scans</div>
@@ -109,9 +109,9 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm"
+          className="lg:col-span-2 bg-white border border-slate-200 rounded-3xl md:rounded-2xl overflow-hidden shadow-sm"
         >
-           <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+           <div className="px-6 md:px-8 py-6 border-b border-slate-100 flex items-center justify-between">
              <div className="flex items-center gap-3">
                <Zap className="w-5 h-5 text-emerald-600" />
                <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Live Discovery Intel</h3>
@@ -158,7 +158,7 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-slate-900 text-white rounded-2xl p-8 relative overflow-hidden shadow-2xl"
+          className="bg-slate-900 text-white rounded-3xl md:rounded-2xl p-6 md:p-8 relative overflow-hidden shadow-2xl"
         >
           <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
             <div className="w-48 h-48 bg-white rounded-full blur-3xl animate-pulse" />

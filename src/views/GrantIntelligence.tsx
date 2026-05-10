@@ -24,7 +24,7 @@ interface IntelligenceReportProps {
 export default function GrantIntelligence({ grant, onBack, onStartDraft }: IntelligenceReportProps) {
   return (
     <div className="h-full flex flex-col pb-12">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-8 gap-4">
         <div className="flex items-center gap-4">
           <button 
             onClick={onBack}
@@ -37,18 +37,18 @@ export default function GrantIntelligence({ grant, onBack, onStartDraft }: Intel
                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest bg-emerald-50 px-2 py-0.5 rounded">Analysis Complete</span>
                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{grant.funder}</span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tighter text-slate-900">{grant.title}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-slate-900 leading-tight md:leading-none">{grant.title}</h1>
           </div>
         </div>
-        <div className="flex gap-3">
-           <button className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+        <div className="flex flex-wrap md:flex-nowrap gap-2 md:gap-3 w-full md:w-auto">
+           <button className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm shrink-0">
              <Share2 className="w-5 h-5 text-slate-500" />
            </button>
            <button 
              onClick={() => onStartDraft(grant)}
-             className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
+             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
            >
-             <Zap className="w-4 h-4" /> Start Drafting with Genie
+             <Zap className="w-4 h-4 shrink-0" /> <span className="truncate">Start Drafting with Genie</span>
            </button>
         </div>
       </div>
@@ -59,7 +59,7 @@ export default function GrantIntelligence({ grant, onBack, onStartDraft }: Intel
            <motion.div 
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             className="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm"
+             className="bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-6 md:p-10 shadow-sm"
            >
               <div className="flex items-center gap-3 mb-8">
                  <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center">
@@ -67,7 +67,7 @@ export default function GrantIntelligence({ grant, onBack, onStartDraft }: Intel
                  </div>
                  <h3 className="text-xl font-bold tracking-tight">Executive Intelligence Summary</h3>
               </div>
-              <p className="text-lg text-slate-600 leading-relaxed font-serif italic mb-10 border-l-4 border-emerald-500/20 pl-8">
+              <p className="text-base md:text-lg text-slate-600 leading-relaxed font-serif italic mb-8 md:mb-10 border-l-4 border-emerald-500/20 pl-4 md:pl-8">
                 "{grant.description}"
               </p>
               
