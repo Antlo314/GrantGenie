@@ -17,7 +17,7 @@ import { useAuth } from '../components/AuthProvider';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
-export default function PipelineCommander() {
+export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g: any) => void }) {
   const { organization } = useAuth();
   const [pipeline, setPipeline] = useState<any[]>([]);
 
@@ -142,6 +142,16 @@ export default function PipelineCommander() {
                           grant.stage === 'submitted' ? <Send className="w-4 h-4 text-emerald-600" /> :
                           <Inbox className="w-4 h-4 text-emerald-600" />
                         }
+                        onAction={() => onStartDraft && onStartDraft({
+                          id: grant.grantId,
+                          pipelineId: grant.id, // Add pipeline document ID
+                          title: grant.title,
+                          funder: grant.funder,
+                          amount: grant.amount,
+                          matchScore: grant.matchScore,
+                          draft: grant.draft || '',
+                          deadline: new Date().toISOString()
+                        })}
                       />
                     ))
                   ) : (
@@ -159,7 +169,7 @@ export default function PipelineCommander() {
   );
 }
 
-function PipelineRow({ grant, funder, stage, match, value, icon }: any) {
+function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any) {
   return (
     <tr className="hover:bg-slate-50 transition-colors group">
        <td className="px-8 py-6">
@@ -186,7 +196,7 @@ function PipelineRow({ grant, funder, stage, match, value, icon }: any) {
           <div className="text-sm font-bold tracking-tight text-slate-900">{value}</div>
        </td>
        <td className="px-8 py-6 text-right">
-          <button className="p-3 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all shadow-sm hover:shadow-lg border border-slate-100 group-hover:border-transparent">
+          <button onClick={onAction} className="p-3 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all shadow-sm hover:shadow-lg border border-slate-100 group-hover:border-transparent">
              <ChevronRight className="w-5 h-5 flex-shrink-0" />
           </button>
        </td>

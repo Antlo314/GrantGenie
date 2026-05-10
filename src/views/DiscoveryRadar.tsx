@@ -122,7 +122,11 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
       try {
         const aiResults = await searchGlobalGrants(query);
         if (aiResults && aiResults.length > 0) {
-          setGrants(prev => [...aiResults, ...prev]);
+          setGrants(prev => {
+            const existingIds = new Set(prev.map(g => g.id));
+            const newGrants = aiResults.filter(g => !existingIds.has(g.id));
+            return [...newGrants, ...prev];
+          });
           setSearchTerm(''); // Clear to show all (including new ones)
         } else {
           // If no results, we still clear search to show the user it finished
@@ -480,7 +484,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
               onClick={async () => {
                 try {
                   if (organization && selectedGrant) {
-                     await addDoc(collection(db, 'pipeline_grants'), {
+                     const docRef = await addDoc(collection(db, 'pipeline_grants'), {
                        grantId: selectedGrant.id,
                        orgId: organization.id,
                        title: selectedGrant.title,
@@ -490,6 +494,8 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                        stage: 'drafting',
                        addedAt: new Date().toISOString()
                      });
+                     onStartDraft({ ...selectedGrant, pipelineId: docRef.id });
+                     return;
                   }
                 } catch(e) { console.error("Error adding to pipeline", e); }
                 onStartDraft(selectedGrant);

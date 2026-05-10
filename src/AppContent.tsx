@@ -116,8 +116,8 @@ export default function AppContent() {
     switch (activeView) {
       case 'mission': return <MissionControl onNavigate={setActiveView} onStartDraft={handleStartDraft} />;
       case 'radar': return <DiscoveryRadar onStartDraft={handleStartDraft} />;
-      case 'writer': return <OracleWriter grant={selectedGrantForDraft} onBack={() => setActiveView('radar')} />;
-      case 'pipeline': return <PipelineCommander />;
+      case 'writer': return <OracleWriter grant={selectedGrantForDraft} onBack={() => setActiveView('pipeline')} />;
+      case 'pipeline': return <PipelineCommander onStartDraft={handleStartDraft} />;
       case 'vault': return <DataVault />;
       case 'settings': return <SettingsView />;
       case 'onboarding': return <Onboarding onComplete={() => setActiveView('mission')} />;

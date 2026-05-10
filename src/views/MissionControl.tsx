@@ -141,7 +141,7 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
                title="Deadline Approaching: EPA Justice Grant" 
                time="1h ago" 
                color="amber"
-               details="Final review recommended by Oracle Writer for optimal logic consistency."
+               details="Final review recommended by Genie Writer for optimal logic consistency."
              />
              <IntelItem 
                type="Milestone" 
@@ -174,14 +174,14 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
               </div>
             </div>
             <p className="text-slate-300 italic text-sm leading-relaxed mb-10 border-l-2 border-emerald-500/30 pl-6">
-              "Based on your recent funding velocity, you should prioritize the 'Climate Resilience Fund' (Match: 94%). I am standing by to assist with the Oracle draft narrative."
+              "Based on your recent funding velocity, you should prioritize the 'Climate Resilience Fund' (Match: 94%). I am standing by to assist with the Genie draft narrative."
             </p>
             <div className="mt-auto space-y-3">
               <button 
                 onClick={() => onStartDraft({ title: "Climate Resilience Fund", funder: "Gates Foundation", description: "Providing large-scale funding for non-profits implementing climate resilience." })}
                 className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-600/20"
               >
-                Draft with Oracle
+                Draft with Genie
               </button>
               <button 
                 onClick={() => onNavigate('radar')}

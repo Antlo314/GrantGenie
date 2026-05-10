@@ -17,6 +17,9 @@ import {
 import { useAuth } from '../components/AuthProvider';
 import { getOracleAdvice, transformText } from '../services/geminiService';
 
+import { db } from '../lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
+
 export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: () => void }) {
   const { organization } = useAuth();
   const [draft, setDraft] = useState('');
@@ -25,6 +28,8 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
   const [advice, setAdvice] = useState<any>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [transforming, setTransforming] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const fetchOracleAdvice = async () => {
@@ -37,6 +42,31 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       console.error("Oracle advice failed:", err);
     } finally {
       setLoadingAdvice(false);
+    }
+  };
+
+  const handleSave = async (stage: 'drafting' | 'review' = 'drafting') => {
+    if (!grant?.pipelineId) {
+      setSaveMessage("Error: Missing Pipeline ID. Please add to pipeline first.");
+      setTimeout(() => setSaveMessage(null), 3000);
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const docRef = doc(db, 'pipeline_grants', grant.pipelineId);
+      await updateDoc(docRef, {
+        draft: draft,
+        stage: stage,
+        lastEditedAt: new Date().toISOString()
+      });
+      setSaveMessage(stage === 'review' ? "Finalized and sent to review!" : "Draft Saved");
+    } catch (e) {
+      console.error("Failed to save draft:", e);
+      setSaveMessage("Failed to save");
+    } finally {
+      setSaving(false);
+      setTimeout(() => setSaveMessage(null), 3000);
     }
   };
 
@@ -68,6 +98,13 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
     }
   };
 
+  // If there's an existing draft in the grant prop (like if we loaded it from pipeline), we should set it
+  React.useEffect(() => {
+    if (grant?.draft) {
+      setDraft(grant.draft);
+    }
+  }, [grant?.draft]);
+
   return (
     <div className="h-full flex flex-col">
        <div className="flex items-center justify-between mb-8">
@@ -83,17 +120,26 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               <p className="text-slate-400 text-sm font-medium">Proposal: <span className="text-emerald-600">{grant?.title || 'New Grant Draft'}</span></p>
             </div>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
+            {saveMessage && <span className="text-xs font-bold text-emerald-600 mr-2">{saveMessage}</span>}
             <button 
               onClick={() => setShowHelp(true)}
               className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
             >
               <HelpCircle className="w-4 h-4" /> How to use
             </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600">
-              <Save className="w-4 h-4" /> Save Work
+            <button 
+              onClick={() => handleSave('drafting')}
+              disabled={saving}
+              className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600 disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Work'}
             </button>
-            <button className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20">
+            <button 
+              onClick={() => handleSave('review')}
+              disabled={saving}
+              className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+            >
               <Send className="w-4 h-4" /> Finalize Submission
             </button>
           </div>
