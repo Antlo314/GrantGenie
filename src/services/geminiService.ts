@@ -119,19 +119,44 @@ export const searchGlobalGrants = async (query: string): Promise<any[]> => {
     }
 
     // Take top 5 results and map them to our schema
-    const mappedGrants = data.oppHits.slice(0, 5).map((opp: any) => ({
-      id: opp.id || opp.number,
-      title: opp.title,
-      funder: opp.agency || 'Federal Grant',
-      amount: 0, // Not provided directly in the summary search
-      deadline: new Date(opp.closeDate).toISOString(),
-      description: `Opportunity Number: ${opp.number}. This is a federal grant fetched from Grants.gov matching your search. For full details, view the source on Grants.gov.`,
-      matchScore: 0,
-      matchExplanation: 'Awaiting deep scan.',
-      tags: opp.cfdaList || ['Federal'],
-      sourceUrl: `https://www.grants.gov/search-results-detail/${opp.id}`,
-      active: true
-    }));
+    const mappedGrants = data.oppHits.slice(0, 5).map((opp: any) => {
+      // Safely parse the date (Grants.gov uses MM/DD/YYYY)
+      let deadline = new Date().toISOString(); // Default to now if fail
+      try {
+        if (opp.closeDate) {
+          const parts = opp.closeDate.split('/');
+          if (parts.length === 3) {
+            // Convert MM/DD/YYYY to YYYY-MM-DD for reliable parsing
+            const isoDate = `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+            const d = new Date(isoDate);
+            if (!isNaN(d.getTime())) {
+              deadline = d.toISOString();
+            }
+          } else {
+             const d = new Date(opp.closeDate);
+             if (!isNaN(d.getTime())) {
+               deadline = d.toISOString();
+             }
+          }
+        }
+      } catch (e) {
+        console.warn("Date parse failed for", opp.closeDate);
+      }
+
+      return {
+        id: opp.id || opp.number,
+        title: opp.title,
+        funder: opp.agency || 'Federal Grant',
+        amount: 0,
+        deadline: deadline,
+        description: `Opportunity Number: ${opp.number}. This is a federal grant fetched from Grants.gov matching your search. For full details, view the source on Grants.gov.`,
+        matchScore: 0,
+        matchExplanation: 'Awaiting deep scan.',
+        tags: opp.cfdaList || ['Federal'],
+        sourceUrl: `https://www.grants.gov/search-results-detail/${opp.id}`,
+        active: true
+      };
+    });
 
     return mappedGrants;
   } catch (error) {
