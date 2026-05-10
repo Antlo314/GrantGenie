@@ -93,51 +93,47 @@ Provide a short, punchy (2-3 sentences max) piece of strategic advice, encourage
 };
 
 export const searchGlobalGrants = async (query: string): Promise<any[]> => {
-  if (!import.meta.env.VITE_GEMINI_API_KEY) {
-    return [
-      {
-        id: 'ai-mock-1',
-        title: `AI Synthesized Grant for: ${query}`,
-        funder: 'Global Innovation Fund',
-        amount: 250000,
-        deadline: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-        description: `This is a synthesized opportunity found via global search matching your query: ${query}.`,
-        matchScore: 0,
-        matchExplanation: '',
-        tags: ['Global', 'Innovation'],
-        sourceUrl: '#',
-        active: true
-      }
-    ];
-  }
-
-  const prompt = `You are Grant Genie's Global Search Engine. The user is searching the world for grants matching the query: "${query}".
-Return a JSON array of 3 real or highly realistic grant opportunities that match this query. 
-Use the exact following JSON schema for each object in the array:
-{
-  "id": "unique-string-id",
-  "title": "Grant Title",
-  "funder": "Name of Foundation/Agency",
-  "amount": 100000, // Number, realistic amount
-  "deadline": "2026-12-31T00:00:00Z", // ISO string future date
-  "description": "2-3 sentences describing what the grant funds.",
-  "matchScore": 0,
-  "matchExplanation": "",
-  "tags": ["Tag1", "Tag2"],
-  "sourceUrl": "https://example.com",
-  "active": true
-}
-Return ONLY the raw JSON array.`;
-
   try {
-    const response = await ai.models.generateContent({
-      model: MODEL_NAME,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json"
-      }
+    const targetUrl = 'https://apply07.grants.gov/grantsws/rest/opportunities/search/';
+    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`;
+    
+    const response = await fetch(proxyUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        keyword: query,
+        oppStatuses: "forecasted|posted"
+      })
     });
-    return JSON.parse(response.text || '[]');
+
+    if (!response.ok) {
+      throw new Error(`Grants.gov API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.oppHits || data.oppHits.length === 0) {
+      return [];
+    }
+
+    // Take top 5 results and map them to our schema
+    const mappedGrants = data.oppHits.slice(0, 5).map((opp: any) => ({
+      id: opp.id || opp.number,
+      title: opp.title,
+      funder: opp.agency || 'Federal Grant',
+      amount: 0, // Not provided directly in the summary search
+      deadline: new Date(opp.closeDate).toISOString(),
+      description: `Opportunity Number: ${opp.number}. This is a federal grant fetched from Grants.gov matching your search. For full details, view the source on Grants.gov.`,
+      matchScore: 0,
+      matchExplanation: 'Awaiting deep scan.',
+      tags: opp.cfdaList || ['Federal'],
+      sourceUrl: `https://www.grants.gov/search-results-detail/${opp.id}`,
+      active: true
+    }));
+
+    return mappedGrants;
   } catch (error) {
     console.error("Global search failed:", error);
     return [];
