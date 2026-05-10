@@ -15,7 +15,8 @@ import {
   ShieldCheck,
   BrainCircuit,
   Zap,
-  Menu
+  Menu,
+  X
 } from 'lucide-react';
 import { useAuth } from './components/AuthProvider';
 import { loginWithGoogle, logout } from './auth';
