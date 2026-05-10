@@ -14,12 +14,28 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const DEMO_USER = {
+  uid: 'demo-user-123',
+  displayName: 'Genie Architect',
+  email: 'demo@grantgenie.ai',
+  photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=GrantGenie'
+} as any;
+
+const DEMO_ORG = {
+  id: 'demo-org-123',
+  name: 'Lumen Labs',
+  mission: 'To empower humanity through verifiable digital health infrastructure and sustainable community-led technological advancement.',
+  ein: '12-3456789',
+  address: '123 Innovation Drive, Silicon Valley, CA'
+} as Organization;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(DEMO_USER);
   const [loading, setLoading] = useState(true);
-  const [organization, setOrganization] = useState<Organization | null>(null);
+  const [organization, setOrganization] = useState<Organization | null>(DEMO_ORG);
 
   const fetchOrg = async (uid: string) => {
+    if (uid === DEMO_USER.uid) return;
     try {
       const userDoc = await getDoc(doc(db, 'users', uid));
       if (userDoc.exists() && userDoc.data()?.orgId) {
@@ -35,11 +51,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const unsubscribe = subscribeToAuth(async (currentUser) => {
-      setUser(currentUser);
       if (currentUser) {
+        setUser(currentUser);
         await fetchOrg(currentUser.uid);
       } else {
-        setOrganization(null);
+        setUser(DEMO_USER);
+        setOrganization(DEMO_ORG);
       }
       setLoading(false);
     });
