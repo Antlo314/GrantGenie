@@ -14,7 +14,8 @@ import {
   X,
   ArrowUpDown,
   Calendar,
-  Layers
+  Layers,
+  HelpCircle
 } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -152,6 +153,12 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 </button>
               )}
             </div>
+            <button 
+              onClick={() => {}} // We can add a similar modal here later
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-emerald-600 transition-all font-bold text-xs uppercase tracking-widest"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
             <button 
               onClick={() => setShowFilters(!showFilters)}
               className={`flex items-center gap-2 px-4 py-2 border rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}

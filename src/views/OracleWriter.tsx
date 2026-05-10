@@ -10,17 +10,20 @@ import {
   Calendar,
   Zap,
   BrainCircuit,
-  MessageSquareCode
+  MessageSquareCode,
+  HelpCircle,
+  X
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { getOracleAdvice } from '../services/geminiService';
 
-export default function OracleWriter() {
+export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: () => void }) {
   const { organization } = useAuth();
   const [draft, setDraft] = useState('');
-  const [guidelines, setGuidelines] = useState("Must focus on measurable community impact and demonstrate sustainability of infrastructure projects.");
+  const [guidelines, setGuidelines] = useState(grant?.description || "Must focus on measurable community impact and demonstrate sustainability of infrastructure projects.");
   const [loadingAdvice, setLoadingAdvice] = useState(false);
   const [advice, setAdvice] = useState<any>(null);
+  const [showHelp, setShowHelp] = useState(false);
 
   const fetchOracleAdvice = async () => {
     if (!organization) return;
@@ -39,15 +42,24 @@ export default function OracleWriter() {
     <div className="h-full flex flex-col">
        <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <button className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
+            <button 
+              onClick={onBack}
+              className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+            >
               <ChevronLeft className="w-5 h-5 text-slate-500" />
             </button>
             <div>
               <h1 className="text-3xl font-bold tracking-tighter text-slate-900">Oracle Writer</h1>
-              <p className="text-slate-400 text-sm font-medium">Proposal: <span className="text-emerald-600">Clean Water Initiative - Gates Foundation</span></p>
+              <p className="text-slate-400 text-sm font-medium">Proposal: <span className="text-emerald-600">{grant?.title || 'New Grant Draft'}</span></p>
             </div>
           </div>
           <div className="flex gap-3">
+            <button 
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
+            >
+              <HelpCircle className="w-4 h-4" /> How to use
+            </button>
             <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600">
               <Save className="w-4 h-4" /> Save Work
             </button>
@@ -212,6 +224,87 @@ export default function OracleWriter() {
              </motion.div>
           </div>
        </div>
+
+       <AnimatePresence>
+         {showHelp && (
+           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+             <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               onClick={() => setShowHelp(false)}
+               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+             />
+             <motion.div 
+               initial={{ opacity: 0, scale: 0.9, y: 20 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.9, y: 20 }}
+               className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl relative z-10"
+             >
+                <div className="px-10 py-12">
+                   <div className="flex items-center justify-between mb-10">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20">
+                           <HelpCircle className="w-6 h-6 text-white" />
+                        </div>
+                        <h2 className="text-3xl font-bold tracking-tighter">Using the Oracle</h2>
+                      </div>
+                      <button 
+                        onClick={() => setShowHelp(false)}
+                        className="p-3 hover:bg-slate-50 rounded-xl transition-colors"
+                      >
+                        <X className="w-6 h-6 text-slate-400" />
+                      </button>
+                   </div>
+
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                         <div className="flex gap-4">
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">1</div>
+                            <div>
+                               <h4 className="font-bold text-slate-900 text-sm mb-1">Set the Mission</h4>
+                               <p className="text-xs text-slate-500 leading-relaxed">The Oracle uses your organization profile from the Data Vault to ensure every word aligns with your core mission.</p>
+                            </div>
+                         </div>
+                         <div className="flex gap-4">
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">2</div>
+                            <div>
+                               <h4 className="font-bold text-slate-900 text-sm mb-1">Funder Guidelines</h4>
+                               <p className="text-xs text-slate-500 leading-relaxed">Paste the funder's rules in the sidebar. This helps the AI identify 'Strategic Signals' that reviewers look for.</p>
+                            </div>
+                         </div>
+                      </div>
+                      <div className="space-y-6">
+                         <div className="flex gap-4">
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">3</div>
+                            <div>
+                               <h4 className="font-bold text-slate-900 text-sm mb-1">Draft & Analyze</h4>
+                               <p className="text-xs text-slate-500 leading-relaxed">Start writing. When you hit "Summon Advice", the Oracle will critique your logic and suggest narrative shifts.</p>
+                            </div>
+                         </div>
+                         <div className="flex gap-4">
+                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">4</div>
+                            <div>
+                               <h4 className="font-bold text-slate-900 text-sm mb-1">Text Selection</h4>
+                               <p className="text-xs text-slate-500 leading-relaxed">Use the floating tools at the bottom to instantly simplify, amplify, or shift the tone of your selected text.</p>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                   
+                   <div className="mt-12 pt-10 border-t border-slate-100 flex justify-center">
+                      <button 
+                        onClick={() => setShowHelp(false)}
+                        className="bg-slate-900 text-white px-12 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-900/10"
+                      >
+                         Got it, let's draft
+                      </button>
+                   </div>
+                </div>
+             </motion.div>
+          </div>
+         )}
+       </AnimatePresence>
     </div>
   );
 }
