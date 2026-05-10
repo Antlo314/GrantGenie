@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Helper: Is the user signed in?
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Helper: Is the user a member of the organization?
+    function isOrgMember(orgId) {
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId == orgId;
+    }
+
+    // Organizations
+    match /organizations/{orgId} {
+      allow read: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isOrgMember(orgId));
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow update: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+    
+    // Grants (Global Discovery Radar)
+    match /grants/{grantId} {
+      allow read: if isSignedIn();
+      allow write: if false; // Only system/admins can write directly to global grants in this MVP
+    }
+    
+    // Applications (Organization-specific)
+    match /organizations/{orgId}/applications/{appId} {
+      allow read: if isOrgMember(orgId);
+      allow create: if isOrgMember(orgId);
+      allow update: if isOrgMember(orgId);
+      allow delete: if isOrgMember(orgId);
+    }
+    
+    // Users
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}

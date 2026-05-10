@@ -1,0 +1,84 @@
+{
+  "entities": {
+    "Organization": {
+      "title": "Organization Profile",
+      "description": "Core data for the non-profit organization stored in the Data Vault.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "ein": { "type": "string", "description": "501(c)(3) tax ID" },
+        "mission": { "type": "string" },
+        "vision": { "type": "string" },
+        "focusAreas": { "type": "array", "items": { "type": "string" } },
+        "documents": { "type": "array", "items": { "type": "object" } },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "ein", "mission", "ownerId"]
+    },
+    "Grant": {
+      "title": "Grant Opportunity",
+      "description": "A funding opportunity discovered by the Radar.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "funder": { "type": "string" },
+        "amount": { "type": "number" },
+        "deadline": { "type": "string", "format": "date-time" },
+        "description": { "type": "string" },
+        "matchScore": { "type": "number", "description": "AI-calculated compatibility (0-100)" },
+        "matchExplanation": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "sourceUrl": { "type": "string" },
+        "active": { "type": "boolean" },
+        "discoveredAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Application": {
+      "title": "Grant Application",
+      "description": "A specific application being tracked in the Pipeline Commander.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "grantId": { "type": "string" },
+        "orgId": { "type": "string" },
+        "status": { "type": "string", "enum": ["Discovery", "Drafting", "Review", "Submitted", "Accepted", "Declined"] },
+        "draftContent": { "type": "string" },
+        "lastModifiedBy": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "User": {
+      "title": "User Profile",
+      "description": "User account information.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "orgId": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/organizations/{orgId}": {
+      "schema": "Organization",
+      "description": "Root collection for non-profit organizations."
+    },
+    "/grants/{grantId}": {
+      "schema": "Grant",
+      "description": "Global collection of active discovery grants."
+    },
+    "/organizations/{orgId}/applications/{appId}": {
+      "schema": "Application",
+      "description": "Subcollection of applications specific to an organization."
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and org associations."
+    }
+  }
+}
