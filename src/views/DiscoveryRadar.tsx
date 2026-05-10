@@ -21,7 +21,7 @@ import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
 import { useAuth } from '../components/AuthProvider';
 import { Grant } from '../types';
-import { generateGrantIntel } from '../services/geminiService';
+import { generateGrantIntel, searchGlobalGrants } from '../services/geminiService';
 import GrantIntelligence from './GrantIntelligence';
 
 export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any) => void }) {
@@ -106,13 +106,28 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
         matchExplanation: intel.strategicIntelligence,
         tags: intel.tags
       };
-      // Keep state in sync
       setSelectedGrant(updatedGrant);
       setGrants(prev => prev.map(g => g.id === grant.id ? updatedGrant : g));
     } catch (err) {
       console.error("Deep scan failed:", err);
     } finally {
       setScanning(false);
+    }
+  };
+
+  const handleGlobalSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchTerm.trim() !== '') {
+      setLoading(true);
+      try {
+        const aiResults = await searchGlobalGrants(searchTerm);
+        if (aiResults && aiResults.length > 0) {
+          setGrants(prev => [...aiResults, ...prev]);
+        }
+      } catch (err) {
+        console.error("AI Search failed:", err);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -139,18 +154,22 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
               </div>
               <input
                 type="text"
-                placeholder="Search intel..."
+                placeholder="Search local or press Enter for Global AI Search..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full md:w-64 pl-10 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                onKeyDown={handleGlobalSearch}
+                className="block w-full md:w-[320px] pl-10 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
               />
               {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-slate-600 text-slate-400 transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2">
+                  <span className="text-[9px] font-bold text-slate-300 uppercase hidden md:inline-block border border-slate-200 px-1 rounded">↵ AI</span>
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="hover:text-slate-600 text-slate-400 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </div>
             <button 
@@ -258,7 +277,15 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
           animate={{ opacity: 1, y: 0 }}
           className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm flex-1 flex flex-col"
         >
-          <div className="flex-1 overflow-auto custom-scrollbar">
+          <div className="flex-1 overflow-auto custom-scrollbar relative">
+            {loading && (
+              <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                 <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 2, ease: "linear" }}>
+                    <Radar className="w-12 h-12 text-emerald-500" />
+                 </motion.div>
+                 <div className="mt-4 text-[10px] font-black text-emerald-600 animate-pulse uppercase tracking-[0.4em]">Querying Global Database...</div>
+              </div>
+            )}
             {filteredGrants.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center p-12 text-center">
                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 border border-slate-100">

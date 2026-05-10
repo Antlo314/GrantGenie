@@ -91,3 +91,55 @@ Provide a short, punchy (2-3 sentences max) piece of strategic advice, encourage
     return "I am currently syncing with the main network. Please try again in a moment.";
   }
 };
+
+export const searchGlobalGrants = async (query: string): Promise<any[]> => {
+  if (!import.meta.env.VITE_GEMINI_API_KEY) {
+    return [
+      {
+        id: 'ai-mock-1',
+        title: `AI Synthesized Grant for: ${query}`,
+        funder: 'Global Innovation Fund',
+        amount: 250000,
+        deadline: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+        description: `This is a synthesized opportunity found via global search matching your query: ${query}.`,
+        matchScore: 0,
+        matchExplanation: '',
+        tags: ['Global', 'Innovation'],
+        sourceUrl: '#',
+        active: true
+      }
+    ];
+  }
+
+  const prompt = `You are Grant Genie's Global Search Engine. The user is searching the world for grants matching the query: "${query}".
+Return a JSON array of 3 real or highly realistic grant opportunities that match this query. 
+Use the exact following JSON schema for each object in the array:
+{
+  "id": "unique-string-id",
+  "title": "Grant Title",
+  "funder": "Name of Foundation/Agency",
+  "amount": 100000, // Number, realistic amount
+  "deadline": "2026-12-31T00:00:00Z", // ISO string future date
+  "description": "2-3 sentences describing what the grant funds.",
+  "matchScore": 0,
+  "matchExplanation": "",
+  "tags": ["Tag1", "Tag2"],
+  "sourceUrl": "https://example.com",
+  "active": true
+}
+Return ONLY the raw JSON array.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: MODEL_NAME,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json"
+      }
+    });
+    return JSON.parse(response.text || '[]');
+  } catch (error) {
+    console.error("Global search failed:", error);
+    return [];
+  }
+};
