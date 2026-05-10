@@ -4,6 +4,7 @@ import { ShieldCheck, Sparkles, Building, ArrowRight, Target, Zap } from 'lucide
 import { db } from '../lib/firebase';
 import { collection, addDoc, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../components/AuthProvider';
+import PoweredBy from '../components/PoweredBy';
 
 export default function Onboarding({ onComplete }: { onComplete: () => void }) {
   const { user, refreshOrg } = useAuth();
@@ -241,14 +242,15 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
       </motion.div>
       
       {/* Interactive Footer */}
-      <div className="absolute bottom-12 left-0 w-full flex justify-center opacity-30 pointer-events-none">
-         <div className="flex gap-12 items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+      <div className="absolute bottom-12 left-0 w-full flex flex-col items-center gap-6">
+         <div className="flex gap-12 items-center text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-30 pointer-events-none">
             <span>Cloud Secure</span>
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,1)]" />
             <span>AES-256</span>
             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             <span>FIPS 140-2</span>
          </div>
+         <PoweredBy />
       </div>
     </div>
   );

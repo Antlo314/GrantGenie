@@ -19,6 +19,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from './components/AuthProvider';
+import PoweredBy from './components/PoweredBy';
 import { loginWithGoogle, logout } from './auth';
 import { getGlobalAdvice } from './services/geminiService';
 
@@ -101,6 +102,15 @@ export default function AppContent() {
             Summon Your Genie
             <ChevronRight className="w-5 h-5" />
           </motion.button>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-12"
+          >
+            <PoweredBy />
+          </motion.div>
         </div>
       </div>
     );
@@ -192,7 +202,7 @@ export default function AppContent() {
           />
         </nav>
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 mt-auto">
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 mt-auto flex flex-col gap-4">
           <button 
             onClick={logout}
             className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-900 transition-all border border-transparent hover:border-slate-200"
@@ -200,6 +210,9 @@ export default function AppContent() {
             <LogOut className="w-5 h-5 ml-1 lg:ml-0" />
             <span className="hidden lg:block text-sm font-semibold">Log out</span>
           </button>
+          <div className="hidden lg:block pt-2">
+            <PoweredBy />
+          </div>
         </div>
       </aside>
 
@@ -384,7 +397,7 @@ export default function AppContent() {
                 />
               </nav>
 
-              <div className="p-6 border-t border-slate-100 bg-slate-50 flex flex-col gap-2">
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex flex-col gap-6">
                 <button 
                   onClick={logout}
                   className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-200 transition-all text-slate-600"
@@ -392,6 +405,7 @@ export default function AppContent() {
                   <LogOut className="w-5 h-5" />
                   <span className="text-sm font-semibold">Log out</span>
                 </button>
+                <PoweredBy />
               </div>
             </motion.div>
           </>
@@ -441,3 +455,4 @@ function MobileMenuItem({ icon, label, active, onClick }: { icon: React.ReactNod
     </button>
   );
 }
+
