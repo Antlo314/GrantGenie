@@ -12,7 +12,8 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
     name: '',
     ein: '',
     mission: '',
-    focusAreas: [] as string[]
+    focusAreas: [] as string[],
+    tier: 'Free' as 'Free' | 'Pro' | 'Enterprise'
   });
 
   const handleSubmit = async () => {
@@ -59,6 +60,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
            <div className="flex gap-2">
               <div className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= 1 ? 'bg-emerald-600' : 'bg-slate-100'}`} />
               <div className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-emerald-600' : 'bg-slate-100'}`} />
+              <div className={`h-1.5 w-8 rounded-full transition-all duration-500 ${step >= 3 ? 'bg-emerald-600' : 'bg-slate-100'}`} />
            </div>
         </div>
 
@@ -171,17 +173,68 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
 
             <button 
               disabled={!formData.mission}
-              onClick={handleSubmit}
+              onClick={nextStep}
               className="mt-12 w-full bg-emerald-600 text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-emerald-600/20 hover:bg-emerald-500 transition-all group active:scale-[0.98]"
             >
-              Initialize Intelligence
-              <Zap className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Next Step
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
             <button 
               onClick={() => setStep(1)}
               className="w-full mt-4 py-2 text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors"
             >
               ← Modify Identity
+            </button>
+          </motion.div>
+        )}
+
+        {step === 3 && (
+          <motion.div 
+            key="step3"
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <h1 className="text-5xl font-bold mb-6 tracking-tighter text-slate-900 leading-tight">Select Your Tier.</h1>
+            <p className="text-slate-500 mb-10 leading-relaxed text-lg font-medium">
+              Choose the depth of intelligence you require for your mission success.
+            </p>
+            
+            <div className="space-y-4">
+              {[
+                { id: 'Free', name: 'Free Tier', desc: 'Basic radar scans & limited drafting.' },
+                { id: 'Pro', name: 'Pro Tier', desc: 'Quantum scans, unlimited drafting & AI Advice.' },
+                { id: 'Enterprise', name: 'Enterprise', desc: 'Custom AI models & priority deep intel.' }
+              ].map(t => (
+                <button 
+                  key={t.id}
+                  onClick={() => setFormData({...formData, tier: t.id as any})}
+                  className={`w-full p-6 rounded-2xl border text-left transition-all ${
+                    formData.tier === t.id 
+                    ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20' 
+                    : 'bg-white border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-slate-900">{t.name}</span>
+                    {formData.tier === t.id && <Zap className="w-4 h-4 text-emerald-600" />}
+                  </div>
+                  <p className="text-xs text-slate-500">{t.desc}</p>
+                </button>
+              ))}
+            </div>
+
+            <button 
+              onClick={handleSubmit}
+              className="mt-12 w-full bg-slate-900 text-white py-6 rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10 hover:bg-emerald-600 transition-all group active:scale-[0.98]"
+            >
+              Complete Initialization
+              <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />
+            </button>
+            <button 
+              onClick={() => setStep(2)}
+              className="w-full mt-4 py-2 text-[10px] font-black text-slate-300 uppercase tracking-widest hover:text-slate-500 transition-colors"
+            >
+              ← Back to Mission
             </button>
           </motion.div>
         )}

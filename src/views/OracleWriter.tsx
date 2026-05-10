@@ -171,23 +171,32 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                   <button 
                     onClick={() => handleTransform('simplify')}
                     disabled={!!transforming}
-                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors"
+                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
                   >
                     {transforming === 'simplify' ? 'Simplifying...' : 'Simplify Strategy'}
+                    {organization?.tier === 'Free' && (
+                      <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
+                    )}
                   </button>
                   <button 
                     onClick={() => handleTransform('amplify')}
                     disabled={!!transforming}
-                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors"
+                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
                   >
                     {transforming === 'amplify' ? 'Amplifying...' : 'Amplify Impact'}
+                    {organization?.tier === 'Free' && (
+                      <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
+                    )}
                   </button>
                   <button 
                     onClick={() => handleTransform('tone_shift')}
                     disabled={!!transforming}
-                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors"
+                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
                   >
                     {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Tone Shift: 2026 Tech'}
+                    {organization?.tier === 'Free' && (
+                      <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
+                    )}
                   </button>
                 </div>
              </div>

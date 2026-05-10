@@ -41,7 +41,12 @@ export default function MissionControl({ onNavigate, onStartDraft }: { onNavigat
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <h2 className="text-sm font-bold tracking-widest text-slate-400 mb-1 uppercase">Operational Dashboard</h2>
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-sm font-bold tracking-widest text-slate-400 uppercase">Operational Dashboard</h2>
+            <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-[0.2em] ${organization?.tier === 'Pro' ? 'bg-emerald-100 text-emerald-600' : organization?.tier === 'Enterprise' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}>
+              {organization?.tier || 'Free'}
+            </span>
+          </div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tighter text-slate-900 leading-none mt-1">Mission Control</h1>
         </motion.div>
         <div className="flex gap-3">

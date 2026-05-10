@@ -26,7 +26,8 @@ const DEMO_ORG = {
   name: 'Lumen Labs',
   mission: 'To empower humanity through verifiable digital health infrastructure and sustainable community-led technological advancement.',
   ein: '12-3456789',
-  address: '123 Innovation Drive, Silicon Valley, CA'
+  address: '123 Innovation Drive, Silicon Valley, CA',
+  tier: 'Pro'
 } as Organization;
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

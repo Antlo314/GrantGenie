@@ -109,6 +109,18 @@ export default function Settings() {
               </div>
 
               <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Membership Tier</label>
+                <div className="flex items-center gap-3">
+                  <div className={`px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold flex-1 ${organization?.tier === 'Pro' ? 'text-emerald-600' : organization?.tier === 'Enterprise' ? 'text-slate-900' : 'text-slate-500'}`}>
+                    {organization?.tier || 'Free'} Plan
+                  </div>
+                  <button className="px-6 py-3 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">
+                    Upgrade
+                  </button>
+                </div>
+              </div>
+
+              <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-2">Mission Statement</label>
                 <textarea 
                   value={formData.mission}

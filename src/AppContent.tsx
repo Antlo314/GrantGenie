@@ -30,8 +30,9 @@ import PipelineCommander from './views/PipelineCommander';
 import DataVault from './views/DataVault';
 import Onboarding from './views/Onboarding';
 import SettingsView from './views/Settings';
+import ProfileView from './views/ProfileView';
 
-type View = 'mission' | 'radar' | 'writer' | 'pipeline' | 'vault' | 'onboarding' | 'settings';
+type View = 'mission' | 'radar' | 'writer' | 'pipeline' | 'vault' | 'onboarding' | 'settings' | 'profile';
 
 export default function AppContent() {
   const { user, loading, organization } = useAuth();
@@ -122,6 +123,7 @@ export default function AppContent() {
       case 'writer': return <OracleWriter grant={selectedGrantForDraft} onBack={() => setActiveView('pipeline')} />;
       case 'pipeline': return <PipelineCommander onStartDraft={handleStartDraft} />;
       case 'vault': return <DataVault />;
+      case 'profile': return <ProfileView />;
       case 'settings': return <SettingsView />;
       case 'onboarding': return <Onboarding onComplete={() => setActiveView('mission')} />;
       default: return <MissionControl onNavigate={setActiveView} onStartDraft={handleStartDraft} />;
@@ -175,17 +177,22 @@ export default function AppContent() {
             active={activeView === 'writer'} 
             onClick={() => setActiveView('writer')} 
           />
+          <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Personal</div>
+          <SidebarItem 
+            icon={<UserIcon />} 
+            label="User Profile" 
+            active={activeView === 'profile'} 
+            onClick={() => setActiveView('profile')} 
+          />
+          <SidebarItem 
+            icon={<Settings />} 
+            label="Organization" 
+            active={activeView === 'settings'} 
+            onClick={() => setActiveView('settings')} 
+          />
         </nav>
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 mt-auto flex flex-col gap-2">
-          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 hidden lg:block">Secure Access</div>
-          <button 
-            onClick={() => setActiveView('settings')}
-            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all border border-transparent hover:border-slate-200 ${activeView === 'settings' ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-900'}`}
-          >
-            <Settings className={`w-5 h-5 ml-1 lg:ml-0 ${activeView === 'settings' ? 'text-emerald-600' : ''}`} />
-            <span className="hidden lg:block text-sm font-semibold">Settings</span>
-          </button>
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 mt-auto">
           <button 
             onClick={logout}
             className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-900 transition-all border border-transparent hover:border-slate-200"
@@ -207,8 +214,10 @@ export default function AppContent() {
               <Menu className="w-6 h-6" />
             </button>
             <div className="flex gap-2 hidden lg:flex">
+              <span className={`px-2 py-1 ${organization?.tier === 'Pro' ? 'bg-emerald-100 text-emerald-600' : organization?.tier === 'Enterprise' ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-500'} rounded text-[10px] font-bold uppercase tracking-widest`}>
+                {organization?.tier || 'Free'} Tier
+              </span>
               <span className="px-2 py-1 bg-slate-100 rounded text-[10px] font-bold text-slate-500 uppercase tracking-widest">Quantum Scanning Active</span>
-              <span className="px-2 py-1 bg-emerald-100 rounded text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Neural Link Optimal</span>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -360,16 +369,22 @@ export default function AppContent() {
                   active={activeView === 'writer'} 
                   onClick={() => { setActiveView('writer'); setMobileMenuOpen(false); }} 
                 />
+                <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Personal</div>
+                <MobileMenuItem 
+                  icon={<UserIcon />} 
+                  label="User Profile" 
+                  active={activeView === 'profile'} 
+                  onClick={() => { setActiveView('profile'); setMobileMenuOpen(false); }} 
+                />
+                <MobileMenuItem 
+                  icon={<Settings />} 
+                  label="Organization" 
+                  active={activeView === 'settings'} 
+                  onClick={() => { setActiveView('settings'); setMobileMenuOpen(false); }} 
+                />
               </nav>
 
               <div className="p-6 border-t border-slate-100 bg-slate-50 flex flex-col gap-2">
-                <button 
-                  onClick={() => { setActiveView('settings'); setMobileMenuOpen(false); }}
-                  className="w-full flex items-center gap-3 p-3 rounded-xl transition-all border border-slate-200 bg-white shadow-sm"
-                >
-                  <Settings className="w-5 h-5 text-slate-600" />
-                  <span className="text-sm font-semibold text-slate-700">Settings</span>
-                </button>
                 <button 
                   onClick={logout}
                   className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-200 transition-all text-slate-600"

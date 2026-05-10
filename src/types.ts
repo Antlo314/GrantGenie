@@ -6,6 +6,7 @@ export interface Organization {
   vision?: string;
   focusAreas: string[];
   ownerId: string;
+  tier: 'Free' | 'Pro' | 'Enterprise';
 }
 
 export interface Grant {

@@ -451,9 +451,12 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                   {!selectedGrant.matchScore && !scanning && (
                      <button 
                       onClick={() => handleDeepScan(selectedGrant)}
-                      className="w-full bg-emerald-600 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 hover:bg-emerald-500 transition-all active:scale-[0.98]"
+                      className="w-full bg-emerald-600 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/40 hover:bg-emerald-500 transition-all active:scale-[0.98] relative group"
                      >
                         <Zap className="w-3 h-3" /> Initialize Deep Scan
+                        {organization?.tier === 'Free' && (
+                          <div className="absolute -top-2 -right-2 bg-slate-900 text-white text-[8px] px-2 py-0.5 rounded-full border border-slate-700 shadow-xl group-hover:bg-emerald-500 transition-colors">PRO</div>
+                        )}
                      </button>
                   )}
 
