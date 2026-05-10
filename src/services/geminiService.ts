@@ -104,7 +104,8 @@ export const searchGlobalGrants = async (query: string): Promise<any[]> => {
       },
       body: JSON.stringify({
         keyword: query,
-        oppStatuses: "forecasted|posted"
+        oppStatuses: "forecasted|posted",
+        sortBy: "openDate|desc"
       })
     });
 
@@ -115,8 +116,28 @@ export const searchGlobalGrants = async (query: string): Promise<any[]> => {
     const data = await response.json();
     
     if (data.oppHits && data.oppHits.length > 0) {
-      // Take top 5 results and map them to our schema
-      const mappedGrants = data.oppHits.slice(0, 5).map((opp: any) => {
+      const now = new Date();
+      
+      // Filter out grants that have already closed and sort/map
+      const validGrants = data.oppHits.filter((opp: any) => {
+         if (!opp.closeDate) return true; // Keep if no close date is set
+         try {
+           const parts = opp.closeDate.split('/');
+           let d;
+           if (parts.length === 3) {
+             d = new Date(`${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
+           } else {
+             d = new Date(opp.closeDate);
+           }
+           // Only keep if deadline is in the future
+           return !isNaN(d.getTime()) && d > now;
+         } catch(e) {
+           return true; // If parse fails, keep it just in case
+         }
+      });
+
+      // Take top 15 results (increased from 5)
+      const mappedGrants = validGrants.slice(0, 15).map((opp: any) => {
         // Safely parse the date (Grants.gov uses MM/DD/YYYY)
         let deadline = new Date().toISOString(); 
         try {
@@ -154,7 +175,9 @@ export const searchGlobalGrants = async (query: string): Promise<any[]> => {
         };
       });
 
-      return mappedGrants;
+      if (mappedGrants.length > 0) {
+        return mappedGrants;
+      }
     }
     
     // Fallback to AI synthesis if no results found on Grants.gov
