@@ -32,6 +32,7 @@ type View = 'mission' | 'radar' | 'writer' | 'pipeline' | 'vault' | 'onboarding'
 export default function AppContent() {
   const { user, loading, organization } = useAuth();
   const [activeView, setActiveView] = React.useState<View>('mission');
+  const [selectedGrantForDraft, setSelectedGrantForDraft] = React.useState<any>(null);
   const [genieOpen, setGenieOpen] = React.useState(false);
 
   if (loading) {
@@ -95,15 +96,21 @@ export default function AppContent() {
     return <Onboarding onComplete={() => setActiveView('mission')} />;
   }
 
+  const handleStartDraft = (grant: any) => {
+    setSelectedGrantForDraft(grant);
+    setActiveView('writer');
+    setGenieOpen(false);
+  };
+
   const renderView = () => {
     switch (activeView) {
-      case 'mission': return <MissionControl />;
-      case 'radar': return <DiscoveryRadar />;
-      case 'writer': return <OracleWriter />;
+      case 'mission': return <MissionControl onNavigate={setActiveView} onStartDraft={handleStartDraft} />;
+      case 'radar': return <DiscoveryRadar onStartDraft={handleStartDraft} />;
+      case 'writer': return <OracleWriter grant={selectedGrantForDraft} onBack={() => setActiveView('radar')} />;
       case 'pipeline': return <PipelineCommander />;
       case 'vault': return <DataVault />;
       case 'onboarding': return <Onboarding onComplete={() => setActiveView('mission')} />;
-      default: return <MissionControl />;
+      default: return <MissionControl onNavigate={setActiveView} onStartDraft={handleStartDraft} />;
     }
   };
 

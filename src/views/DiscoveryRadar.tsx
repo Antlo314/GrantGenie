@@ -23,7 +23,7 @@ import { Grant } from '../types';
 import { generateGrantIntel } from '../services/geminiService';
 import GrantIntelligence from './GrantIntelligence';
 
-export default function DiscoveryRadar() {
+export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any) => void }) {
   const { organization } = useAuth();
   const [grants, setGrants] = useState<Grant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -438,7 +438,10 @@ export default function DiscoveryRadar() {
               </section>
             </div>
 
-            <button className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/20 active:scale-[0.98]">
+            <button 
+              onClick={() => onStartDraft(selectedGrant)}
+              className="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-emerald-600 transition-all flex items-center justify-center gap-2 shadow-xl shadow-slate-900/20 active:scale-[0.98]"
+            >
               Add to Pipeline <ChevronRight className="w-4 h-4" />
             </button>
           </motion.div>

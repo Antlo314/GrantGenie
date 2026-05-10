@@ -28,17 +28,18 @@ export const generateGrantIntel = async (mission: string, grantDescription: stri
   return JSON.parse(response.text || '{}');
 };
 
-export const getOracleAdvice = async (draft: string, guidelines: string) => {
+export const getOracleAdvice = async (mission: string, draft: string, guidelines: string) => {
   const prompt = `
-    Analyze this non-profit grant application draft against the funder's guidelines.
+    You are the Grant Genie Oracle, a master grant writer. 
+    Analyze this non-profit grant application draft against the funder's guidelines, specifically for an organization with this mission: "${mission}".
     
-    Guidelines: "${guidelines}"
-    Draft: "${draft}"
+    Funder Guidelines: "${guidelines}"
+    Current Draft: "${draft}"
     
     Return a JSON object with:
-    1. narrativeShifts (array of 3 suggestions to improve story)
-    2. strategicSignal (one core advice for success)
-    3. score (0-10)
+    1. narrativeShifts (array of 3 highly specific, tactical suggestions to improve the story or align better with the mission)
+    2. strategicSignal (one core, high-level piece of advice for success)
+    3. score (an integer 0-10 based on how ready this draft is)
   `;
 
   const response = await ai.models.generateContent({

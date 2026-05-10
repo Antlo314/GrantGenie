@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 
-export default function MissionControl() {
+export default function MissionControl({ onNavigate, onStartDraft }: { onNavigate: (v: any) => void, onStartDraft: (g: any) => void }) {
   const { organization } = useAuth();
 
   return (
@@ -94,7 +94,9 @@ export default function MissionControl() {
                <Zap className="w-5 h-5 text-emerald-600" />
                <h3 className="text-sm font-black uppercase tracking-widest text-slate-500">Live Discovery Intel</h3>
              </div>
-             <button className="text-xs font-bold text-emerald-600 hover:underline">View Radar →</button>
+             <button 
+              onClick={() => onNavigate('radar')}
+              className="text-xs font-bold text-emerald-600 hover:underline">View Radar →</button>
            </div>
            
            <div className="divide-y divide-slate-50">
@@ -153,10 +155,16 @@ export default function MissionControl() {
               "Based on your recent funding velocity, you should prioritize the 'Climate Resilience Fund' (Match: 94%). I am standing by to assist with the Oracle draft narrative."
             </p>
             <div className="mt-auto space-y-3">
-              <button className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-600/20">
+              <button 
+                onClick={() => onStartDraft({ title: "Climate Resilience Fund", funder: "Gates Foundation", description: "Providing large-scale funding for non-profits implementing climate resilience." })}
+                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-emerald-600/20"
+              >
                 Draft with Oracle
               </button>
-              <button className="w-full py-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-all">
+              <button 
+                onClick={() => onNavigate('radar')}
+                className="w-full py-4 bg-slate-800 hover:bg-slate-700 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-all"
+              >
                 Review Deep Intel
               </button>
             </div>

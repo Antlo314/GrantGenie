@@ -12,18 +12,21 @@ import {
   BrainCircuit,
   MessageSquareCode
 } from 'lucide-react';
+import { useAuth } from '../components/AuthProvider';
 import { getOracleAdvice } from '../services/geminiService';
 
 export default function OracleWriter() {
+  const { organization } = useAuth();
   const [draft, setDraft] = useState('');
+  const [guidelines, setGuidelines] = useState("Must focus on measurable community impact and demonstrate sustainability of infrastructure projects.");
   const [loadingAdvice, setLoadingAdvice] = useState(false);
   const [advice, setAdvice] = useState<any>(null);
 
   const fetchOracleAdvice = async () => {
+    if (!organization) return;
     setLoadingAdvice(true);
     try {
-      const guidelines = "Must focus on measurable community impact and demonstrate sustainability of infrastructure projects.";
-      const result = await getOracleAdvice(draft, guidelines);
+      const result = await getOracleAdvice(organization.mission, draft, guidelines);
       setAdvice(result);
     } catch (err) {
       console.error("Oracle advice failed:", err);
@@ -117,9 +120,12 @@ export default function OracleWriter() {
                           <p className="font-bold text-slate-900 text-lg">Dec 15, 2026</p>
                        </div>
                     </div>
-                    <p className="text-xs text-slate-500 leading-relaxed italic border-l-2 border-slate-100 pl-4 py-1">
-                      "Verifiable digital health systems with measurable sustainability markers."
-                    </p>
+                    <textarea
+                      value={guidelines}
+                      onChange={(e) => setGuidelines(e.target.value)}
+                      className="w-full h-32 bg-slate-50 border border-slate-100 rounded-xl p-4 text-xs text-slate-500 leading-relaxed italic focus:outline-none focus:ring-1 focus:ring-emerald-500/20 resize-none"
+                      placeholder="Paste the funder's specific guidelines or requirements here..."
+                    />
                   </div>
              </motion.div>
 
