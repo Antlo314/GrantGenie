@@ -70,8 +70,8 @@ export default function DataVault() {
   };
 
   return (
-    <div className="space-y-8 h-full flex flex-col pb-12">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 h-full flex flex-col pb-12 w-full">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <motion.div
            initial={{ opacity: 0, x: -20 }}
            animate={{ opacity: 1, x: 0 }}
@@ -79,8 +79,8 @@ export default function DataVault() {
           <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Intelligence Repository</h2>
           <h1 className="text-3xl font-bold tracking-tighter text-slate-900">Data Vault</h1>
         </motion.div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600">
+        <div className="flex flex-wrap md:flex-nowrap gap-3 w-full md:w-auto">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600">
             <ShieldCheck className="w-4 h-4 text-emerald-600" /> Security Audit
           </button>
           
@@ -93,7 +93,7 @@ export default function DataVault() {
           <button 
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className="flex items-center gap-2 px-6 py-3 bg-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 disabled:opacity-50"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10 disabled:opacity-50"
           >
             {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
             {uploading ? 'Uploading...' : 'Upload intelligence'}
@@ -107,7 +107,7 @@ export default function DataVault() {
            <motion.div 
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
-             className="bg-white border border-slate-200 rounded-[2.5rem] p-10 relative overflow-hidden shadow-sm"
+             className="bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden shadow-sm"
            >
               <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                  <Building className="w-64 h-64" />
@@ -140,7 +140,7 @@ export default function DataVault() {
                     <div>
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">Primary Impact Vectors</label>
                       <div className="flex flex-wrap gap-2 mt-1">
-                        {organization?.focusAreas.map(area => (
+                        {organization?.focusAreas?.map(area => (
                           <span key={area} className="px-4 py-1.5 bg-slate-50 border border-slate-100 rounded-full text-xs font-bold text-slate-600 uppercase tracking-tight">
                             {area}
                           </span>
@@ -164,7 +164,7 @@ export default function DataVault() {
              initial={{ opacity: 0, y: 20 }}
              animate={{ opacity: 1, y: 0 }}
              transition={{ delay: 0.1 }}
-             className="bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm"
+             className="bg-white border border-slate-200 rounded-3xl md:rounded-[2.5rem] p-6 md:p-10 shadow-sm"
            >
               <div className="flex items-center justify-between mb-10">
                   <div className="flex items-center gap-4">

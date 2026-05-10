@@ -171,16 +171,16 @@ function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any
   return (
     <div className="hover:bg-slate-50 transition-colors group flex flex-col lg:flex-row lg:items-center px-6 lg:px-8 py-6 gap-4 lg:gap-0 relative">
        {/* Mobile Action Overlay - the whole card is clickable on mobile but not desktop to save space, but we have a button so we just keep button absolute or normal flow */}
-       <div className="flex-[2] pr-4">
-          <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight leading-tight">{grant}</div>
-          <div className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 lg:mt-1">{funder}</div>
+       <div className="flex-[2] pr-12 lg:pr-4">
+          <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight leading-tight text-sm md:text-base">{grant}</div>
+          <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 lg:mt-1">{funder}</div>
        </div>
        
        <div className="flex-1 flex items-center gap-3">
           <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100 hidden lg:block">
              {icon}
           </div>
-          <span className="text-xs font-black uppercase tracking-widest text-slate-600">Stage: {stage}</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Stage: <span className="text-slate-900">{stage}</span></span>
        </div>
        
        <div className="flex-1 flex items-center gap-3">
@@ -190,8 +190,8 @@ function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any
           <span className="text-xs font-black text-emerald-600 tracking-tighter">Match: {match}</span>
        </div>
        
-       <div className="flex-1 text-sm font-bold tracking-tight text-slate-900">
-          Value: {value}
+       <div className="flex-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
+          Value: <span className="text-slate-900 font-bold text-sm tracking-tight">{value}</span>
        </div>
        
        <div className="lg:w-24 flex justify-end absolute lg:relative top-6 right-6 lg:top-0 lg:right-0">

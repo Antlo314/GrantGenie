@@ -45,5 +45,19 @@ service cloud.firestore {
       allow create: if isSignedIn() && request.auth.uid == userId;
       allow update: if isSignedIn() && request.auth.uid == userId;
     }
+
+    // Vault Documents
+    match /vault_documents/{docId} {
+      allow read: if isSignedIn() && resource.data.orgId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId;
+      allow create: if isSignedIn() && request.resource.data.orgId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId;
+      allow update, delete: if isSignedIn() && resource.data.orgId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId;
+    }
+
+    // Pipeline Grants
+    match /pipeline_grants/{grantId} {
+      allow read: if isSignedIn() && resource.data.orgId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId;
+      allow create: if isSignedIn() && request.resource.data.orgId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId;
+      allow update, delete: if isSignedIn() && resource.data.orgId == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.orgId;
+    }
   }
 }
