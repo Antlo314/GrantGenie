@@ -114,40 +114,45 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                 </div>
                 <div className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.2em] font-bold">Draft Saved 2m ago</div>
              </div>
+             
+             {/* Text Selection Tools Toolbar */}
+             <div className="bg-slate-900 border-b border-slate-800 px-8 py-3 flex items-center justify-between shadow-inner">
+                <div className="flex items-center gap-6">
+                  <div className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-2">
+                    <Zap className="w-3 h-3" /> AI Tools
+                  </div>
+                  <div className="w-px h-4 bg-slate-700" />
+                  <button 
+                    onClick={() => handleTransform('simplify')}
+                    disabled={!!transforming}
+                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors"
+                  >
+                    {transforming === 'simplify' ? 'Simplifying...' : 'Simplify Strategy'}
+                  </button>
+                  <button 
+                    onClick={() => handleTransform('amplify')}
+                    disabled={!!transforming}
+                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors"
+                  >
+                    {transforming === 'amplify' ? 'Amplifying...' : 'Amplify Impact'}
+                  </button>
+                  <button 
+                    onClick={() => handleTransform('tone_shift')}
+                    disabled={!!transforming}
+                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors"
+                  >
+                    {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Tone Shift: 2026 Tech'}
+                  </button>
+                </div>
+             </div>
+
              <textarea 
                ref={textareaRef}
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
-               placeholder="Begin crafting your narrative here... Let the Oracle guide your strategic signals."
+               placeholder="Begin crafting your narrative here... Select text and use the AI tools above to refine your strategy."
                className="flex-1 bg-transparent p-12 text-xl leading-relaxed focus:outline-none resize-none custom-scrollbar font-serif italic text-slate-800 selection:bg-emerald-100"
              />
-             
-             {/* Text Selection Tools */}
-             <div className="absolute bottom-12 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-800 rounded-2xl px-8 py-4 flex gap-8 shadow-2xl backdrop-blur-xl">
-                <button 
-                  onClick={() => handleTransform('simplify')}
-                  disabled={!!transforming}
-                  className="text-[10px] font-black text-emerald-400 hover:text-emerald-300 uppercase tracking-widest disabled:opacity-50"
-                >
-                  {transforming === 'simplify' ? 'Simplifying...' : 'Simplify Strategy'}
-                </button>
-                <div className="w-px h-4 bg-slate-800 self-center" />
-                <button 
-                  onClick={() => handleTransform('amplify')}
-                  disabled={!!transforming}
-                  className="text-[10px] font-black text-white hover:text-emerald-300 uppercase tracking-widest disabled:opacity-50"
-                >
-                  {transforming === 'amplify' ? 'Amplifying...' : 'Amplify Impact'}
-                </button>
-                <div className="w-px h-4 bg-slate-800 self-center" />
-                <button 
-                  onClick={() => handleTransform('tone_shift')}
-                  disabled={!!transforming}
-                  className="text-[10px] font-black text-slate-400 hover:text-white uppercase tracking-widest disabled:opacity-50"
-                >
-                  {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Tone Shift: 2026 Tech'}
-                </button>
-             </div>
           </motion.div>
 
           {/* Intelligence Sidebar */}

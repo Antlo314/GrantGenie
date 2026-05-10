@@ -121,10 +121,10 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
   };
 
   return (
-    <div className="h-full flex gap-8">
+    <div className="h-full flex flex-col xl:flex-row gap-8">
       {/* Search & List Pane */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="flex items-center justify-between mb-6">
+      <div className="flex-1 flex flex-col min-w-0 min-h-[400px]">
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -132,8 +132,8 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
             <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Active Scans</h2>
             <h1 className="text-3xl font-bold tracking-tighter text-slate-900">Discovery Radar</h1>
           </motion.div>
-          <div className="flex gap-2">
-            <div className="relative group">
+          <div className="flex flex-wrap gap-2">
+            <div className="relative group flex-1 md:flex-none">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
               </div>
@@ -142,7 +142,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 placeholder="Search intel..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-64 pl-10 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                className="block w-full md:w-64 pl-10 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
               />
               {searchTerm && (
                 <button
@@ -155,22 +155,22 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
             </div>
             <button 
               onClick={() => {}} // We can add a similar modal here later
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-emerald-600 transition-all font-bold text-xs uppercase tracking-widest"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-slate-400 hover:text-emerald-600 transition-all font-bold text-xs uppercase tracking-widest"
             >
               <HelpCircle className="w-4 h-4" />
             </button>
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+              className={`flex items-center justify-center gap-2 px-4 py-2 border rounded-xl transition-all font-bold text-xs uppercase tracking-widest ${showFilters ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}
             >
               <Filter className="w-4 h-4" /> Filters {(activeTags.length > 0 || minMatchScore > 0) && <span className="ml-1 w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center text-[10px] text-white">!</span>}
             </button>
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
             >
-              <Radar className="w-4 h-4" /> Sync Radar
+              <Radar className="w-4 h-4" /> Sync
             </motion.button>
           </div>
         </div>
@@ -303,10 +303,10 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                            </div>
                         </div>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-5 hidden md:table-cell">
                         <span className="text-xs font-semibold text-slate-500 italic">{grant.funder}</span>
                       </td>
-                      <td className="px-6 py-5">
+                      <td className="px-6 py-5 hidden sm:table-cell">
                         {grant.matchScore ? (
                           <div className="flex items-center gap-2">
                             <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -342,7 +342,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
-            className="w-[450px] bg-white border border-slate-200 rounded-3xl p-8 shadow-2xl flex flex-col relative z-20"
+            className="w-full xl:w-[450px] shrink-0 bg-white border border-slate-200 rounded-3xl p-8 shadow-2xl flex flex-col relative z-20"
           >
             <div className="flex items-center justify-between mb-8">
               <button 
@@ -469,7 +469,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
             </button>
           </motion.div>
         ) : (
-          <div className="w-[450px] flex items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/30">
+          <div className="w-full xl:w-[450px] shrink-0 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/30 min-h-[400px]">
              <div className="text-center p-12">
                 <div className="w-20 h-20 bg-white rounded-3xl border border-slate-100 flex items-center justify-center mx-auto mb-8 shadow-sm">
                   <Radar className="w-10 h-10 text-slate-200" />
