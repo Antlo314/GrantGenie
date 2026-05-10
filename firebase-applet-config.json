@@ -1,10 +1,9 @@
 {
-  "projectId": "connectnsell",
-  "appId": "1:73705099769:web:a8050ae38dc9a0fdd62d28",
-  "apiKey": "AIzaSyBzhxhOp0M-bA5pVLscl56hFLOTpehp810",
-  "authDomain": "connectnsell.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-48342274-74ac-49da-aa77-cb8850874b68",
-  "storageBucket": "connectnsell.firebasestorage.app",
-  "messagingSenderId": "73705099769",
-  "measurementId": ""
+  "apiKey": "AIzaSyBsrbGGvwWLJQ_uPx_imoB4P4ssw-hIlDo",
+  "authDomain": "grant-genie-f3618.firebaseapp.com",
+  "projectId": "grant-genie-f3618",
+  "storageBucket": "grant-genie-f3618.firebasestorage.app",
+  "messagingSenderId": "447852162126",
+  "appId": "1:447852162126:web:03d34b02be105510ef671f",
+  "measurementId": "G-555DLR1M7G"
 }
