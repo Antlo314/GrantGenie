@@ -169,17 +169,11 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="hover:text-slate-600 text-slate-400 transition-colors mr-1"
+                    className="hover:text-slate-600 text-slate-400 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 )}
-                <button 
-                  onClick={() => handleGlobalSearch()}
-                  className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-600/10"
-                >
-                  Search
-                </button>
               </div>
             </div>
             <button 
