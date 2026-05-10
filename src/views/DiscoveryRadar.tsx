@@ -154,23 +154,28 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
               </div>
               <input
                 type="text"
-                placeholder="Search local or press Enter for Global AI Search..."
+                placeholder="Search grants..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={handleGlobalSearch}
-                className="block w-full md:w-[320px] pl-10 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
+                className="block w-full md:w-[320px] pl-10 pr-24 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none"
               />
-              {searchTerm && (
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2">
-                  <span className="text-[9px] font-bold text-slate-300 uppercase hidden md:inline-block border border-slate-200 px-1 rounded">↵ AI</span>
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center gap-2">
+                {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="hover:text-slate-600 text-slate-400 transition-colors"
+                    className="hover:text-slate-600 text-slate-400 transition-colors mr-1"
                   >
                     <X className="h-4 w-4" />
                   </button>
-                </div>
-              )}
+                )}
+                <button 
+                  onClick={() => handleGlobalSearch({ key: 'Enter' } as any)}
+                  className="bg-emerald-600 text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-600/10"
+                >
+                  Search
+                </button>
+              </div>
             </div>
             <button 
               onClick={() => {}} // We can add a similar modal here later
