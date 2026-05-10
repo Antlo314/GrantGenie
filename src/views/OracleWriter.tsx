@@ -79,7 +79,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               <ChevronLeft className="w-5 h-5 text-slate-500" />
             </button>
             <div>
-              <h1 className="text-3xl font-bold tracking-tighter text-slate-900">Oracle Writer</h1>
+              <h1 className="text-3xl font-bold tracking-tighter text-slate-900">Genie Writer</h1>
               <p className="text-slate-400 text-sm font-medium">Proposal: <span className="text-emerald-600">{grant?.title || 'New Grant Draft'}</span></p>
             </div>
           </div>

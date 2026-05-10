@@ -18,9 +18,10 @@ import { Grant } from '../types';
 interface IntelligenceReportProps {
   grant: Grant;
   onBack: () => void;
+  onStartDraft: (grant: Grant) => void;
 }
 
-export default function GrantIntelligence({ grant, onBack }: IntelligenceReportProps) {
+export default function GrantIntelligence({ grant, onBack, onStartDraft }: IntelligenceReportProps) {
   return (
     <div className="h-full flex flex-col pb-12">
       <div className="flex items-center justify-between mb-8">
@@ -43,8 +44,11 @@ export default function GrantIntelligence({ grant, onBack }: IntelligenceReportP
            <button className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm">
              <Share2 className="w-5 h-5 text-slate-500" />
            </button>
-           <button className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20">
-             <Zap className="w-4 h-4" /> Start Drafting with Oracle
+           <button 
+             onClick={() => onStartDraft(grant)}
+             className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20"
+           >
+             <Zap className="w-4 h-4" /> Start Drafting with Genie
            </button>
         </div>
       </div>

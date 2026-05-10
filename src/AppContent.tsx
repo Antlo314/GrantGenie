@@ -168,7 +168,7 @@ export default function AppContent() {
           />
           <SidebarItem 
             icon={<PenTool />} 
-            label="Oracle Writer" 
+            label="Genie Writer" 
             active={activeView === 'writer'} 
             onClick={() => setActiveView('writer')} 
           />

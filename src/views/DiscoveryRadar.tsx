@@ -92,7 +92,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
   }, [grants, minMatchScore, activeTags, sortBy]);
 
   if (viewingIntelligence) {
-    return <GrantIntelligence grant={viewingIntelligence} onBack={() => setViewingIntelligence(null)} />;
+    return <GrantIntelligence grant={viewingIntelligence} onBack={() => setViewingIntelligence(null)} onStartDraft={onStartDraft} />;
   }
 
   const handleDeepScan = async (grant: Grant) => {
