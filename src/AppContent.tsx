@@ -27,8 +27,9 @@ import OracleWriter from './views/OracleWriter';
 import PipelineCommander from './views/PipelineCommander';
 import DataVault from './views/DataVault';
 import Onboarding from './views/Onboarding';
+import SettingsView from './views/Settings';
 
-type View = 'mission' | 'radar' | 'writer' | 'pipeline' | 'vault' | 'onboarding';
+type View = 'mission' | 'radar' | 'writer' | 'pipeline' | 'vault' | 'onboarding' | 'settings';
 
 export default function AppContent() {
   const { user, loading, organization } = useAuth();
@@ -118,6 +119,7 @@ export default function AppContent() {
       case 'writer': return <OracleWriter grant={selectedGrantForDraft} onBack={() => setActiveView('radar')} />;
       case 'pipeline': return <PipelineCommander />;
       case 'vault': return <DataVault />;
+      case 'settings': return <SettingsView />;
       case 'onboarding': return <Onboarding onComplete={() => setActiveView('mission')} />;
       default: return <MissionControl onNavigate={setActiveView} onStartDraft={handleStartDraft} />;
     }
@@ -172,8 +174,15 @@ export default function AppContent() {
           />
         </nav>
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 mt-auto">
-          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-4 hidden lg:block">Secure Access</div>
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 mt-auto flex flex-col gap-2">
+          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2 hidden lg:block">Secure Access</div>
+          <button 
+            onClick={() => setActiveView('settings')}
+            className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all border border-transparent hover:border-slate-200 ${activeView === 'settings' ? 'bg-emerald-50 text-emerald-700 shadow-sm' : 'hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-900'}`}
+          >
+            <Settings className={`w-5 h-5 ml-1 lg:ml-0 ${activeView === 'settings' ? 'text-emerald-600' : ''}`} />
+            <span className="hidden lg:block text-sm font-semibold">Settings</span>
+          </button>
           <button 
             onClick={logout}
             className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white hover:shadow-sm text-slate-500 hover:text-slate-900 transition-all border border-transparent hover:border-slate-200"
