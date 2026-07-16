@@ -9,6 +9,8 @@ export interface Organization {
   tier: 'Free' | 'Pro' | 'Enterprise';
 }
 
+export type WinProbability = 'Low' | 'Medium' | 'High';
+
 export interface Grant {
   id: string;
   title: string;
@@ -25,6 +27,14 @@ export interface Grant {
   source?: 'grants.gov' | 'firestore' | 'mock' | 'ai';
   opportunityNumber?: string;
   status?: string;
+  /** Module 2 scoring */
+  strategicAlignmentScore?: number;
+  feasibilityScore?: number;
+  winProbability?: WinProbability;
+  eligible?: boolean;
+  eligibilityFailures?: string[];
+  eligibilityPasses?: string[];
+  recommendedNextStep?: string;
 }
 
 export interface Application {

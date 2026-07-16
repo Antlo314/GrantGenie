@@ -44,12 +44,18 @@ Live search hits `/api/grants.gov/...` which Vite proxies to `https://api.grants
 
 `vercel.json` rewrites `/api/grants.gov/*` → `https://api.grants.gov/*` so production search stays live.
 
-## Core flow
+## AI Grant Officer (3 modules)
 
-1. **Find grants** — live keyword search (Grants.gov)
-2. **Open on Grants.gov** — official opportunity page
-3. **Score vs my mission** — Gemini match (optional key)
-4. **Start draft** — Oracle writer
+1. **Discovery & extraction** — Live Grants.gov search + org profile (type, industry, scope, geography, funding need)
+2. **Match analysis & scoring** — Strict eligibility; Strategic Alignment %; Feasibility %; Win Low/Med/High
+3. **Proposal engine** — Award-winning draft:
+   - Executive summary (hook, ask, ROI)
+   - Statement of need
+   - Project description + SMART objectives
+   - Budget narrative & stewardship
+   - Evaluation plan
+
+Core product flow: **Find grants → Run match analysis → Generate full proposal → Oracle critique → Finalize**
 
 ## Stack
 

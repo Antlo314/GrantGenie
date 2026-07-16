@@ -17,7 +17,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { Grant } from '../types';
-import { generateGrantIntel } from '../services/geminiService';
+import {
+  analyzeGrantMatch,
+  profileFromOrganization,
+} from '../services/geminiService';
 import { searchLiveGrants, SUGGESTED_QUERIES } from '../services/grantSearch';
 import GrantIntelligence from './GrantIntelligence';
 
@@ -108,18 +111,31 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
     }
     setScanning(true);
     try {
-      const intel = await generateGrantIntel(organization.mission, grant.description + ' ' + grant.title);
-      const updatedGrant = {
+      const profile = profileFromOrganization(organization, {
+        projectScope: organization.mission,
+        industry: organization.focusAreas?.[0] || 'nonprofit',
+      });
+      const analysis = await analyzeGrantMatch(profile, grant);
+      const updatedGrant: Grant = {
         ...grant,
-        matchScore: intel.matchScore,
-        matchExplanation: intel.strategicIntelligence || intel.alignmentSummary || grant.matchExplanation,
-        tags: Array.isArray(intel.tags) ? [...new Set([...(grant.tags || []), ...intel.tags])] : grant.tags,
+        matchScore: analysis.compositeScore,
+        matchExplanation: analysis.strategicIntelligence || analysis.alignmentSummary,
+        tags: Array.isArray(analysis.tags)
+          ? [...new Set([...(grant.tags || []), ...analysis.tags])]
+          : grant.tags,
+        strategicAlignmentScore: analysis.strategicAlignmentScore,
+        feasibilityScore: analysis.feasibilityScore,
+        winProbability: analysis.winProbability,
+        eligible: analysis.eligible,
+        eligibilityFailures: analysis.eligibilityFailures,
+        eligibilityPasses: analysis.eligibilityPasses,
+        recommendedNextStep: analysis.recommendedNextStep,
       };
       setSelectedGrant(updatedGrant);
       setGrants((prev) => prev.map((g) => (g.id === grant.id ? updatedGrant : g)));
     } catch (err) {
-      console.error('Deep scan failed:', err);
-      alert('Match AI failed. Check your Gemini API key in .env.local');
+      console.error('Match analysis failed:', err);
+      alert('Match analysis failed. Check GEMINI_API_KEY in .env.local');
     } finally {
       setScanning(false);
     }
@@ -378,13 +394,62 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
             <p className="text-sm text-slate-600 leading-relaxed mb-4">{selectedGrant.description}</p>
 
             {selectedGrant.matchScore > 0 && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-100">
-                <div className="text-xs font-bold text-emerald-800 mb-1">
-                  Mission match · {selectedGrant.matchScore}%
+              <div className="mb-4 space-y-3">
+                <div
+                  className={`p-3 rounded-xl border ${
+                    selectedGrant.eligible === false
+                      ? 'bg-red-50 border-red-100'
+                      : 'bg-emerald-50 border-emerald-100'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="text-xs font-bold text-slate-800">
+                      Module 2 · Match analysis
+                    </span>
+                    <span
+                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        selectedGrant.winProbability === 'High'
+                          ? 'bg-emerald-600 text-white'
+                          : selectedGrant.winProbability === 'Medium'
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-slate-400 text-white'
+                      }`}
+                    >
+                      Win: {selectedGrant.winProbability || '—'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-2">
+                    <ScoreChip label="Composite" value={selectedGrant.matchScore} />
+                    <ScoreChip
+                      label="Alignment"
+                      value={selectedGrant.strategicAlignmentScore ?? selectedGrant.matchScore}
+                    />
+                    <ScoreChip
+                      label="Feasibility"
+                      value={selectedGrant.feasibilityScore ?? 0}
+                    />
+                  </div>
+                  {selectedGrant.eligible === false && (
+                    <p className="text-[11px] font-bold text-red-700 mb-1">
+                      Strict eligibility: not recommended
+                    </p>
+                  )}
+                  <p className="text-xs text-slate-700 leading-relaxed">
+                    {selectedGrant.matchExplanation}
+                  </p>
+                  {selectedGrant.eligibilityFailures && selectedGrant.eligibilityFailures.length > 0 && (
+                    <ul className="mt-2 text-[11px] text-red-700 list-disc pl-4 space-y-0.5">
+                      {selectedGrant.eligibilityFailures.map((f) => (
+                        <li key={f}>{f}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {selectedGrant.recommendedNextStep && (
+                    <p className="mt-2 text-[11px] font-semibold text-slate-600">
+                      Next: {selectedGrant.recommendedNextStep}
+                    </p>
+                  )}
                 </div>
-                <p className="text-xs text-emerald-900/80 leading-relaxed">
-                  {selectedGrant.matchExplanation}
-                </p>
               </div>
             )}
 
@@ -420,7 +485,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 ) : (
                   <Sparkles className="w-4 h-4" />
                 )}
-                Score vs my mission
+                Run match analysis
               </button>
               <button
                 type="button"
@@ -428,7 +493,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-500 shadow-lg shadow-emerald-600/20"
               >
                 <Link2 className="w-4 h-4" />
-                Start draft
+                Write proposal
               </button>
             </div>
           </motion.aside>
@@ -449,6 +514,15 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
           </motion.aside>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function ScoreChip({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg bg-white/80 border border-black/5 px-2 py-1.5 text-center">
+      <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400">{label}</div>
+      <div className="text-sm font-black text-slate-900">{value}%</div>
     </div>
   );
 }

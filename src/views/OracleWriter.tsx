@@ -15,7 +15,12 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
-import { getOracleAdvice, transformText } from '../services/geminiService';
+import {
+  getOracleAdvice,
+  transformText,
+  generateAwardWinningProposal,
+  profileFromOrganization,
+} from '../services/geminiService';
 
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -25,6 +30,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
   const [draft, setDraft] = useState('');
   const [guidelines, setGuidelines] = useState(grant?.description || "Must focus on measurable community impact and demonstrate sustainability of infrastructure projects.");
   const [loadingAdvice, setLoadingAdvice] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [advice, setAdvice] = useState<any>(null);
   const [showHelp, setShowHelp] = useState(false);
   const [transforming, setTransforming] = useState<string | null>(null);
@@ -40,8 +46,40 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       setAdvice(result);
     } catch (err) {
       console.error("Oracle advice failed:", err);
+      alert('Oracle review failed. Check GEMINI_API_KEY.');
     } finally {
       setLoadingAdvice(false);
+    }
+  };
+
+  /** Module 3 — full award-winning proposal */
+  const generateFullProposal = async () => {
+    if (!organization || !grant) {
+      alert('Select a grant from Find grants first, then open Writer.');
+      return;
+    }
+    setGenerating(true);
+    try {
+      const profile = profileFromOrganization(organization, {
+        projectScope: organization.mission,
+        industry: organization.focusAreas?.[0] || 'nonprofit',
+      });
+      const proposal = await generateAwardWinningProposal(profile, grant, {
+        guidelines,
+        fundingRequest: grant.amount > 0 ? grant.amount : undefined,
+      });
+      setDraft(proposal.fullMarkdown);
+      setSaveMessage(
+        proposal.funderKeywordsUsed?.length
+          ? `Proposal ready · keywords: ${proposal.funderKeywordsUsed.slice(0, 4).join(', ')}`
+          : 'Award-winning draft generated'
+      );
+      setTimeout(() => setSaveMessage(null), 5000);
+    } catch (err) {
+      console.error('Proposal engine failed:', err);
+      alert('Proposal generation failed. Check GEMINI_API_KEY in .env.local');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -116,31 +154,40 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               <ChevronLeft className="w-5 h-5 text-slate-500" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-slate-900 truncate">Genie Writer</h1>
-              <p className="text-slate-400 text-[10px] md:text-sm font-medium truncate">Proposal: <span className="text-emerald-600">{grant?.title || 'New Grant Draft'}</span></p>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-slate-900 truncate">Proposal Engine</h1>
+              <p className="text-slate-400 text-[10px] md:text-sm font-medium truncate">
+                Module 3 · <span className="text-emerald-600">{grant?.title || 'Select a grant first'}</span>
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 md:gap-3 items-center w-full md:w-auto">
             {saveMessage && <span className="text-xs font-bold text-emerald-600 mr-2 w-full md:w-auto">{saveMessage}</span>}
             <button 
-              onClick={() => setShowHelp(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
+              onClick={generateFullProposal}
+              disabled={generating || !grant}
+              className="flex items-center gap-2 px-5 py-3 bg-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-slate-800 disabled:opacity-50 shadow-lg"
             >
-              <HelpCircle className="w-4 h-4" /> How to use
+              <Sparkles className="w-4 h-4" /> {generating ? 'Writing…' : 'Generate full proposal'}
+            </button>
+            <button 
+              onClick={() => setShowHelp(true)}
+              className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
+            >
+              <HelpCircle className="w-4 h-4" /> Framework
             </button>
             <button 
               onClick={() => handleSave('drafting')}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600 disabled:opacity-50"
             >
-              <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Work'}
+              <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save'}
             </button>
             <button 
               onClick={() => handleSave('review')}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
             >
-              <Send className="w-4 h-4" /> Finalize Submission
+              <Send className="w-4 h-4" /> Finalize
             </button>
           </div>
        </div>
@@ -153,12 +200,16 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
             className="flex-1 min-h-[400px] xl:min-h-0 bg-white border border-slate-200 rounded-[2.5rem] flex flex-col relative overflow-hidden shadow-sm shrink-0"
           >
              <div className="h-16 border-b border-slate-100 flex items-center px-4 md:px-8 justify-between bg-slate-50/50 shrink-0">
-                <div className="flex gap-4 md:gap-8 h-full overflow-x-auto custom-scrollbar no-scrollbar whitespace-nowrap">
-                   <button className="text-[10px] font-black text-emerald-600 border-b-2 border-emerald-600 h-full uppercase tracking-widest">Mission & Need</button>
-                   <button className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors h-full">Budget Narrative</button>
-                   <button className="text-[10px] font-black text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors h-full">Sustainability</button>
+                <div className="flex gap-4 md:gap-6 h-full overflow-x-auto custom-scrollbar no-scrollbar whitespace-nowrap items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                   <span className="text-emerald-600">1 Hook</span>
+                   <span>2 Need</span>
+                   <span>3 Strategy</span>
+                   <span>4 Budget</span>
+                   <span>5 Evaluation</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.2em] font-bold">Draft Saved 2m ago</div>
+                <div className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.15em] font-bold shrink-0">
+                  {grant?.funder || 'Funder'}
+                </div>
              </div>
              
              {/* Text Selection Tools Toolbar */}
@@ -205,8 +256,8 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                ref={textareaRef}
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
-               placeholder="Begin crafting your narrative here... Select text and use the AI tools above to refine your strategy."
-               className="flex-1 bg-transparent p-6 md:p-12 text-base md:text-xl leading-relaxed focus:outline-none resize-none custom-scrollbar font-serif italic text-slate-800 selection:bg-emerald-100"
+               placeholder="Click “Generate full proposal” for an award-winning 5-section draft (exec summary, need, methodology + SMART goals, budget narrative, evaluation)—or write here. Select text to simplify / amplify / tone-shift."
+               className="flex-1 bg-transparent p-6 md:p-10 text-sm md:text-base leading-relaxed focus:outline-none resize-none custom-scrollbar font-sans text-slate-800 selection:bg-emerald-100"
              />
           </motion.div>
 
@@ -228,8 +279,12 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                           <DollarSign className="w-5 h-5 text-emerald-600" />
                        </div>
                        <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Max Award</p>
-                          <p className="font-bold text-slate-900 text-lg">$1,500,000</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Award (if listed)</p>
+                          <p className="font-bold text-slate-900 text-lg">
+                            {grant?.amount > 0
+                              ? `$${Number(grant.amount).toLocaleString()}`
+                              : 'See NOFO'}
+                          </p>
                        </div>
                     </div>
                     <div className="flex items-center gap-4">
@@ -237,8 +292,16 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                           <Calendar className="w-5 h-5 text-amber-600" />
                        </div>
                        <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Submission Date</p>
-                          <p className="font-bold text-slate-900 text-lg">Dec 15, 2026</p>
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Deadline</p>
+                          <p className="font-bold text-slate-900 text-lg">
+                            {grant?.deadline
+                              ? new Date(grant.deadline).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })
+                              : '—'}
+                          </p>
                        </div>
                     </div>
                     <textarea
@@ -356,7 +419,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                         <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20">
                            <HelpCircle className="w-6 h-6 text-white" />
                         </div>
-                        <h2 className="text-3xl font-bold tracking-tighter">Using the Oracle</h2>
+                        <h2 className="text-3xl font-bold tracking-tighter">Grant Officer framework</h2>
                       </div>
                       <button 
                         onClick={() => setShowHelp(false)}
@@ -366,38 +429,21 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                       </button>
                    </div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-6">
-                         <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">1</div>
-                            <div>
-                               <h4 className="font-bold text-slate-900 text-sm mb-1">Set the Mission</h4>
-                               <p className="text-xs text-slate-500 leading-relaxed">The Oracle uses your organization profile from the Data Vault to ensure every word aligns with your core mission.</p>
-                            </div>
-                         </div>
-                         <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">2</div>
-                            <div>
-                               <h4 className="font-bold text-slate-900 text-sm mb-1">Funder Guidelines</h4>
-                               <p className="text-xs text-slate-500 leading-relaxed">Paste the funder's rules in the sidebar. This helps the AI identify 'Strategic Signals' that reviewers look for.</p>
-                            </div>
-                         </div>
+                   <div className="space-y-5 text-sm text-slate-600 leading-relaxed">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">Module 1 · Discovery</h4>
+                        <p className="text-xs text-slate-500">Live Grants.gov search + your org profile (type, mission, geography, focus).</p>
                       </div>
-                      <div className="space-y-6">
-                         <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">3</div>
-                            <div>
-                               <h4 className="font-bold text-slate-900 text-sm mb-1">Draft & Analyze</h4>
-                               <p className="text-xs text-slate-500 leading-relaxed">Start writing. When you hit "Summon Advice", the Oracle will critique your logic and suggest narrative shifts.</p>
-                            </div>
-                         </div>
-                         <div className="flex gap-4">
-                            <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-[10px] font-black text-emerald-600 shrink-0 border border-emerald-100">4</div>
-                            <div>
-                               <h4 className="font-bold text-slate-900 text-sm mb-1">Text Selection</h4>
-                               <p className="text-xs text-slate-500 leading-relaxed">Use the floating tools at the bottom to instantly simplify, amplify, or shift the tone of your selected text.</p>
-                            </div>
-                         </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">Module 2 · Match analysis</h4>
+                        <p className="text-xs text-slate-500">Strict eligibility, Strategic Alignment %, Feasibility %, Win probability (Low/Med/High).</p>
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">Module 3 · Proposal engine</h4>
+                        <p className="text-xs text-slate-500">
+                          Generate full proposal: Executive Summary · Statement of Need · Project & SMART methodology · Budget narrative · Evaluation plan.
+                          Paste NOFO notes in the sidebar. Select text to simplify / amplify / tone-shift. Run Oracle for critique.
+                        </p>
                       </div>
                    </div>
                    
@@ -406,7 +452,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                         onClick={() => setShowHelp(false)}
                         className="bg-slate-900 text-white px-12 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-900/10"
                       >
-                         Got it, let's draft
+                         Got it — write winning proposals
                       </button>
                    </div>
                 </div>
