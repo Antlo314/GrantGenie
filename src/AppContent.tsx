@@ -90,8 +90,7 @@ export default function AppContent() {
             transition={{ delay: 0.2 }}
             className="text-xl text-slate-500 mb-12 font-medium"
           >
-            High-precision philanthropic intelligence. 
-            Win funding with AI-augmented clarity.
+            Search live federal grants for free. Match them to your mission. Draft stronger proposals with AI.
           </motion.p>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -99,7 +98,7 @@ export default function AppContent() {
             onClick={loginWithGoogle}
             className="bg-slate-900 text-white px-10 py-5 rounded-full font-bold flex items-center gap-3 mx-auto transition-all hover:bg-emerald-600 shadow-xl shadow-slate-900/10"
           >
-            Summon Your Genie
+            Get started free
             <ChevronRight className="w-5 h-5" />
           </motion.button>
 
@@ -154,49 +153,49 @@ export default function AppContent() {
         </div>
 
         <nav className="flex-1 px-4 mt-8 flex flex-col gap-1">
-          <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Operational</div>
+          <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Main</div>
           <SidebarItem 
             icon={<BarChart3 />} 
-            label="Mission Control" 
+            label="Home" 
             active={activeView === 'mission'} 
             onClick={() => setActiveView('mission')} 
           />
           <SidebarItem 
             icon={<Radar />} 
-            label="Discovery Radar" 
+            label="Find grants" 
             active={activeView === 'radar'} 
             onClick={() => setActiveView('radar')} 
           />
           
-          <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Intelligence</div>
+          <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Work</div>
           <SidebarItem 
             icon={<Database />} 
-            label="Data Vault" 
+            label="Documents" 
             active={activeView === 'vault'} 
             onClick={() => setActiveView('vault')} 
           />
           <SidebarItem 
             icon={<Zap />} 
-            label="Pipeline Commander" 
+            label="Pipeline" 
             active={activeView === 'pipeline'} 
             onClick={() => setActiveView('pipeline')} 
           />
           <SidebarItem 
             icon={<PenTool />} 
-            label="Genie Writer" 
+            label="Writer" 
             active={activeView === 'writer'} 
             onClick={() => setActiveView('writer')} 
           />
-          <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Personal</div>
+          <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest hidden lg:block">Account</div>
           <SidebarItem 
             icon={<UserIcon />} 
-            label="User Profile" 
+            label="Profile" 
             active={activeView === 'profile'} 
             onClick={() => setActiveView('profile')} 
           />
           <SidebarItem 
             icon={<Settings />} 
-            label="Organization" 
+            label="Settings" 
             active={activeView === 'settings'} 
             onClick={() => setActiveView('settings')} 
           />
@@ -349,43 +348,43 @@ export default function AppContent() {
               </div>
               
               <nav className="flex-1 overflow-y-auto px-4 py-6 flex flex-col gap-2">
-                <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operational</div>
+                <div className="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Main</div>
                 <MobileMenuItem 
                   icon={<BarChart3 />} 
-                  label="Mission Control" 
+                  label="Home" 
                   active={activeView === 'mission'} 
                   onClick={() => { setActiveView('mission'); setMobileMenuOpen(false); }} 
                 />
                 <MobileMenuItem 
                   icon={<Radar />} 
-                  label="Discovery Radar" 
+                  label="Find grants" 
                   active={activeView === 'radar'} 
                   onClick={() => { setActiveView('radar'); setMobileMenuOpen(false); }} 
                 />
                 
-                <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Intelligence</div>
+                <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Work</div>
                 <MobileMenuItem 
                   icon={<Database />} 
-                  label="Data Vault" 
+                  label="Documents" 
                   active={activeView === 'vault'} 
                   onClick={() => { setActiveView('vault'); setMobileMenuOpen(false); }} 
                 />
                 <MobileMenuItem 
                   icon={<Zap />} 
-                  label="Pipeline Commander" 
+                  label="Pipeline" 
                   active={activeView === 'pipeline'} 
                   onClick={() => { setActiveView('pipeline'); setMobileMenuOpen(false); }} 
                 />
                 <MobileMenuItem 
                   icon={<PenTool />} 
-                  label="Genie Writer" 
+                  label="Writer" 
                   active={activeView === 'writer'} 
                   onClick={() => { setActiveView('writer'); setMobileMenuOpen(false); }} 
                 />
-                <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Personal</div>
+                <div className="mt-6 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account</div>
                 <MobileMenuItem 
                   icon={<UserIcon />} 
-                  label="User Profile" 
+                  label="Profile" 
                   active={activeView === 'profile'} 
                   onClick={() => { setActiveView('profile'); setMobileMenuOpen(false); }} 
                 />

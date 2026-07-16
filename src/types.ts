@@ -21,6 +21,10 @@ export interface Grant {
   tags: string[];
   sourceUrl: string;
   active: boolean;
+  /** Live source marker when loaded from Grants.gov etc. */
+  source?: 'grants.gov' | 'firestore' | 'mock' | 'ai';
+  opportunityNumber?: string;
+  status?: string;
 }
 
 export interface Application {

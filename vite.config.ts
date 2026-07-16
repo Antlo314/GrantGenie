@@ -17,8 +17,26 @@ export default defineConfig(({mode}) => {
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
-      // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
+      proxy: {
+        // Free public Grants.gov search (no API key) — avoids browser CORS in dev
+        '/api/grants.gov': {
+          target: 'https://api.grants.gov',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (p) => p.replace(/^\/api\/grants\.gov/, ''),
+        },
+      },
+    },
+    preview: {
+      proxy: {
+        '/api/grants.gov': {
+          target: 'https://api.grants.gov',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (p) => p.replace(/^\/api\/grants\.gov/, ''),
+        },
+      },
     },
   };
 });

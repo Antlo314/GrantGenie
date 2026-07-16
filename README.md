@@ -1,20 +1,56 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Grant Genie
 
-# Run and deploy your AI Studio app
+Find **live U.S. federal grants**, score them against your mission, and draft applications with AI.
 
-This contains everything you need to run your app locally.
+## What’s new
 
-View your app in AI Studio: https://ai.studio/apps/48342274-74ac-49da-aa77-cb8850874b68
+- **Real live search** via the free public [Grants.gov](https://grants.gov/api/api-guide) API  
+  `POST https://api.grants.gov/v1/api/search2` — **no API key**
+- Vite / Vercel **proxy** so the browser can call Grants.gov without CORS pain
+- Discovery UI simplified: keyword search, suggested topics, live badge, open official posting
+- AI is used for **match scoring & writing**, not for inventing fake grant listings
 
-## Run Locally
+## Free / open sources used
 
-**Prerequisites:**  Node.js
+| Source | Use | Cost |
+|--------|-----|------|
+| [Grants.gov search2](https://grants.gov/api/api-guide) | Live open opportunities | Free, public |
+| [HHS/simpler-grants-gov](https://github.com/HHS/simpler-grants-gov) | Open-source Grants.gov modernization (reference) | Free |
+| [ogrants](https://github.com/weecology/ogrants) | Open grant examples (learning) | Free |
+| Google Gemini (optional) | Mission match + draft help | Needs `GEMINI_API_KEY` |
 
+## Run locally
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```bash
+npm install
+# Optional — for AI match / writer features:
+# copy .env.example to .env.local and set GEMINI_API_KEY=...
+npm run dev
+```
+
+Open http://localhost:3000 → sign in → **Find grants**.
+
+Live search hits `/api/grants.gov/...` which Vite proxies to `https://api.grants.gov`.
+
+## Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Dev server (port 3000) |
+| `npm run build` | Production build |
+| `npm run lint` | Typecheck |
+
+## Deploy (Vercel)
+
+`vercel.json` rewrites `/api/grants.gov/*` → `https://api.grants.gov/*` so production search stays live.
+
+## Core flow
+
+1. **Find grants** — live keyword search (Grants.gov)
+2. **Open on Grants.gov** — official opportunity page
+3. **Score vs my mission** — Gemini match (optional key)
+4. **Start draft** — Oracle writer
+
+## Stack
+
+React 19 · Vite 6 · Tailwind 4 · Firebase Auth · Motion · Gemini

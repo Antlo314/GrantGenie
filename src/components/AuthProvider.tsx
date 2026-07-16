@@ -21,14 +21,15 @@ const DEMO_USER = {
   photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=GrantGenie'
 } as any;
 
-const DEMO_ORG = {
+const DEMO_ORG: Organization = {
   id: 'demo-org-123',
   name: 'Lumen Labs',
   mission: 'To empower humanity through verifiable digital health infrastructure and sustainable community-led technological advancement.',
   ein: '12-3456789',
-  address: '123 Innovation Drive, Silicon Valley, CA',
-  tier: 'Pro'
-} as Organization;
+  focusAreas: ['health', 'community', 'education', 'technology'],
+  ownerId: 'demo-user-123',
+  tier: 'Pro',
+};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(DEMO_USER);
