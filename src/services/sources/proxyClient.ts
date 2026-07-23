@@ -1,5 +1,5 @@
 /**
- * Client calls same-origin /api/proxy/* (Vite middleware or Vercel function).
+ * Client calls same-origin API routes (Vite middleware or Vercel functions).
  * Keys never ship to the browser.
  */
 
@@ -54,42 +54,62 @@ function normalize(raw: Raw, fallbackSource: OpportunitySource): ProxyOppResult 
   };
 }
 
-async function postProxy(path: string, body: object, fallbackSource: OpportunitySource): Promise<ProxyOppResult> {
-  try {
-    const res = await fetch(`/api/proxy/${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
-      return {
-        opportunities: [],
-        hitCount: 0,
-        error: `Proxy ${path} HTTP ${res.status}${text ? `: ${text.slice(0, 120)}` : ''}`,
-      };
+/** Try primary path, then fallback path (covers local proxy + Vercel routes). */
+async function postJson(
+  paths: string[],
+  body: object,
+  fallbackSource: OpportunitySource
+): Promise<ProxyOppResult> {
+  let lastErr = 'No response';
+  for (const path of paths) {
+    try {
+      const res = await fetch(path, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      let json: Raw = {};
+      try {
+        json = text ? JSON.parse(text) : {};
+      } catch {
+        lastErr = `${path} HTTP ${res.status}: non-JSON response`;
+        continue;
+      }
+      if (!res.ok) {
+        lastErr = `${path} HTTP ${res.status}: ${json.error || text.slice(0, 120)}`;
+        continue;
+      }
+      return normalize(json, fallbackSource);
+    } catch (e: unknown) {
+      lastErr = e instanceof Error ? e.message : 'network error';
     }
-    const json = (await res.json()) as Raw;
-    return normalize(json, fallbackSource);
-  } catch (e: unknown) {
-    return {
-      opportunities: [],
-      hitCount: 0,
-      error: e instanceof Error ? e.message : 'Proxy network error',
-    };
   }
+  return { opportunities: [], hitCount: 0, error: lastErr };
 }
 
 export function searchSimplerViaProxy(query: string, limit = 25) {
-  return postProxy('simpler/search', { query, limit }, 'simpler.grants.gov');
+  return postJson(
+    ['/api/simpler-search', '/api/proxy/simpler/search'],
+    { query, limit },
+    'simpler.grants.gov'
+  );
 }
 
 export function searchSamViaProxy(query: string, limit = 25) {
-  return postProxy('sam/search', { query, limit }, 'sam.gov');
+  return postJson(
+    ['/api/sam-search', '/api/proxy/sam/search'],
+    { query, limit },
+    'sam.gov'
+  );
 }
 
 export function searchGrantsUsaViaProxy(query: string, limit = 20) {
-  return postProxy('grants-usa/search', { query, limit }, 'grants-usa');
+  return postJson(
+    ['/api/proxy/grants-usa/search'],
+    { query, limit },
+    'grants-usa'
+  );
 }
 
 export type ClientSourceStatus = {
@@ -103,12 +123,15 @@ export type ClientSourceStatus = {
 };
 
 export async function fetchSourceStatus(): Promise<ClientSourceStatus[]> {
-  try {
-    const res = await fetch('/api/proxy/status');
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.sources || [];
-  } catch {
-    return [];
+  for (const path of ['/api/sources-status', '/api/proxy/status']) {
+    try {
+      const res = await fetch(path);
+      if (!res.ok) continue;
+      const json = await res.json();
+      return json.sources || [];
+    } catch {
+      /* try next */
+    }
   }
+  return [];
 }

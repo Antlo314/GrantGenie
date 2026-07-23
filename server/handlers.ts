@@ -26,6 +26,101 @@ function formatMmDdYyyy(d: Date): string {
   return `${mm}/${dd}/${yyyy}`;
 }
 
+function mapSamRows(rows: Array<Record<string, unknown>>): RawOpp[] {
+  return rows.map((row) => {
+    const noticeId = String(row.noticeId || row.solicitationNumber || crypto.randomUUID());
+    const title = String(row.title || 'Untitled solicitation');
+    const agency = String(
+      (row.fullParentPathName as string) ||
+        (row.department as string) ||
+        (row.organizationName as string) ||
+        'U.S. Government'
+    );
+    const posted = row.postedDate ? String(row.postedDate) : '';
+    const responseDead = row.responseDeadLine ? String(row.responseDeadLine) : '';
+    const solNum = row.solicitationNumber ? String(row.solicitationNumber) : '';
+    const type = row.type ? String(row.type) : '';
+    const naics = row.naicsCode ? String(row.naicsCode) : '';
+    const uiLink = (row.uiLink as string) || `https://sam.gov/opp/${noticeId}/view`;
+
+    return {
+      id: `sam-${noticeId}`,
+      sector: 'contract' as const,
+      source: 'sam.gov',
+      title,
+      agency,
+      deadline: responseDead || undefined,
+      description: [
+        solNum ? `Solicitation #${solNum}` : null,
+        type ? `Type: ${type}` : null,
+        posted ? `Posted: ${posted}` : null,
+        responseDead ? `Response due: ${responseDead}` : null,
+        naics ? `NAICS: ${naics}` : null,
+        'Open federal contract opportunity from SAM.gov.',
+      ]
+        .filter(Boolean)
+        .join(' · '),
+      url: uiLink,
+      isOpenOpportunity: true,
+      opportunityNumber: solNum || noticeId,
+      status: type || 'Open',
+      tags: ['SAM.gov', 'Open solicitation', type, naics].filter(Boolean) as string[],
+    };
+  });
+}
+
+async function samFetch(
+  SAM_API_KEY: string,
+  extra: Record<string, string>,
+  limit: number
+): Promise<{ opportunities: RawOpp[]; hitCount: number; error?: string; status?: number }> {
+  const to = new Date();
+  const from = new Date();
+  from.setDate(from.getDate() - 120);
+
+  const params = new URLSearchParams({
+    api_key: SAM_API_KEY,
+    limit: String(Math.min(limit, 100)),
+    offset: '0',
+    postedFrom: formatMmDdYyyy(from),
+    postedTo: formatMmDdYyyy(to),
+    // o=solicitation, k=combined, p=presolicitation, r=sources sought
+    ptype: 'o,k,p,r',
+    ...extra,
+  });
+
+  // Official path (also works under /prod/)
+  const url = `https://api.sam.gov/opportunities/v2/search?${params.toString()}`;
+  try {
+    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    const text = await res.text();
+    if (!res.ok) {
+      return {
+        opportunities: [],
+        hitCount: 0,
+        status: res.status,
+        error: `SAM.gov HTTP ${res.status}: ${text.slice(0, 180)}`,
+      };
+    }
+    const data = JSON.parse(text) as {
+      totalRecords?: number;
+      opportunitiesData?: Array<Record<string, unknown>>;
+    };
+    const rows = data.opportunitiesData || [];
+    return {
+      opportunities: mapSamRows(rows),
+      hitCount: data.totalRecords ?? rows.length,
+      status: res.status,
+    };
+  } catch (e: unknown) {
+    return {
+      opportunities: [],
+      hitCount: 0,
+      error: e instanceof Error ? e.message : 'SAM.gov network error',
+    };
+  }
+}
+
 /** SAM.gov open contract opportunities (requires SAM_API_KEY). */
 export async function searchSamOpportunities(
   query: string,
@@ -41,91 +136,37 @@ export async function searchSamOpportunities(
     };
   }
 
-  const to = new Date();
-  const from = new Date();
-  from.setDate(from.getDate() - 90);
+  const q = query.trim().slice(0, 100);
 
-  const params = new URLSearchParams({
-    api_key: SAM_API_KEY,
-    limit: String(Math.min(limit, 100)),
-    offset: '0',
-    postedFrom: formatMmDdYyyy(from),
-    postedTo: formatMmDdYyyy(to),
-    // ptype: o = solicitation, k = combined synopsis, p = presolicitation, r = sources sought
-    ptype: 'o,k,p,r',
-  });
-  if (query.trim()) params.set('title', query.trim().slice(0, 100));
-
-  const url = `https://api.sam.gov/opportunities/v2/search?${params.toString()}`;
-  try {
-    const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) {
-      const text = await res.text().catch(() => '');
+  // 1) Prefer title match when user typed a keyword
+  if (q) {
+    const titled = await samFetch(SAM_API_KEY, { title: q }, limit);
+    if (titled.opportunities.length > 0) {
+      return { opportunities: titled.opportunities, hitCount: titled.hitCount };
+    }
+    // If key/auth failed, stop — don't mask with broad search
+    if (titled.status && titled.status >= 400) {
       return {
         opportunities: [],
         hitCount: 0,
-        error: `SAM.gov HTTP ${res.status}${text ? `: ${text.slice(0, 160)}` : ''}`,
+        error: titled.error || `SAM.gov HTTP ${titled.status}`,
       };
     }
-    const data = (await res.json()) as {
-      totalRecords?: number;
-      opportunitiesData?: Array<Record<string, unknown>>;
-    };
-    const rows = data.opportunitiesData || [];
-    const opportunities: RawOpp[] = rows.map((row) => {
-      const noticeId = String(row.noticeId || row.solicitationNumber || crypto.randomUUID());
-      const title = String(row.title || 'Untitled solicitation');
-      const agency = String(
-        (row.fullParentPathName as string) ||
-          (row.department as string) ||
-          (row.organizationName as string) ||
-          'U.S. Government'
-      );
-      const posted = row.postedDate ? String(row.postedDate) : '';
-      const responseDead = row.responseDeadLine ? String(row.responseDeadLine) : '';
-      const solNum = row.solicitationNumber ? String(row.solicitationNumber) : '';
-      const type = row.type ? String(row.type) : '';
-      const naics = row.naicsCode ? String(row.naicsCode) : '';
-      const uiLink =
-        (row.uiLink as string) ||
-        `https://sam.gov/opp/${noticeId}/view`;
-
-      return {
-        id: `sam-${noticeId}`,
-        sector: 'contract',
-        source: 'sam.gov',
-        title,
-        agency,
-        deadline: responseDead || undefined,
-        description: [
-          solNum ? `Solicitation #${solNum}` : null,
-          type ? `Type: ${type}` : null,
-          posted ? `Posted: ${posted}` : null,
-          responseDead ? `Response due: ${responseDead}` : null,
-          naics ? `NAICS: ${naics}` : null,
-          'Open federal contract opportunity from SAM.gov.',
-        ]
-          .filter(Boolean)
-          .join(' · '),
-        url: uiLink,
-        isOpenOpportunity: true,
-        opportunityNumber: solNum || noticeId,
-        status: type || 'Open',
-        tags: ['SAM.gov', 'Open solicitation', type, naics].filter(Boolean) as string[],
-      };
-    });
-
-    return {
-      opportunities,
-      hitCount: data.totalRecords ?? opportunities.length,
-    };
-  } catch (e: unknown) {
-    return {
-      opportunities: [],
-      hitCount: 0,
-      error: e instanceof Error ? e.message : 'SAM.gov network error',
-    };
   }
+
+  // 2) Broad open solicitations (still real open bids)
+  const broad = await samFetch(SAM_API_KEY, {}, limit);
+  if (broad.error && broad.opportunities.length === 0) {
+    return { opportunities: [], hitCount: 0, error: broad.error };
+  }
+  return {
+    opportunities: broad.opportunities,
+    hitCount: broad.hitCount,
+    error:
+      q && broad.opportunities.length
+        ? undefined
+        : broad.error,
+  };
 }
 
 /** Simpler.Grants.gov opportunity search (requires SIMPLER_GRANTS_API_KEY). */

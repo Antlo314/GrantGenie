@@ -1,5 +1,5 @@
 /**
- * Vite dev middleware: /api/proxy/* keeps API keys on the server.
+ * Vite dev middleware: /api/proxy/* and /api/sam-search keep API keys on the server.
  */
 import type { Plugin } from 'vite';
 import type { IncomingMessage, ServerResponse } from 'http';
@@ -22,22 +22,38 @@ function sendJson(res: ServerResponse, status: number, data: unknown) {
   res.end(JSON.stringify(data));
 }
 
-export function grantGenieApiPlugin(mode: string): Plugin {
-  const env = { ...process.env, ...loadEnv(mode, process.cwd(), '') };
+function freshEnv(mode: string) {
+  // Re-read .env* every request so new keys work without a full process restart
+  return { ...process.env, ...loadEnv(mode, process.cwd(), '') };
+}
 
+function pathOnly(url: string) {
+  return (url || '').split('?')[0];
+}
+
+export function grantGenieApiPlugin(mode: string): Plugin {
   return {
     name: 'grant-genie-api-proxy',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        const url = req.url || '';
-        if (!url.startsWith('/api/proxy')) return next();
+        const path = pathOnly(req.url || '');
+        const isProxy = path.startsWith('/api/proxy');
+        const isSam = path === '/api/sam-search';
+        const isSimpler = path === '/api/simpler-search';
+        const isStatus = path === '/api/sources-status' || path === '/api/proxy/status';
+        if (!isProxy && !isSam && !isSimpler && !isStatus) return next();
+
+        const env = freshEnv(mode);
 
         try {
-          if (url.startsWith('/api/proxy/status') && req.method === 'GET') {
+          if (isStatus && req.method === 'GET') {
             return sendJson(res, 200, { sources: sourceStatusList(env) });
           }
 
-          if (url.startsWith('/api/proxy/simpler/search') && req.method === 'POST') {
+          if (
+            (path === '/api/proxy/simpler/search' || isSimpler) &&
+            req.method === 'POST'
+          ) {
             const raw = await readBody(req);
             const body = raw ? JSON.parse(raw) : {};
             const result = await searchSimplerGrants(
@@ -48,7 +64,7 @@ export function grantGenieApiPlugin(mode: string): Plugin {
             return sendJson(res, 200, result);
           }
 
-          if (url.startsWith('/api/proxy/sam/search') && req.method === 'POST') {
+          if ((path === '/api/proxy/sam/search' || isSam) && req.method === 'POST') {
             const raw = await readBody(req);
             const body = raw ? JSON.parse(raw) : {};
             const result = await searchSamOpportunities(
@@ -59,7 +75,7 @@ export function grantGenieApiPlugin(mode: string): Plugin {
             return sendJson(res, 200, result);
           }
 
-          if (url.startsWith('/api/proxy/grants-usa/search') && req.method === 'POST') {
+          if (path === '/api/proxy/grants-usa/search' && req.method === 'POST') {
             const raw = await readBody(req);
             const body = raw ? JSON.parse(raw) : {};
             const result = await searchGrantsUsa(
@@ -70,7 +86,10 @@ export function grantGenieApiPlugin(mode: string): Plugin {
             return sendJson(res, 200, result);
           }
 
-          return sendJson(res, 404, { error: 'Unknown proxy route' });
+          if (isProxy) {
+            return sendJson(res, 404, { error: `Unknown proxy route: ${path}` });
+          }
+          return next();
         } catch (e: unknown) {
           return sendJson(res, 500, {
             error: e instanceof Error ? e.message : 'Proxy error',

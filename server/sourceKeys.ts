@@ -13,13 +13,22 @@ export type SourceKeyStatus = {
   docsUrl: string;
 };
 
+/** Clean env values: trim, strip wrapping quotes, drop CR. */
+function clean(v: string | undefined): string {
+  return (v || '')
+    .replace(/^\uFEFF/, '')
+    .trim()
+    .replace(/^["']|["']$/g, '')
+    .trim();
+}
+
 export function readSourceEnv(env: Record<string, string | undefined> = process.env) {
   return {
-    SAM_API_KEY: (env.SAM_API_KEY || env.VITE_SAM_API_KEY || '').trim(),
-    SIMPLER_GRANTS_API_KEY: (env.SIMPLER_GRANTS_API_KEY || env.VITE_SIMPLER_GRANTS_API_KEY || '').trim(),
-    OPENGRANTS_API_KEY: (env.OPENGRANTS_API_KEY || '').trim(),
-    TANGO_API_KEY: (env.TANGO_API_KEY || env.MAKEGOV_API_KEY || '').trim(),
-    GRANTS_USA_RAPIDAPI_KEY: (env.GRANTS_USA_RAPIDAPI_KEY || env.RAPIDAPI_KEY || '').trim(),
+    SAM_API_KEY: clean(env.SAM_API_KEY || env.VITE_SAM_API_KEY),
+    SIMPLER_GRANTS_API_KEY: clean(env.SIMPLER_GRANTS_API_KEY || env.VITE_SIMPLER_GRANTS_API_KEY),
+    OPENGRANTS_API_KEY: clean(env.OPENGRANTS_API_KEY),
+    TANGO_API_KEY: clean(env.TANGO_API_KEY || env.MAKEGOV_API_KEY),
+    GRANTS_USA_RAPIDAPI_KEY: clean(env.GRANTS_USA_RAPIDAPI_KEY || env.RAPIDAPI_KEY),
   };
 }
 
