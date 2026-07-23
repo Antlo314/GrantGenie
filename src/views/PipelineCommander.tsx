@@ -11,11 +11,54 @@ import {
   Inbox,
   FileEdit,
   Send,
-  Flag
+  Flag,
+  Sparkles,
+  BarChart3
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+
+const STAGE_CONFIG: Record<string, { label: string; color: string; gradient: string; glow: string }> = {
+  discovery: {
+    label: 'Discovery',
+    color: 'emerald',
+    gradient: 'from-emerald-500/20 to-emerald-400/5',
+    glow: 'shadow-emerald-500/10',
+  },
+  drafting: {
+    label: 'Drafting',
+    color: 'slate',
+    gradient: 'from-slate-500/15 to-slate-400/5',
+    glow: 'shadow-slate-400/10',
+  },
+  review: {
+    label: 'In Review',
+    color: 'amber',
+    gradient: 'from-amber-500/20 to-amber-400/5',
+    glow: 'shadow-amber-500/10',
+  },
+  submitted: {
+    label: 'Submitted',
+    color: 'teal',
+    gradient: 'from-teal-500/20 to-teal-400/5',
+    glow: 'shadow-teal-500/10',
+  },
+};
+
+const colorMap: Record<string, string> = {
+  emerald: 'text-emerald-600',
+  slate: 'text-slate-500',
+  amber: 'text-amber-500',
+  teal: 'text-teal-600',
+};
+
+const barColorMap: Record<string, string> = {
+  emerald: 'bg-emerald-500',
+  slate: 'bg-slate-400',
+  amber: 'bg-amber-500',
+  teal: 'bg-teal-500',
+};
 
 export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g: any) => void }) {
   const { organization } = useAuth();
@@ -36,169 +79,185 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
     fetchPipeline();
   }, [organization]);
 
-  const stages = [
-    { id: 'discovery', label: 'Discovery', color: 'emerald', count: pipeline.filter(p => p.stage === 'discovery').length || 0 },
-    { id: 'drafting', label: 'Drafting', color: 'slate', count: pipeline.filter(p => p.stage === 'drafting').length || 0 },
-    { id: 'review', label: 'In Review', color: 'amber', count: pipeline.filter(p => p.stage === 'review').length || 0 },
-    { id: 'submitted', label: 'Submitted', color: 'emerald', count: pipeline.filter(p => p.stage === 'submitted').length || 0 }
-  ];
+  const stages = Object.entries(STAGE_CONFIG).map(([id, cfg]) => ({
+    id,
+    ...cfg,
+    count: pipeline.filter(p => p.stage === id).length || 0,
+  }));
 
   return (
-    <div className="space-y-8 h-full flex flex-col pb-12">
-      <div className="flex items-center justify-between">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1">Portfolio Lifecycle</h2>
-          <h1 className="text-3xl font-bold tracking-tighter text-slate-900">Pipeline Commander</h1>
-        </motion.div>
+    <div className="space-y-6 h-full flex flex-col pb-12">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="flex items-center justify-between flex-wrap gap-4"
+      >
+        <div>
+          <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-600 flex items-center gap-1.5 mb-1">
+            <Sparkles className="w-3 h-3" /> Portfolio Lifecycle
+          </span>
+          <h1 className="text-3xl font-black tracking-tighter text-slate-900">Pipeline Commander</h1>
+        </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600">
-             <Layers className="w-4 h-4" /> View Kanban
+          <button className="flex items-center gap-2 px-5 py-2.5 glass-panel border border-slate-200/80 rounded-2xl hover:border-slate-300 transition-all text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm">
+            <Layers className="w-4 h-4" /> Kanban
           </button>
-          <button className="flex items-center gap-2 px-6 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20">
-             <Map className="w-4 h-4" /> Funding Roadmap
+          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl font-black text-xs uppercase tracking-widest text-white hover:opacity-90 transition-all shadow-lg shadow-emerald-500/25">
+            <Map className="w-4 h-4" /> Roadmap
           </button>
         </div>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Stage Stat Cards – Bento row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stages.map((stage, idx) => (
-          <motion.div 
+          <motion.div
             key={stage.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-            className="bg-white border border-slate-200 p-8 rounded-3xl relative overflow-hidden group hover:shadow-md transition-all"
+            transition={{ delay: idx * 0.08 }}
+            whileHover={{ y: -4, scale: 1.02 }}
+            className={`relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br ${stage.gradient} border border-white/60 glass-panel hover:shadow-xl ${stage.glow} transition-all cursor-default`}
           >
-             <div className="flex justify-between items-center mb-6">
-                <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${stage.color === 'emerald' ? 'text-emerald-600' : stage.color === 'amber' ? 'text-amber-500' : 'text-slate-500'}`}>
-                   {stage.label}
-                </span>
-                <span className="text-3xl font-bold text-slate-900 tracking-tighter">{stage.count}</span>
-             </div>
-             <div className="h-1.5 rounded-full bg-slate-50 overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${(stage.count / 10) * 100}%` }}
-                  className={`h-full ${stage.color === 'emerald' ? 'bg-emerald-500' : stage.color === 'amber' ? 'bg-amber-500' : 'bg-slate-400'}`} 
-                />
-             </div>
+            <div className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 ${colorMap[stage.color]}`}>
+              {stage.label}
+            </div>
+            <div className="text-4xl font-black text-slate-900 tracking-tighter mb-4">{stage.count}</div>
+            <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min((stage.count / 10) * 100, 100)}%` }}
+                transition={{ delay: idx * 0.08 + 0.3, duration: 0.8, ease: 'easeOut' }}
+                className={`h-full rounded-full ${barColorMap[stage.color]}`}
+              />
+            </div>
           </motion.div>
         ))}
       </div>
 
-      <motion.div 
+      {/* Pipeline Table */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="flex-1 bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden flex flex-col shadow-sm"
+        className="flex-1 glass-panel border border-slate-200/60 rounded-3xl overflow-hidden flex flex-col shadow-sm min-h-0"
       >
-         <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-            <div className="flex items-center gap-6">
-               <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-4 py-2.5 bg-white rounded-full border border-slate-200">Grant Pipeline Monitoring Active</span>
-               </div>
-               <button className="flex items-center gap-2 text-[10px] font-black text-slate-400 hover:text-slate-900 px-4 py-2 border border-slate-200 rounded-full bg-white transition-all uppercase tracking-widest shadow-sm">
-                  <Filter className="w-3 h-3" /> Filter Parameters
-               </button>
+        {/* Table toolbar */}
+        <div className="px-6 py-4 border-b border-slate-100/80 flex items-center justify-between bg-slate-50/50 flex-wrap gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
+              Pipeline Monitoring Active
+            </span>
+            <button className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-slate-800 px-3 py-2 border border-slate-200 rounded-full bg-white transition-all uppercase tracking-widest shadow-sm">
+              <Filter className="w-3 h-3" /> Filter
+            </button>
+          </div>
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black font-mono uppercase tracking-[0.2em]">
+              <TrendingUp className="w-4 h-4 text-emerald-500" /> 1.2 Apps / Week
             </div>
-            <div className="flex items-center gap-8">
-               <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black font-mono uppercase tracking-[0.2em]">
-                  <TrendingUp className="w-4 h-4 text-emerald-500" /> Velocity: 1.2 Apps / Week
-               </div>
-               <div className="w-px h-4 bg-slate-200" />
-               <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black font-mono uppercase tracking-[0.2em]">
-                  <Flag className="w-4 h-4" /> Next Milestone: Dec 15
-               </div>
+            <div className="w-px h-4 bg-slate-200 hidden sm:block" />
+            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black font-mono uppercase tracking-[0.2em] hidden sm:flex">
+              <Flag className="w-4 h-4" /> Next: Dec 15
             </div>
-         </div>
+          </div>
+        </div>
 
-         <div className="flex-1 overflow-y-auto custom-scrollbar">
-            <div className="flex flex-col min-w-0">
-               {/* Desktop Header */}
-               <div className="hidden lg:flex items-center px-8 py-5 bg-slate-50 border-b border-slate-100 z-10 sticky top-0">
-                  <div className="flex-[2] text-[10px] font-black text-slate-400 uppercase tracking-widest">Grant / Funder</div>
-                  <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage</div>
-                  <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alignment</div>
-                  <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Valuation</div>
-                  <div className="w-24 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</div>
-               </div>
-               
-               <div className="flex flex-col divide-y divide-slate-50">
-                  {pipeline.length > 0 ? (
-                    pipeline.map(grant => (
-                      <PipelineRow 
-                        key={grant.id}
-                        grant={grant.title} 
-                        funder={grant.funder} 
-                        stage={grant.stage} 
-                        match={`${grant.matchScore}%`} 
-                        value={`$${grant.amount.toLocaleString()}`} 
-                        icon={
-                          grant.stage === 'drafting' ? <FileEdit className="w-4 h-4 text-slate-900" /> :
-                          grant.stage === 'review' ? <Clock className="w-4 h-4 text-amber-500" /> :
-                          grant.stage === 'submitted' ? <Send className="w-4 h-4 text-emerald-600" /> :
-                          <Inbox className="w-4 h-4 text-emerald-600" />
-                        }
-                        onAction={() => onStartDraft && onStartDraft({
-                          id: grant.grantId,
-                          pipelineId: grant.id, // Add pipeline document ID
-                          title: grant.title,
-                          funder: grant.funder,
-                          amount: grant.amount,
-                          matchScore: grant.matchScore,
-                          draft: grant.draft || '',
-                          deadline: new Date().toISOString()
-                        })}
-                      />
-                    ))
-                  ) : (
-                    <div className="px-8 py-12 text-center text-slate-400 font-medium text-sm">
-                      No active grants in your pipeline. Head to the Discovery Radar to find opportunities.
-                    </div>
-                  )}
-               </div>
-            </div>
-         </div>
+        <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
+          {/* Desktop column headers */}
+          <div className="hidden lg:flex items-center px-7 py-4 bg-slate-50/80 border-b border-slate-100 sticky top-0 z-10 backdrop-blur-sm">
+            <div className="flex-[2] text-[10px] font-black text-slate-400 uppercase tracking-widest">Grant / Funder</div>
+            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage</div>
+            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alignment</div>
+            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Value</div>
+            <div className="w-20 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</div>
+          </div>
+
+          <div className="flex flex-col divide-y divide-slate-50">
+            {pipeline.length > 0 ? (
+              pipeline.map(grant => (
+                <PipelineRow
+                  key={grant.id}
+                  grant={grant.title}
+                  funder={grant.funder}
+                  stage={grant.stage}
+                  match={`${grant.matchScore}%`}
+                  value={`$${grant.amount.toLocaleString()}`}
+                  icon={
+                    grant.stage === 'drafting' ? <FileEdit className="w-4 h-4 text-slate-700" /> :
+                    grant.stage === 'review' ? <Clock className="w-4 h-4 text-amber-500" /> :
+                    grant.stage === 'submitted' ? <Send className="w-4 h-4 text-teal-600" /> :
+                    <Inbox className="w-4 h-4 text-emerald-600" />
+                  }
+                  onAction={() => onStartDraft && onStartDraft({
+                    id: grant.grantId,
+                    pipelineId: grant.id,
+                    title: grant.title,
+                    funder: grant.funder,
+                    amount: grant.amount,
+                    matchScore: grant.matchScore,
+                    draft: grant.draft || '',
+                    deadline: new Date().toISOString()
+                  })}
+                />
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
+                  <BarChart3 className="w-7 h-7 text-emerald-400" />
+                </div>
+                <p className="font-black text-slate-700 mb-1">No active grants yet</p>
+                <p className="text-sm text-slate-400 max-w-xs">Head to the Discovery Radar to find and track your first opportunity.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </motion.div>
     </div>
   );
 }
 
 function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any) {
+  const cfg = STAGE_CONFIG[stage] || STAGE_CONFIG['discovery'];
+  const tagColor = colorMap[cfg.color] || 'text-slate-500';
+
   return (
-    <div className="hover:bg-slate-50 transition-colors group flex flex-col lg:flex-row lg:items-center px-6 lg:px-8 py-6 gap-4 lg:gap-0 relative">
-       {/* Mobile Action Overlay - the whole card is clickable on mobile but not desktop to save space, but we have a button so we just keep button absolute or normal flow */}
-       <div className="flex-[2] pr-12 lg:pr-4">
-          <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors uppercase tracking-tight leading-tight text-sm md:text-base">{grant}</div>
-          <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-2 lg:mt-1">{funder}</div>
-       </div>
-       
-       <div className="flex-1 flex items-center gap-3">
-          <div className="p-2 bg-slate-100 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100 hidden lg:block">
-             {icon}
-          </div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Stage: <span className="text-slate-900">{stage}</span></span>
-       </div>
-       
-       <div className="flex-1 flex items-center gap-3">
-          <div className="flex-1 h-1.5 bg-slate-100 rounded-full max-w-[80px] overflow-hidden hidden sm:block">
-             <motion.div initial={{ width: 0 }} animate={{ width: match }} className="h-full bg-emerald-500" />
-          </div>
-          <span className="text-xs font-black text-emerald-600 tracking-tighter">Match: {match}</span>
-       </div>
-       
-       <div className="flex-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
-          Value: <span className="text-slate-900 font-bold text-sm tracking-tight">{value}</span>
-       </div>
-       
-       <div className="lg:w-24 flex justify-end absolute lg:relative top-6 right-6 lg:top-0 lg:right-0">
-          <button onClick={onAction} className="p-3 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all shadow-sm hover:shadow-lg border border-slate-100 group-hover:border-transparent bg-white lg:bg-transparent">
-             <ChevronRight className="w-5 h-5 flex-shrink-0" />
-          </button>
-       </div>
-    </div>
+    <motion.div
+      whileHover={{ backgroundColor: 'rgba(241,245,249,0.6)' }}
+      className="group flex flex-col lg:flex-row lg:items-center px-6 lg:px-7 py-5 gap-3 lg:gap-0 relative transition-colors"
+    >
+      <div className="flex-[2] pr-12 lg:pr-4">
+        <div className="font-black text-slate-900 group-hover:text-emerald-700 transition-colors tracking-tight text-sm md:text-base leading-tight">{grant}</div>
+        <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">{funder}</div>
+      </div>
+
+      <div className="flex-1 flex items-center gap-2.5">
+        <div className="p-2 bg-slate-100/80 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100 hidden lg:flex">
+          {icon}
+        </div>
+        <span className={`text-[10px] font-black uppercase tracking-widest ${tagColor}`}>{cfg.label}</span>
+      </div>
+
+      <div className="flex-1 flex items-center gap-3">
+        <div className="flex-1 h-1.5 bg-slate-100 rounded-full max-w-[72px] overflow-hidden hidden sm:block">
+          <motion.div initial={{ width: 0 }} animate={{ width: match }} className="h-full bg-emerald-500" />
+        </div>
+        <span className="text-xs font-black text-emerald-600 tracking-tight">{match}</span>
+      </div>
+
+      <div className="flex-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
+        <span className="text-slate-900 font-black text-sm tracking-tight">{value}</span>
+      </div>
+
+      <div className="lg:w-20 flex justify-end absolute lg:relative top-5 right-5 lg:top-0 lg:right-0">
+        <button
+          onClick={onAction}
+          className="p-2.5 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all border border-slate-100 group-hover:border-transparent bg-white lg:bg-transparent shadow-sm hover:shadow-lg"
+        >
+          <ChevronRight className="w-4 h-4 flex-shrink-0" />
+        </button>
+      </div>
+    </motion.div>
   );
 }

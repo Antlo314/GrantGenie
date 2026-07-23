@@ -123,100 +123,140 @@ export default function LandingPage({ onGetStarted, onDemo }: Props) {
         </div>
       </section>
 
-      {/* Grant vs contract */}
-      <section className="border-y border-emerald-100 bg-white/70 py-12 sm:py-16">
+      {/* Grant vs contract Bento & How it works */}
+      <section className="border-y border-emerald-100/80 bg-white/40 backdrop-blur-md py-16 sm:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 text-center mb-2">
-            Two simple paths
-          </h2>
-          <p className="text-center text-slate-500 text-sm mb-8 max-w-lg mx-auto">
-            Most people mix these up. We keep them separate so nothing is confusing.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-6">
-              <HandCoins className="h-8 w-8 text-emerald-700 mb-3" />
-              <h3 className="text-lg font-black text-slate-900 mb-2">{GLOSSARY.grant.title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{GLOSSARY.grant.body}</p>
-            </div>
-            <div className="rounded-2xl border border-amber-100 bg-amber-50/40 p-6">
-              <FileSignature className="h-8 w-8 text-amber-800 mb-3" />
-              <h3 className="text-lg font-black text-slate-900 mb-2">{GLOSSARY.contract.title}</h3>
-              <p className="text-sm text-slate-600 leading-relaxed">{GLOSSARY.contract.body}</p>
-            </div>
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <span className="text-[11px] font-black uppercase tracking-[0.25em] text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full inline-block mb-3">
+              Smart Opportunity Discovery
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
+              Built for instant clarity
+            </h2>
+            <p className="text-slate-500 text-sm sm:text-base mt-2">
+              Everything structured into plain-English intelligence pods.
+            </p>
           </div>
-        </div>
-      </section>
 
-      {/* How it works */}
-      <section className="py-12 sm:py-16">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 text-center mb-10">
-            How it works
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {[
-              {
-                icon: <Sparkles className="h-6 w-6" />,
-                n: '1',
-                t: 'Tell us what you do',
-                d: 'Pick industry chips (health, construction, IT…). Change them anytime.',
-              },
-              {
-                icon: <Search className="h-6 w-6" />,
-                n: '2',
-                t: 'Search real listings',
-                d: 'We pull free official data. Open the .gov page before you apply.',
-              },
-              {
-                icon: <ShieldCheck className="h-6 w-6" />,
-                n: '3',
-                t: 'Save & draft',
-                d: 'Track applications and get writing help. You submit on the official site.',
-              },
-            ].map((s) => (
-              <motion.div
-                key={s.n}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-              >
-                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                  {s.icon}
+          {/* 2026 Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* Bento Pod 1: Grant Path */}
+            <motion.div 
+              whileHover={{ y: -6, rotateX: 2, rotateY: -2 }}
+              className="md:col-span-2 glass-panel glass-emerald rounded-3xl p-8 card-3d relative overflow-hidden flex flex-col justify-between"
+            >
+              <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center mb-6 shadow-lg shadow-emerald-600/30">
+                  <HandCoins className="h-6 w-6" />
                 </div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">
-                  Step {s.n}
-                </p>
-                <h3 className="font-black text-slate-900 mb-1.5">{s.t}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{s.d}</p>
-              </motion.div>
-            ))}
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100/70 px-2.5 py-1 rounded-full">
+                  Path 1 · Free Funding
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 mt-3 mb-2">{GLOSSARY.grant.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed max-w-lg">{GLOSSARY.grant.body}</p>
+              </div>
+              <div className="mt-8 pt-4 border-t border-emerald-200/40 flex items-center gap-2 text-xs font-bold text-emerald-700">
+                <Sparkles className="w-4 h-4 text-emerald-500" /> Grants.gov live integration
+              </div>
+            </motion.div>
+
+            {/* Bento Pod 2: Contract Path */}
+            <motion.div 
+              whileHover={{ y: -6, rotateX: 2, rotateY: 2 }}
+              className="md:col-span-2 glass-panel glass-gold rounded-3xl p-8 card-3d relative overflow-hidden flex flex-col justify-between"
+            >
+              <div className="absolute top-0 right-0 -mt-6 -mr-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-6 shadow-lg shadow-amber-500/30">
+                  <FileSignature className="h-6 w-6" />
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-800 bg-amber-100/80 px-2.5 py-1 rounded-full">
+                  Path 2 · Paid Contracts
+                </span>
+                <h3 className="text-2xl font-black text-slate-900 mt-3 mb-2">{GLOSSARY.contract.title}</h3>
+                <p className="text-sm text-slate-600 leading-relaxed max-w-lg">{GLOSSARY.contract.body}</p>
+              </div>
+              <div className="mt-8 pt-4 border-t border-amber-200/40 flex items-center gap-2 text-xs font-bold text-amber-800">
+                <ShieldCheck className="w-4 h-4 text-amber-600" /> SAM.gov & USASpending live
+              </div>
+            </motion.div>
+
+            {/* Bento Pod 3: Step 1 */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="glass-panel rounded-3xl p-6 card-3d flex flex-col justify-between"
+            >
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <Sparkles className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Step 01</p>
+                <h4 className="font-black text-slate-900 text-base mb-1">Tell us what you do</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Pick industry chips anytime. Genie remembers your profile.</p>
+              </div>
+            </motion.div>
+
+            {/* Bento Pod 4: Step 2 */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="glass-panel rounded-3xl p-6 card-3d flex flex-col justify-between"
+            >
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 border border-emerald-100">
+                <Search className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Step 02</p>
+                <h4 className="font-black text-slate-900 text-base mb-1">Search real listings</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">Verified federal data. Plain-English summaries before you apply.</p>
+              </div>
+            </motion.div>
+
+            {/* Bento Pod 5: Step 3 */}
+            <motion.div 
+              whileHover={{ y: -4 }}
+              className="md:col-span-2 glass-panel rounded-3xl p-6 card-3d flex flex-col justify-between"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Step 03 · Proposal Engine</p>
+                  <h4 className="font-black text-slate-900 text-base">Save, Score & Draft</h4>
+                </div>
+              </div>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Generate award-winning 5-section drafts (Exec Summary, Need, Methodology, Budget & Evaluation). Analyze win probability with Oracle AI.
+              </p>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="border-t border-emerald-100 bg-emerald-900 text-white py-14">
-        <div className="mx-auto max-w-3xl px-4 text-center">
-          <GenieAvatar src={BRAND.assets.widget} size={72} float className="mx-auto mb-4" />
-          <h2 className="text-2xl sm:text-3xl font-black mb-3">Ready when you are</h2>
-          <p className="text-emerald-100 text-sm sm:text-base mb-6 leading-relaxed">
-            Create a free account to save your profile and progress. Or try the demo with no signup.
+      <section className="border-t border-emerald-900/40 bg-slate-900 text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/30 via-transparent to-amber-900/20 pointer-events-none" />
+        <div className="mx-auto max-w-3xl px-4 text-center relative z-10">
+          <GenieAvatar src={BRAND.assets.widget} size={80} float className="mx-auto mb-4" />
+          <h2 className="text-3xl sm:text-4xl font-black mb-3 tracking-tight">Ready to find winning grants?</h2>
+          <p className="text-slate-300 text-sm sm:text-base mb-8 leading-relaxed max-w-xl mx-auto">
+            Create a free account to unlock live search, profile matching, and instant AI proposal generation.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               type="button"
               onClick={onGetStarted}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-white px-8 py-3 text-sm font-black text-emerald-900 hover:bg-emerald-50"
+              className="inline-flex min-h-[50px] items-center justify-center rounded-2xl bg-emerald-500 px-8 py-3 text-sm font-black text-white hover:bg-emerald-400 shadow-xl shadow-emerald-500/30"
             >
-              Go to login
+              Get started now <ArrowRight className="ml-2 h-4 w-4" />
             </button>
             <button
               type="button"
               onClick={onDemo}
-              className="inline-flex min-h-[48px] items-center justify-center rounded-xl border border-white/40 px-8 py-3 text-sm font-bold text-white hover:bg-white/10"
+              className="inline-flex min-h-[50px] items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur px-8 py-3 text-sm font-bold text-white hover:bg-white/20"
             >
-              Try demo
+              Try interactive demo
             </button>
           </div>
         </div>

@@ -14,6 +14,8 @@ import {
   Link2,
   CheckCircle2,
   AlertCircle,
+  Maximize2,
+  Minimize2,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { Grant } from '../types';
@@ -66,6 +68,7 @@ export default function DiscoveryRadar({
   >([]);
   const [sortBy, setSortBy] = useState<'deadline' | 'matchScore'>('deadline');
   const [openOnly, setOpenOnly] = useState(sector === 'grants');
+  const [isExpandedDetail, setIsExpandedDetail] = useState(false);
 
   const isContracts = sector === 'contracts';
   const chips = isContracts ? CONTRACT_QUERIES : SUGGESTED_QUERIES;
@@ -532,30 +535,40 @@ export default function DiscoveryRadar({
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 16 }}
-            className="xl:w-[380px] shrink-0 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 flex flex-col max-h-full overflow-auto"
+            className="xl:w-[420px] w-full shrink-0 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 md:p-6 flex flex-col max-h-[85vh] xl:max-h-full overflow-auto custom-scrollbar"
           >
             <div className="flex items-start justify-between gap-2 mb-3">
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Grants.gov live
               </span>
-              <button
-                type="button"
-                onClick={() => setSelectedGrant(null)}
-                className="text-slate-400 hover:text-slate-600 p-1"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsExpandedDetail(true)}
+                  className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+                  title="Expand Full View"
+                >
+                  <Maximize2 className="w-4 h-4 text-emerald-600" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedGrant(null)}
+                  className="text-slate-400 hover:text-slate-600 p-1"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
             <h2 className="text-lg font-bold text-slate-900 leading-snug mb-2">{selectedGrant.title}</h2>
             <p className="text-sm text-slate-500 font-medium mb-3">{selectedGrant.funder}</p>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4">{selectedGrant.description}</p>
+            <p className="text-sm text-slate-600 leading-relaxed mb-4 max-h-48 overflow-y-auto custom-scrollbar">{selectedGrant.description}</p>
 
             {selectedGrant.matchScore > 0 && (
               <div className="mb-4 space-y-3">
                 <div
-                  className={`p-3 rounded-xl border ${
+                  className={`p-4 rounded-2xl border ${
                     selectedGrant.eligible === false
                       ? 'bg-red-50 border-red-100'
                       : 'bg-emerald-50 border-emerald-100'
@@ -623,7 +636,7 @@ export default function DiscoveryRadar({
               ))}
             </div>
 
-            <div className="mt-auto flex flex-col gap-2">
+            <div className="mt-auto flex flex-col gap-2 pt-4">
               <a
                 href={selectedGrant.sourceUrl}
                 target="_blank"
@@ -671,6 +684,95 @@ export default function DiscoveryRadar({
               </p>
             </div>
           </motion.aside>
+        )}
+      </AnimatePresence>
+
+      {/* Expanded Full Screen Grant Detail Modal */}
+      <AnimatePresence>
+        {isExpandedDetail && selectedGrant && (
+          <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 sm:p-8 bg-slate-900/70 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-3xl w-full max-w-4xl p-6 sm:p-10 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
+            >
+              <div className="flex items-start justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full mb-2">
+                    <CheckCircle2 className="w-4 h-4" /> Official Posting
+                  </span>
+                  <h2 className="text-2xl font-bold text-slate-900">{selectedGrant.title}</h2>
+                  <p className="text-sm text-slate-500 font-medium">{selectedGrant.funder}</p>
+                </div>
+                <button 
+                  onClick={() => setIsExpandedDetail(false)}
+                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"
+                >
+                  <X className="w-6 h-6 text-slate-600" />
+                </button>
+              </div>
+
+              <div className="space-y-6 flex-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Award Ceiling</div>
+                    <div className="text-xl font-bold text-slate-900 mt-1">
+                      {selectedGrant.amount > 0 ? `$${Number(selectedGrant.amount).toLocaleString()}` : 'See NOFO'}
+                    </div>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deadline</div>
+                    <div className="text-xl font-bold text-slate-900 mt-1">
+                      {new Date(selectedGrant.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </div>
+                  </div>
+                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
+                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Match Score</div>
+                    <div className="text-xl font-bold text-emerald-600 mt-1">
+                      {selectedGrant.matchScore ? `${selectedGrant.matchScore}%` : 'Unscored'}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Description & Scope</h4>
+                  <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap">
+                    {selectedGrant.description}
+                  </div>
+                </div>
+
+                {selectedGrant.matchExplanation && (
+                  <div>
+                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">AI Match Intelligence</h4>
+                    <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl text-sm text-slate-800 leading-relaxed">
+                      {selectedGrant.matchExplanation}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-3">
+                <a
+                  href={selectedGrant.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 w-full sm:w-auto justify-center"
+                >
+                  <ExternalLink className="w-4 h-4" /> Open Grants.gov
+                </a>
+                <button
+                  onClick={() => {
+                    setIsExpandedDetail(false);
+                    onStartDraft(selectedGrant);
+                  }}
+                  className="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest shadow-lg flex items-center gap-2 w-full sm:w-auto justify-center"
+                >
+                  <Link2 className="w-4 h-4" /> Write Proposal
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

@@ -281,25 +281,27 @@ export default function AppContent() {
       </aside>
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-14 sm:h-16 border-b border-emerald-100/80 flex items-center justify-between px-4 md:px-8 bg-white/80 backdrop-blur z-10 shrink-0">
+        <header className="h-16 border-b border-emerald-100/60 bg-white/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-20 sticky top-0 shadow-sm">
           <div className="flex items-center gap-3">
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 -ml-2 rounded-lg hover:bg-emerald-50 text-slate-600"
+              className="lg:hidden p-2 hover:bg-emerald-50 rounded-xl transition-colors text-slate-700"
+              aria-label="Open menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-1.5" data-tour="sector-mobile">
+            <div className="flex items-center gap-2" data-tour="sector-mobile">
               <button
                 type="button"
                 onClick={() => {
                   setActiveSector('grants');
                   setActiveView('radar');
                 }}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border ${
                   activeSector === 'grants'
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/25'
+                    : 'bg-white/80 text-emerald-800 border-emerald-100 hover:bg-emerald-50'
                 }`}
               >
                 Grants
@@ -310,41 +312,43 @@ export default function AppContent() {
                   setActiveSector('contracts');
                   setActiveView('radar');
                 }}
-                className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border ${
                   activeSector === 'contracts'
-                    ? 'bg-emerald-600 text-white border-emerald-600'
-                    : 'bg-amber-50 text-amber-900 border-amber-100'
+                    ? 'bg-emerald-600 text-white border-emerald-500 shadow-md shadow-emerald-600/25'
+                    : 'bg-white/80 text-amber-900 border-amber-100 hover:bg-amber-50'
                 }`}
               >
                 Contracts
               </button>
             </div>
             {isDemo && (
-              <span className="px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full text-[10px] font-bold uppercase border border-amber-100">
+              <span className="px-3 py-1 bg-amber-500/10 text-amber-700 rounded-full text-[10px] font-bold uppercase border border-amber-300/40 glow-gold">
                 Demo
               </span>
             )}
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex flex-col items-end">
-              <span className="text-sm font-bold text-slate-900">
+              <span className="text-sm font-bold text-slate-900 leading-tight">
                 {user.displayName || profile?.name || 'User'}
               </span>
-              <span className="text-[10px] text-emerald-700 font-semibold">
-                {profile?.name || organization?.name || 'My profile'}
+              <span className="text-[10px] text-emerald-600 font-bold uppercase tracking-wider">
+                {profile?.name || organization?.name || 'My Profile'}
               </span>
             </div>
-            <div className="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 overflow-hidden flex items-center justify-center">
-              {user.photoURL ? (
-                <img src={user.photoURL} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <UserIcon className="w-4 h-4 text-emerald-700" />
-              )}
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-0.5 shadow-md shadow-emerald-600/20 card-3d">
+              <div className="w-full h-full rounded-[14px] bg-white overflow-hidden flex items-center justify-center">
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <UserIcon className="w-5 h-5 text-emerald-700" />
+                )}
+              </div>
             </div>
           </div>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 md:p-8 relative custom-scrollbar pb-28">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 md:p-8 relative custom-scrollbar pb-28">
           <AnimatePresence mode="wait">
             <motion.div
               key={`${activeView}-${activeSector}`}
@@ -352,7 +356,7 @@ export default function AppContent() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2 }}
-              className="h-full min-h-0"
+              className="min-h-full flex flex-col"
             >
               {renderView()}
             </motion.div>
