@@ -13,6 +13,37 @@
   }
 }
 
+/* Brand shell */
+.gg-app-bg {
+  background-color: #f8fafc;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16, 185, 129, 0.12), transparent),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.gg-sidebar {
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+}
+
+.gg-gold-glow {
+  box-shadow: 0 0 24px rgba(234, 179, 8, 0.25);
+}
+
+@keyframes gg-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gg-float {
+    animation: none !important;
+  }
+}
+
+.gg-float {
+  animation: gg-float 3.6s ease-in-out infinite;
+}
+
 @layer utilities {
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;

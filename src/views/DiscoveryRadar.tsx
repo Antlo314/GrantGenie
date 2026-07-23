@@ -25,6 +25,11 @@ import { SUGGESTED_QUERIES } from '../services/grantSearch';
 import { searchOpportunities } from '../services/searchHub';
 import { getPortalForState } from '../services/sources/statePortals';
 import GrantIntelligence from './GrantIntelligence';
+import PageHeader from '../components/PageHeader';
+import InfoTip from '../components/InfoTip';
+import GenieAvatar from '../components/GenieAvatar';
+import { BRAND } from '../lib/brand';
+import { GLOSSARY, PAGE_HINTS } from '../lib/hints';
 
 const CONTRACT_QUERIES = [
   'construction',
@@ -188,18 +193,50 @@ export default function DiscoveryRadar({
     runLiveSearch(searchTerm);
   };
 
+  const ph = PAGE_HINTS.radar;
+
   return (
     <div className="h-full flex flex-col xl:flex-row gap-6 min-h-0">
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Header */}
         <div className="mb-5 shrink-0">
+          <PageHeader
+            title={isContracts ? 'Find contracts' : 'Find open grants'}
+            subtitle={ph.subtitle}
+            hint={
+              isContracts
+                ? `${ph.hint} ${GLOSSARY.openVsPast.body}`
+                : ph.hint
+            }
+            infoTitle={isContracts ? GLOSSARY.contract.title : GLOSSARY.grant.title}
+            infoBody={
+              <>
+                <p className="mb-2">{isContracts ? GLOSSARY.contract.body : GLOSSARY.grant.body}</p>
+                <p>{GLOSSARY.officialPage.body}</p>
+              </>
+            }
+            actions={
+              <button
+                type="button"
+                onClick={() => runLiveSearch(lastQuery || searchTerm || 'community')}
+                disabled={loading}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-200 bg-white text-sm font-semibold text-slate-700 hover:bg-emerald-50 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </button>
+            }
+          />
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  {isContracts ? 'USASpending · past awards' : 'Live · Grants.gov'}
+                  {isContracts ? 'SAM + USASpending' : 'Live · Grants.gov'}
                 </span>
+                <InfoTip title={GLOSSARY.openVsPast.title} label="Open vs past">
+                  {GLOSSARY.openVsPast.body}
+                </InfoTip>
                 {hitCount > 0 && (
                   <span className="text-xs text-slate-400 font-medium">
                     {hitCount.toLocaleString()} total · showing {filteredGrants.length}
@@ -217,7 +254,7 @@ export default function DiscoveryRadar({
                         : 'bg-white text-slate-600 border-slate-200'
                     }`}
                   >
-                    Grants
+                    Grants (free money)
                   </button>
                   <button
                     type="button"
@@ -228,45 +265,12 @@ export default function DiscoveryRadar({
                         : 'bg-white text-slate-600 border-slate-200'
                     }`}
                   >
-                    Contracts
+                    Contracts (paid work)
                   </button>
                 </div>
               )}
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-                {isContracts ? 'Find contracts' : 'Find open grants'}
-              </h1>
-              <p className="text-sm text-slate-500 mt-1 max-w-xl">
-                {isContracts ? (
-                  <>
-                    Past federal contract awards from{' '}
-                    <a
-                      href="https://www.usaspending.gov"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-emerald-700 font-semibold hover:underline"
-                    >
-                      USASpending.gov
-                    </a>{' '}
-                    (free). These already went to someone — use them to learn who wins. Open bids from
-                    SAM.gov come next when an API key is added.
-                  </>
-                ) : (
-                  <>
-                    Free open federal grants from{' '}
-                    <a
-                      href="https://www.grants.gov"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-emerald-700 font-semibold hover:underline"
-                    >
-                      Grants.gov
-                    </a>
-                    . Search → open official page → score fit → draft.
-                  </>
-                )}
-              </p>
               {statePortal && (
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-slate-500 mt-1">
                   Your state ({statePortal.stateName}):{' '}
                   {statePortal.grantsUrl && !isContracts && (
                     <a
@@ -285,21 +289,12 @@ export default function DiscoveryRadar({
                       rel="noopener noreferrer"
                       className="text-emerald-700 font-semibold hover:underline"
                     >
-                      State contracts / procurement site
+                      State contracts site
                     </a>
                   )}
                 </p>
               )}
             </div>
-            <button
-              type="button"
-              onClick={() => runLiveSearch(lastQuery || searchTerm || 'community')}
-              disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </button>
           </div>
 
           {/* Search bar */}
@@ -441,12 +436,11 @@ export default function DiscoveryRadar({
 
             {!loading && filteredGrants.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center p-10 text-center">
-                <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 border border-slate-100">
-                  <Layers className="w-7 h-7 text-slate-300" />
-                </div>
-                <h3 className="font-bold text-slate-700">No open grants yet</h3>
-                <p className="text-sm text-slate-400 mt-2 max-w-xs">
-                  Search a topic above. Results come live from the free federal Grants.gov API.
+                <GenieAvatar src={BRAND.assets.wave} size={96} float className="mb-2" />
+                <h3 className="font-bold text-slate-800 text-lg">Nothing matched that search</h3>
+                <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">
+                  Try a simpler word like “education”, “construction”, or “health”. Results come from free
+                  U.S. government databases — we never invent listings.
                 </p>
               </div>
             ) : (

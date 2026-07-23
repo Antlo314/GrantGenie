@@ -6,7 +6,7 @@ import { db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { stripUndefined } from '../lib/profileStore';
 
-export default function Settings() {
+export default function Settings({ onReplayTour }: { onReplayTour?: () => void }) {
   const { organization, profile, user, refreshProfile, isDemo } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -163,6 +163,18 @@ export default function Settings() {
         </div>
 
         <div className="space-y-6">
+          {onReplayTour && (
+            <button
+              type="button"
+              onClick={onReplayTour}
+              className="w-full rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-900 hover:bg-emerald-100 text-left"
+            >
+              Replay beginner tour
+              <span className="block text-xs font-medium text-emerald-700/80 mt-0.5">
+                Plain-English walkthrough of every main feature
+              </span>
+            </button>
+          )}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
