@@ -5,6 +5,10 @@
       "destination": "https://api.grants.gov/:path*"
     },
     {
+      "source": "/api/usaspending/:path*",
+      "destination": "https://api.usaspending.gov/:path*"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

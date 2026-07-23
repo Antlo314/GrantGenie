@@ -39,11 +39,15 @@ service cloud.firestore {
       allow delete: if isOrgMember(orgId);
     }
     
-    // Users
+    // Users + profile subcollections (saved items, applications, chat)
     match /users/{userId} {
       allow read: if isSignedIn() && request.auth.uid == userId;
       allow create: if isSignedIn() && request.auth.uid == userId;
       allow update: if isSignedIn() && request.auth.uid == userId;
+      
+      match /{subcollection}/{docId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
     }
 
     // Vault Documents

@@ -376,23 +376,30 @@ export async function transformText(
 
 export async function getGlobalAdvice(mission: string, activeView: string): Promise<string> {
   const viewHint: Record<string, string> = {
-    mission: 'home / mission control',
-    radar: 'live grant discovery',
-    writer: 'proposal writing engine',
-    pipeline: 'application pipeline',
-    vault: 'document vault',
+    mission: 'Home',
+    radar: 'Find grants or contracts',
+    writer: 'Draft helper',
+    pipeline: 'My applications',
+    vault: 'My files',
+    profile: 'Profile',
+    settings: 'Settings',
   };
-  const prompt = `You are an expert AI Grant Officer. Mission: "${mission}". User is on: ${viewHint[activeView] || activeView}.
-Give 2-3 sentences of specific, actionable strategic advice. Authoritative, not hype. No filler.`;
+  const prompt = `You help people find real U.S. government grants and contracts. Speak in plain English — short sentences, no jargon, no hype.
+User description: "${mission || 'Not filled in yet'}".
+They are on the "${viewHint[activeView] || activeView}" screen.
+Give 2–3 sentences of practical next steps. Never invent grant or contract titles, amounts, or deadlines. Remind them to open the official government page.`;
 
   try {
     const response = await ai.models.generateContent({
       model: MODEL,
       contents: prompt,
     });
-    return response.text?.trim() || 'Review open opportunities that match your mission, then score eligibility before drafting.';
+    return (
+      response.text?.trim() ||
+      'Search for opportunities that match what you do, open the official page, then score the fit before you write a draft.'
+    );
   } catch {
-    return 'Search live federal opportunities, eliminate ineligible fits, then draft only high-alignment grants.';
+    return 'Search free government databases, open the official listing, check if you are eligible, then use the draft helper only for text you will edit.';
   }
 }
 

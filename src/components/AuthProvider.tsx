@@ -1,14 +1,24 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User } from 'firebase/auth';
 import { subscribeToAuth } from '../auth';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { Organization } from '../types';
+import type { Organization, UserProfile } from '../types';
+import { profileToOrganization } from '../types';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  /** Full profile from Firestore (null until loaded or incomplete) */
+  profile: UserProfile | null;
+  /** Org-shaped view for older screens */
   organization: Organization | null;
+  /** Explicit demo mode (user clicked Try demo) */
+  isDemo: boolean;
+  enterDemo: () => void;
+  exitDemo: () => void;
+  refreshProfile: () => Promise<void>;
+  /** @deprecated use refreshProfile */
   refreshOrg: () => Promise<void>;
 }
 
@@ -16,69 +26,111 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const DEMO_USER = {
   uid: 'demo-user-123',
-  displayName: 'Genie Architect',
-  email: 'demo@grantgenie.ai',
-  photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=GrantGenie'
-} as any;
+  displayName: 'Demo User',
+  email: 'demo@grantgenie.local',
+  photoURL: 'https://api.dicebear.com/7.x/avataaars/svg?seed=GrantGenie',
+} as User;
 
-const DEMO_ORG: Organization = {
-  id: 'demo-org-123',
-  name: 'Lumen Labs',
-  mission: 'To empower humanity through verifiable digital health infrastructure and sustainable community-led technological advancement.',
-  ein: '12-3456789',
-  focusAreas: ['health', 'community', 'education', 'technology'],
-  ownerId: 'demo-user-123',
+const DEMO_PROFILE: UserProfile = {
+  uid: DEMO_USER.uid,
+  email: DEMO_USER.email,
+  displayName: DEMO_USER.displayName,
+  photoURL: DEMO_USER.photoURL,
+  profileComplete: true,
+  sector: 'grants',
+  entityType: 'nonprofit',
+  name: 'Demo Community Org',
+  description:
+    'We help local communities with health, education, and technology projects.',
+  keywords: ['health', 'community', 'education', 'technology'],
+  state: 'GA',
+  city: 'Atlanta',
+  sizeBand: 'small',
+  fundingNeedBand: '25k_100k',
+  flags: { is501c3: true },
   tier: 'Pro',
+  ein: '12-3456789',
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(DEMO_USER);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [organization, setOrganization] = useState<Organization | null>(DEMO_ORG);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
 
-  const fetchOrg = async (uid: string) => {
-    if (uid === DEMO_USER.uid) return;
+  const loadProfile = useCallback(async (uid: string) => {
+    if (uid === DEMO_USER.uid) {
+      setProfile(DEMO_PROFILE);
+      return;
+    }
     try {
-      const userDoc = await getDoc(doc(db, 'users', uid));
-      if (userDoc.exists() && userDoc.data()?.orgId) {
-        const orgDoc = await getDoc(doc(db, 'organizations', userDoc.data().orgId));
-        if (orgDoc.exists()) {
-          setOrganization({ id: orgDoc.id, ...orgDoc.data() } as Organization);
-        }
+      const snap = await getDoc(doc(db, 'users', uid));
+      if (snap.exists()) {
+        setProfile({ uid, ...snap.data() } as UserProfile);
+      } else {
+        setProfile(null);
       }
     } catch (err) {
-      console.error("Error fetching org:", err);
+      console.error('Error loading profile:', err);
+      setProfile(null);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = subscribeToAuth(async (currentUser) => {
       if (currentUser) {
+        setIsDemo(false);
         setUser(currentUser);
-        await fetchOrg(currentUser.uid);
-      } else {
-        setUser(DEMO_USER);
-        setOrganization(DEMO_ORG);
+        await loadProfile(currentUser.uid);
+      } else if (!isDemo) {
+        setUser(null);
+        setProfile(null);
       }
       setLoading(false);
     });
-
     return () => unsubscribe();
-  }, []);
+  }, [loadProfile, isDemo]);
 
-  const refreshOrg = async () => {
-    if (user) await fetchOrg(user.uid);
+  const enterDemo = () => {
+    setIsDemo(true);
+    setUser(DEMO_USER);
+    setProfile(DEMO_PROFILE);
+    setLoading(false);
   };
 
+  const exitDemo = () => {
+    setIsDemo(false);
+    setUser(null);
+    setProfile(null);
+  };
+
+  const refreshProfile = async () => {
+    if (user) await loadProfile(user.uid);
+  };
+
+  const organization = profile ? profileToOrganization(profile) : null;
+
   return (
-    <AuthContext.Provider value={{ user, loading, organization, refreshOrg }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        profile,
+        organization,
+        isDemo,
+        enterDemo,
+        exitDemo,
+        refreshProfile,
+        refreshOrg: refreshProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within an AuthProvider");
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 };

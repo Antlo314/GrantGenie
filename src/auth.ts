@@ -1,30 +1,59 @@
 import { auth, db } from './lib/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  User,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from 'firebase/auth';
+
+async function ensureUserDoc(user: User) {
+  const userDocRef = doc(db, 'users', user.uid);
+  const userDoc = await getDoc(userDocRef);
+
+  if (!userDoc.exists()) {
+    await setDoc(userDocRef, {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL || null,
+      profileComplete: false,
+      sector: 'grants',
+      entityType: 'other',
+      tier: 'Free',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+  }
+  return user;
+}
 
 export const loginWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   try {
     const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-    
-    // Initialize user profile in Firestore if it doesn't exist
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
-    
-    if (!userDoc.exists()) {
-      await setDoc(userDocRef, {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        createdAt: new Date().toISOString(),
-      });
-    }
-    return user;
+    return await ensureUserDoc(result.user);
   } catch (error) {
-    console.error("Error signing in with Google", error);
+    console.error('Error signing in with Google', error);
     throw error;
   }
+};
+
+export const signUpWithEmail = async (email: string, password: string, displayName: string) => {
+  const result = await createUserWithEmailAndPassword(auth, email, password);
+  if (displayName.trim()) {
+    await updateProfile(result.user, { displayName: displayName.trim() });
+  }
+  return await ensureUserDoc(result.user);
+};
+
+export const signInWithEmail = async (email: string, password: string) => {
+  const result = await signInWithEmailAndPassword(auth, email, password);
+  return await ensureUserDoc(result.user);
 };
 
 export const logout = () => signOut(auth);

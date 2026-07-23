@@ -1,36 +1,61 @@
 # Grant Genie
 
-Find **live U.S. federal grants**, score them against your mission, and draft applications with AI.
+Find **real** U.S. government **grants** and **contracts** in plain English. Sign in, answer a short setup quiz, search free public databases, track progress, and use Gemini only to explain fits and help write drafts — never to invent listings.
 
-## What’s new
+## Two sectors (different purposes)
 
-- **Real live search** via the free public [Grants.gov](https://grants.gov/api/api-guide) API  
-  `POST https://api.grants.gov/v1/api/search2` — **no API key**
-- Vite / Vercel **proxy** so the browser can call Grants.gov without CORS pain
-- Discovery UI simplified: keyword search, suggested topics, live badge, open official posting
-- AI is used for **match scoring & writing**, not for inventing fake grant listings
+| Sector | What it means | Main free sources (Phase 1) |
+|--------|----------------|-----------------------------|
+| **Grants** | Free funding for a project or mission | [Grants.gov](https://grants.gov) open opportunities (live) |
+| **Contracts** | Paid work — government buys goods/services | [USASpending.gov](https://www.usaspending.gov) **past awards** (who got paid) |
 
-## Free / open sources used
+**Important:** Past awards are **not** open bids. Open federal contract solicitations need a free [SAM.gov API key](https://open.gsa.gov/api/get-opportunities-public-api/) (Phase 2).
 
-| Source | Use | Cost |
-|--------|-----|------|
-| [Grants.gov search2](https://grants.gov/api/api-guide) | Live open opportunities | Free, public |
-| [HHS/simpler-grants-gov](https://github.com/HHS/simpler-grants-gov) | Open-source Grants.gov modernization (reference) | Free |
-| [ogrants](https://github.com/weecology/ogrants) | Open grant examples (learning) | Free |
-| Google Gemini (optional) | Mission match + draft help | Needs `GEMINI_API_KEY` |
+State coverage: curated links to official state grant/procurement portals (no single free national state API).
+
+## Real free data sources
+
+| Source | Use | Cost | Key? |
+|--------|-----|------|------|
+| Grants.gov `search2` | Open federal grants | Free | No |
+| USASpending API | Past grants & contract awards | Free | No |
+| SAM.gov Opportunities | Open contract solicitations | Free | Yes (later) |
+| SBIR.gov API | Small business R&D topics | Free | No (planned) |
+| State .gov portals | State grants / procurement | Free | Link-out |
+| Data.gov / open.gsa.gov | Catalogs & more APIs | Free | Often free key |
+
+### Open source references
+
+- [makegov/awesome-procurement-data](https://github.com/makegov/awesome-procurement-data)
+- [fedspendingtransparency/usaspending-api](https://github.com/fedspendingtransparency/usaspending-api)
+- [HHS/simpler-grants-gov](https://github.com/HHS/simpler-grants-gov)
+- [alicelabs-llc/samgov-sdk](https://github.com/alicelabs-llc/samgov-sdk) (when SAM key exists)
+
+## Product flow
+
+1. **Sign in** (email or Google) — Firebase project `grant-genie-f3618`
+2. **Get started** quiz — individual/company/nonprofit · grant/contract · location · what you do · size · optional flags
+3. **Home** + sector switcher **Grants | Contracts**
+4. **Search** real databases → open official page → **Score my fit** (Gemini) → **Draft helper**
+5. **My applications** tracks progress
+
+Optional: **Try a demo** (no account) from the login screen.
 
 ## Run locally
 
 ```bash
 npm install
-# Optional — for AI match / writer features:
+# Optional — AI match / writer:
 # copy .env.example to .env.local and set GEMINI_API_KEY=...
 npm run dev
 ```
 
-Open http://localhost:3000 → sign in → **Find grants**.
+Open http://localhost:3000
 
-Live search hits `/api/grants.gov/...` which Vite proxies to `https://api.grants.gov`.
+Proxies (dev + Vercel):
+
+- `/api/grants.gov/*` → `https://api.grants.gov/*`
+- `/api/usaspending/*` → `https://api.usaspending.gov/*`
 
 ## Scripts
 
@@ -40,23 +65,19 @@ Live search hits `/api/grants.gov/...` which Vite proxies to `https://api.grants
 | `npm run build` | Production build |
 | `npm run lint` | Typecheck |
 
-## Deploy (Vercel)
+## Firebase
 
-`vercel.json` rewrites `/api/grants.gov/*` → `https://api.grants.gov/*` so production search stays live.
+- Auth + Firestore for user profiles and progress
+- Config: `firebase-applet-config.json` (project **grant-genie-f3618**)
+- Enable **Email/Password** and **Google** in Firebase Console → Authentication if not already on
+- Deploy rules: `firestore.rules` (user can only access `users/{theirUid}/**`)
 
-## AI Grant Officer (3 modules)
+## AI rules
 
-1. **Discovery & extraction** — Live Grants.gov search + org profile (type, industry, scope, geography, funding need)
-2. **Match analysis & scoring** — Strict eligibility; Strategic Alignment %; Feasibility %; Win Low/Med/High
-3. **Proposal engine** — Award-winning draft:
-   - Executive summary (hook, ask, ROI)
-   - Statement of need
-   - Project description + SMART objectives
-   - Budget narrative & stewardship
-   - Evaluation plan
-
-Core product flow: **Find grants → Run match analysis → Generate full proposal → Oracle critique → Finalize**
+- Gemini **never** invents grant/contract titles, amounts, or deadlines
+- Listings only come from search adapters
+- UI always points to the official government page
 
 ## Stack
 
-React 19 · Vite 6 · Tailwind 4 · Firebase Auth · Motion · Gemini
+Vite · React · TypeScript · Tailwind · Firebase · Gemini · Grants.gov · USASpending

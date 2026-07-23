@@ -21,11 +21,30 @@ import {
   analyzeGrantMatch,
   profileFromOrganization,
 } from '../services/geminiService';
-import { searchLiveGrants, SUGGESTED_QUERIES } from '../services/grantSearch';
+import { SUGGESTED_QUERIES } from '../services/grantSearch';
+import { searchOpportunities } from '../services/searchHub';
+import { getPortalForState } from '../services/sources/statePortals';
 import GrantIntelligence from './GrantIntelligence';
 
-export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any) => void }) {
-  const { organization } = useAuth();
+const CONTRACT_QUERIES = [
+  'construction',
+  'information technology',
+  'janitorial',
+  'medical supplies',
+  'training',
+  'engineering',
+];
+
+export default function DiscoveryRadar({
+  onStartDraft,
+  sector = 'grants',
+  onSectorChange,
+}: {
+  onStartDraft: (g: any) => void;
+  sector?: 'grants' | 'contracts';
+  onSectorChange?: (s: 'grants' | 'contracts') => void;
+}) {
+  const { organization, profile } = useAuth();
   const [grants, setGrants] = useState<Grant[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
@@ -35,55 +54,70 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
   const [lastQuery, setLastQuery] = useState('');
   const [hitCount, setHitCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [sourceNote, setSourceNote] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'deadline' | 'matchScore'>('deadline');
-  const [liveOnly, setLiveOnly] = useState(true);
+  const [openOnly, setOpenOnly] = useState(sector === 'grants');
 
-  const runLiveSearch = useCallback(async (query: string) => {
-    const q = query.trim();
-    if (!q) return;
-    setLoading(true);
-    setError(null);
-    setLastQuery(q);
-    try {
-      const result = await searchLiveGrants(q, { rows: 30 });
-      if (result.error && result.grants.length === 0) {
-        setError(
-          `Could not reach Grants.gov (${result.error}). Check your connection or try again.`
-        );
-        setGrants([]);
-        setHitCount(0);
-      } else {
-        setGrants(result.grants);
-        setHitCount(result.hitCount);
-        if (result.grants.length === 0) {
-          setError(`No open federal opportunities found for “${q}”. Try a broader keyword.`);
+  const isContracts = sector === 'contracts';
+  const chips = isContracts ? CONTRACT_QUERIES : SUGGESTED_QUERIES;
+  const statePortal = getPortalForState(profile?.state);
+
+  const runLiveSearch = useCallback(
+    async (query: string) => {
+      const q = query.trim();
+      if (!q) return;
+      setLoading(true);
+      setError(null);
+      setSourceNote(null);
+      setLastQuery(q);
+      try {
+        const result = await searchOpportunities(q, sector, { rows: 30 });
+        setSourceNote(result.note || null);
+        if (result.error && result.grants.length === 0) {
+          setError(result.error);
+          setGrants([]);
+          setHitCount(0);
+        } else {
+          setGrants(result.grants);
+          setHitCount(result.hitCount);
+          if (result.grants.length === 0) {
+            setError(
+              isContracts
+                ? `No past contract awards found for “${q}”. Try a broader word like construction or IT.`
+                : `No open federal grants found for “${q}”. Try a broader keyword.`
+            );
+          }
         }
+        setSelectedGrant(null);
+      } catch (err: any) {
+        console.error(err);
+        setError(err?.message || 'Search failed');
+        setGrants([]);
+      } finally {
+        setLoading(false);
       }
-      setSelectedGrant(null);
-    } catch (err: any) {
-      console.error(err);
-      setError(err?.message || 'Search failed');
-      setGrants([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [sector, isContracts]
+  );
 
-  // Auto-search from org mission keywords or a solid default
   useEffect(() => {
     const seed =
+      profile?.keywords?.[0] ||
       organization?.focusAreas?.[0] ||
       organization?.mission?.split(/\s+/).slice(0, 3).join(' ') ||
-      'community nonprofit';
-    const q = seed.length > 3 ? seed : 'community development';
+      (isContracts ? 'construction' : 'community nonprofit');
+    const q = seed.length > 2 ? seed : isContracts ? 'services' : 'community development';
     setSearchTerm(q);
+    setOpenOnly(!isContracts);
     runLiveSearch(q);
-  }, [organization?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [organization?.id, profile?.uid, sector]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredGrants = useMemo(() => {
     let result = [...grants];
-    if (liveOnly) {
-      result = result.filter((g) => g.source === 'grants.gov' || g.sourceUrl?.includes('grants.gov'));
+    if (openOnly && !isContracts) {
+      result = result.filter(
+        (g) => g.isOpenOpportunity !== false && (g.source === 'grants.gov' || g.sourceUrl?.includes('grants.gov'))
+      );
     }
     result.sort((a, b) => {
       if (sortBy === 'deadline') {
@@ -92,7 +126,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
       return (b.matchScore || 0) - (a.matchScore || 0);
     });
     return result;
-  }, [grants, sortBy, liveOnly]);
+  }, [grants, sortBy, openOnly, isContracts]);
 
   if (viewingIntelligence) {
     return (
@@ -105,17 +139,20 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
   }
 
   const handleDeepScan = async (grant: Grant) => {
-    if (!organization?.mission) {
-      alert('Add your organization mission first (onboarding / profile) to score matches.');
+    const mission = profile?.description || organization?.mission;
+    if (!mission) {
+      alert('Add a short description of what you do (Profile) so we can score the fit.');
       return;
     }
     setScanning(true);
     try {
-      const profile = profileFromOrganization(organization, {
-        projectScope: organization.mission,
-        industry: organization.focusAreas?.[0] || 'nonprofit',
+      const applicant = profileFromOrganization(organization, {
+        projectScope: mission,
+        industry: profile?.keywords?.[0] || organization?.focusAreas?.[0] || 'general',
+        geography: profile?.state || 'United States',
+        orgName: profile?.name || organization?.name,
       });
-      const analysis = await analyzeGrantMatch(profile, grant);
+      const analysis = await analyzeGrantMatch(applicant, grant);
       const updatedGrant: Grant = {
         ...grant,
         matchScore: analysis.compositeScore,
@@ -153,32 +190,101 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
         <div className="mb-5 shrink-0">
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live · Grants.gov
+                  {isContracts ? 'USASpending · past awards' : 'Live · Grants.gov'}
                 </span>
                 {hitCount > 0 && (
                   <span className="text-xs text-slate-400 font-medium">
-                    {hitCount.toLocaleString()} total hits · showing {filteredGrants.length} open
+                    {hitCount.toLocaleString()} total · showing {filteredGrants.length}
                   </span>
                 )}
               </div>
+              {onSectorChange && (
+                <div className="flex gap-2 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => onSectorChange('grants')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                      !isContracts
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'bg-white text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    Grants
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSectorChange('contracts')}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                      isContracts
+                        ? 'bg-emerald-600 text-white border-emerald-600'
+                        : 'bg-white text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    Contracts
+                  </button>
+                </div>
+              )}
               <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-                Find open grants
+                {isContracts ? 'Find contracts' : 'Find open grants'}
               </h1>
               <p className="text-sm text-slate-500 mt-1 max-w-xl">
-                Free federal opportunities from{' '}
-                <a
-                  href="https://www.grants.gov"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-700 font-semibold hover:underline"
-                >
-                  Grants.gov
-                </a>
-                . No paid API key. Search → open → match to your mission → draft.
+                {isContracts ? (
+                  <>
+                    Past federal contract awards from{' '}
+                    <a
+                      href="https://www.usaspending.gov"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 font-semibold hover:underline"
+                    >
+                      USASpending.gov
+                    </a>{' '}
+                    (free). These already went to someone — use them to learn who wins. Open bids from
+                    SAM.gov come next when an API key is added.
+                  </>
+                ) : (
+                  <>
+                    Free open federal grants from{' '}
+                    <a
+                      href="https://www.grants.gov"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 font-semibold hover:underline"
+                    >
+                      Grants.gov
+                    </a>
+                    . Search → open official page → score fit → draft.
+                  </>
+                )}
               </p>
+              {statePortal && (
+                <p className="text-xs text-slate-500 mt-2">
+                  Your state ({statePortal.stateName}):{' '}
+                  {statePortal.grantsUrl && !isContracts && (
+                    <a
+                      href={statePortal.grantsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 font-semibold hover:underline mr-2"
+                    >
+                      State grants site
+                    </a>
+                  )}
+                  {statePortal.contractsUrl && isContracts && (
+                    <a
+                      href={statePortal.contractsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 font-semibold hover:underline"
+                    >
+                      State contracts / procurement site
+                    </a>
+                  )}
+                </p>
+              )}
             </div>
             <button
               type="button"
@@ -225,7 +331,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
 
           {/* Chips */}
           <div className="flex flex-wrap gap-2 mt-3">
-            {SUGGESTED_QUERIES.map((q) => (
+            {chips.map((q) => (
               <button
                 key={q}
                 type="button"
@@ -251,7 +357,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 onClick={() => setSortBy('deadline')}
                 className={`px-3 py-2 flex items-center gap-1.5 ${sortBy === 'deadline' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500'}`}
               >
-                <Calendar className="w-3.5 h-3.5" /> Deadline
+                <Calendar className="w-3.5 h-3.5" /> {isContracts ? 'End date' : 'Deadline'}
               </button>
               <button
                 type="button"
@@ -261,16 +367,24 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
                 <Target className="w-3.5 h-3.5" /> Best match
               </button>
             </div>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={liveOnly}
-                onChange={(e) => setLiveOnly(e.target.checked)}
-                className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-              />
-              Live federal only
-            </label>
+            {!isContracts && (
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={openOnly}
+                  onChange={(e) => setOpenOnly(e.target.checked)}
+                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                Open grants only
+              </label>
+            )}
           </div>
+
+          {sourceNote && (
+            <div className="mt-3 text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 leading-relaxed">
+              {sourceNote}
+            </div>
+          )}
 
           {error && (
             <div className="mt-3 flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
@@ -287,7 +401,7 @@ export default function DiscoveryRadar({ onStartDraft }: { onStartDraft: (g: any
               <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex flex-col items-center justify-center">
                 <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
                 <p className="mt-3 text-xs font-bold uppercase tracking-widest text-emerald-700">
-                  Querying Grants.gov…
+                  {isContracts ? 'Searching USASpending…' : 'Searching Grants.gov…'}
                 </p>
               </div>
             )}

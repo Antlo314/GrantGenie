@@ -26,6 +26,13 @@ export default defineConfig(({mode}) => {
           secure: true,
           rewrite: (p) => p.replace(/^\/api\/grants\.gov/, ''),
         },
+        // Free USASpending awards API (no key)
+        '/api/usaspending': {
+          target: 'https://api.usaspending.gov',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (p) => p.replace(/^\/api\/usaspending/, ''),
+        },
       },
     },
     preview: {
@@ -35,6 +42,12 @@ export default defineConfig(({mode}) => {
           changeOrigin: true,
           secure: true,
           rewrite: (p) => p.replace(/^\/api\/grants\.gov/, ''),
+        },
+        '/api/usaspending': {
+          target: 'https://api.usaspending.gov',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (p) => p.replace(/^\/api\/usaspending/, ''),
         },
       },
     },
