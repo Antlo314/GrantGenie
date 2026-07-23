@@ -20,8 +20,10 @@ import type {
   SizeBand,
   FundingNeedBand,
   ProfileFlags,
+  UserProfile,
 } from '../types';
 import { US_STATES } from '../services/sources/statePortals';
+import { isPermissionError, saveLocalProfile } from '../lib/profileStore';
 
 const TOTAL_STEPS = 6;
 
@@ -89,39 +91,52 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
     }
     setBusy(true);
     setError(null);
+    const now = new Date().toISOString();
+    const profilePayload: UserProfile = {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL || null,
+      profileComplete: true,
+      entityType: entityType || 'other',
+      sector: sector || 'grants',
+      name: name.trim() || user.displayName || 'My profile',
+      state,
+      city: city.trim(),
+      zip: zip.trim(),
+      description: description.trim(),
+      keywords,
+      sizeBand,
+      fundingNeedBand,
+      flags,
+      ein: ein.trim() || undefined,
+      tier: 'Free',
+      updatedAt: now,
+      createdAt: now,
+    };
+
     try {
-      const now = new Date().toISOString();
-      await setDoc(
-        doc(db, 'users', user.uid),
-        {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL || null,
-          profileComplete: true,
-          entityType: entityType || 'other',
-          sector: sector || 'grants',
-          name: name.trim() || user.displayName || 'My profile',
-          state,
-          city: city.trim(),
-          zip: zip.trim(),
-          description: description.trim(),
-          keywords,
-          sizeBand,
-          fundingNeedBand,
-          flags,
-          ein: ein.trim() || null,
-          tier: 'Free',
-          updatedAt: now,
-          createdAt: now,
-        },
-        { merge: true }
-      );
+      await setDoc(doc(db, 'users', user.uid), profilePayload, { merge: true });
+      saveLocalProfile(profilePayload);
       await refreshProfile();
       onComplete();
     } catch (e: unknown) {
       console.error(e);
-      setError(e instanceof Error ? e.message : 'Could not save. Try again.');
+      // Always keep answers so the user is not stuck on step 6
+      saveLocalProfile(profilePayload);
+      await refreshProfile();
+      if (isPermissionError(e)) {
+        // Continue into the app; cloud rules need publishing in Firebase Console
+        onComplete();
+        return;
+      }
+      setError(
+        e instanceof Error
+          ? e.message
+          : 'Could not save to the cloud. Your answers were kept on this device — try Continue again.'
+      );
+      // Still allow entry if we have a local profile
+      onComplete();
     } finally {
       setBusy(false);
     }

@@ -73,6 +73,21 @@ Open http://localhost:3000
 2. `vercel.json` rewrites Grants.gov + USASpending  
 3. Serverless functions under `api/proxy/` handle keyed sources  
 
+## Firebase + step 6 permissions
+
+Project: **grant-genie-f3618** (`firebase-applet-config.json`).
+
+If Get started **step 6** shows **Missing or insufficient permissions**, Firestore rules are not published yet.
+
+1. [Firebase Console](https://console.firebase.google.com) → **grant-genie-f3618**  
+2. **Firestore Database** → **Rules**  
+3. Paste contents of repo file `firestore.rules`  
+4. **Publish**
+
+Until then, the app keeps your Get started answers **on this device** and lets you continue into search.
+
+Enable **Email/Password** and **Google** under Authentication → Sign-in method.
+
 ## Scripts
 
 | Command | Description |
@@ -80,6 +95,7 @@ Open http://localhost:3000
 | `npm run dev` | Dev server (port 3000) |
 | `npm run build` | Production build |
 | `npm run lint` | Typecheck |
+| `node scripts/smoke-apis.mjs` | Smoke-test Grants.gov + USASpending (no keys) |
 
 ## Stack
 

@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import type { Organization, UserProfile } from '../types';
 import { profileToOrganization } from '../types';
+import { loadLocalProfile, saveLocalProfile } from '../lib/profileStore';
 
 interface AuthContextType {
   user: User | null;
@@ -63,16 +64,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(DEMO_PROFILE);
       return;
     }
+    // Prefer local complete profile if cloud is blocked
+    const local = loadLocalProfile(uid);
     try {
       const snap = await getDoc(doc(db, 'users', uid));
       if (snap.exists()) {
-        setProfile({ uid, ...snap.data() } as UserProfile);
-      } else {
-        setProfile(null);
+        const cloud = { uid, ...snap.data() } as UserProfile;
+        setProfile(cloud);
+        if (cloud.profileComplete) saveLocalProfile(cloud);
+        return;
       }
+      // No cloud doc yet — use local onboarding answers if any
+      setProfile(local);
     } catch (err) {
       console.error('Error loading profile:', err);
-      setProfile(null);
+      setProfile(local);
     }
   }, []);
 

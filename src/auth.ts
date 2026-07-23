@@ -13,21 +13,26 @@ import {
 
 async function ensureUserDoc(user: User) {
   const userDocRef = doc(db, 'users', user.uid);
-  const userDoc = await getDoc(userDocRef);
+  try {
+    const userDoc = await getDoc(userDocRef);
 
-  if (!userDoc.exists()) {
-    await setDoc(userDocRef, {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL || null,
-      profileComplete: false,
-      sector: 'grants',
-      entityType: 'other',
-      tier: 'Free',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL || null,
+        profileComplete: false,
+        sector: 'grants',
+        entityType: 'other',
+        tier: 'Free',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+  } catch (err) {
+    // Firestore rules not published yet — sign-in still works; onboarding can save locally
+    console.warn('Could not ensure user doc (check Firestore rules):', err);
   }
   return user;
 }
