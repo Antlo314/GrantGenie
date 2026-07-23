@@ -160,9 +160,9 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               <ChevronLeft className="w-5 h-5 text-slate-500" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-slate-900 truncate">Proposal Engine</h1>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-slate-900 truncate">Write your proposal</h1>
               <p className="text-slate-400 text-[10px] md:text-sm font-medium truncate">
-                Module 3 · <span className="text-emerald-600">{grant?.title || 'Select a grant first'}</span>
+                <span className="text-emerald-600">{grant?.title || 'Select a grant first'}</span>
               </p>
             </div>
           </div>
@@ -173,13 +173,13 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               disabled={generating || !grant}
               className="flex items-center gap-2 px-5 py-3 bg-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-slate-800 disabled:opacity-50 shadow-lg"
             >
-              <Sparkles className="w-4 h-4" /> {generating ? 'Writing…' : 'Generate full proposal'}
+              <Sparkles className="w-4 h-4" /> {generating ? 'Writing…' : '✨ Write it for me'}
             </button>
             <button 
               onClick={() => setShowHelp(true)}
               className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
             >
-              <HelpCircle className="w-4 h-4" /> Framework
+              <HelpCircle className="w-4 h-4" /> How proposals work
             </button>
             <button 
               onClick={() => handleSave('drafting')}
@@ -193,7 +193,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
               disabled={saving}
               className="flex items-center gap-2 px-5 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
             >
-              <Send className="w-4 h-4" /> Finalize
+              <Send className="w-4 h-4" /> Mark as ready
             </button>
           </div>
        </div>
@@ -204,13 +204,30 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
             animate={{ opacity: 1, y: 0 }}
             className="flex-1 min-h-[450px] md:min-h-[550px] bg-white border border-slate-200 rounded-[2.5rem] flex flex-col relative overflow-hidden shadow-sm shrink-0"
           >
+             {/* 3-Step Onboarding Banner when empty */}
+             {!draft && (
+               <div className="bg-emerald-50/90 border-b border-emerald-100 p-3.5 px-6 text-xs text-emerald-900 flex flex-wrap items-center justify-between gap-2 shrink-0">
+                 <div className="flex items-center gap-2 font-bold text-emerald-800">
+                   <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
+                   <span>How to create your proposal:</span>
+                 </div>
+                 <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-emerald-800">
+                   <span><strong>Step 1:</strong> Click "✨ Write it for me" to create a full draft</span>
+                   <span className="text-emerald-300">•</span>
+                   <span><strong>Step 2:</strong> Edit anything you want to change</span>
+                   <span className="text-emerald-300">•</span>
+                   <span><strong>Step 3:</strong> Click "Mark as ready" when done, then apply on official site</span>
+                 </div>
+               </div>
+             )}
+
              <div className="h-16 border-b border-slate-100 flex items-center px-4 md:px-8 justify-between bg-slate-50/50 shrink-0">
-                <div className="flex gap-4 md:gap-6 h-full overflow-x-auto custom-scrollbar no-scrollbar whitespace-nowrap items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                   <span className="text-emerald-600">1 Hook</span>
-                   <span>2 Need</span>
-                   <span>3 Strategy</span>
-                   <span>4 Budget</span>
-                   <span>5 Evaluation</span>
+                <div className="flex gap-2 md:gap-4 h-full overflow-x-auto custom-scrollbar no-scrollbar whitespace-nowrap items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                   <span className="text-emerald-600">Intro</span>
+                   <span>· Problem</span>
+                   <span>· Plan</span>
+                   <span>· Budget</span>
+                   <span>· Results</span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
                   <div className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.15em] font-bold hidden sm:block">
@@ -239,7 +256,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                     disabled={!!transforming}
                     className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
                   >
-                    {transforming === 'simplify' ? 'Simplifying...' : 'Simplify Strategy'}
+                    {transforming === 'simplify' ? 'Simplifying...' : 'Simplify this'}
                     {organization?.tier === 'Free' && (
                       <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
                     )}
@@ -249,7 +266,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                     disabled={!!transforming}
                     className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
                   >
-                    {transforming === 'amplify' ? 'Amplifying...' : 'Amplify Impact'}
+                    {transforming === 'amplify' ? 'Amplifying...' : 'Strengthen this'}
                     {organization?.tier === 'Free' && (
                       <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
                     )}
@@ -259,7 +276,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                     disabled={!!transforming}
                     className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
                   >
-                    {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Tone Shift: 2026 Tech'}
+                    {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Make it sound professional'}
                     {organization?.tier === 'Free' && (
                       <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
                     )}
@@ -271,7 +288,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                ref={textareaRef}
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
-               placeholder="Click “Generate full proposal” for an award-winning 5-section draft (exec summary, need, methodology + SMART goals, budget narrative, evaluation)—or write here. Select text to simplify / amplify / tone-shift."
+               placeholder="Click “✨ Write it for me” for a 5-section draft (Intro, Problem, Plan, Budget, Results)—or write here. Select text to simplify, strengthen, or make it sound professional."
                className="flex-1 bg-transparent p-6 md:p-10 text-sm md:text-base leading-relaxed focus:outline-none resize-none custom-scrollbar font-sans text-slate-800 selection:bg-emerald-100 min-h-[350px]"
              />
           </motion.div>
@@ -353,7 +370,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                        <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40">
                           <Sparkles className="w-5 h-5 text-white" />
                        </div>
-                       <h3 className="text-lg md:text-xl font-bold tracking-tight">The Oracle Advice</h3>
+                       <h3 className="text-lg md:text-xl font-bold tracking-tight">Expert Feedback</h3>
                      </div>
                      {advice && (
                        <button 
@@ -376,7 +393,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                            onClick={fetchOracleAdvice}
                            className="w-full bg-emerald-600 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/40"
                          >
-                            Summon Oracle Advice
+                            Get feedback
                          </button>
                       </div>
                    )}
@@ -528,7 +545,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                    <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40">
                      <Sparkles className="w-5 h-5 text-white" />
                    </div>
-                   <h3 className="text-2xl font-bold text-white">Full Oracle Strategic Critique</h3>
+                   <h3 className="text-2xl font-bold text-white">Detailed Expert Critique</h3>
                  </div>
                  <button onClick={() => setIsExpandedAdvice(false)} className="p-2 hover:bg-slate-800 rounded-xl text-slate-400">
                    <X className="w-6 h-6" />
@@ -584,7 +601,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                         <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20">
                            <HelpCircle className="w-6 h-6 text-white" />
                         </div>
-                        <h2 className="text-3xl font-bold tracking-tighter">Grant Officer framework</h2>
+                        <h2 className="text-3xl font-bold tracking-tighter">How proposals work</h2>
                       </div>
                       <button 
                         onClick={() => setShowHelp(false)}
@@ -596,18 +613,18 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
 
                    <div className="space-y-5 text-sm text-slate-600 leading-relaxed">
                       <div>
-                        <h4 className="font-bold text-slate-900 text-sm mb-1">Module 1 · Discovery</h4>
-                        <p className="text-xs text-slate-500">Live Grants.gov search + your org profile (type, mission, geography, focus).</p>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">1. Discovery</h4>
+                        <p className="text-xs text-slate-500">Live search + your org profile (type, mission, geography, focus).</p>
                       </div>
                       <div>
-                        <h4 className="font-bold text-slate-900 text-sm mb-1">Module 2 · Match analysis</h4>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">2. Match analysis</h4>
                         <p className="text-xs text-slate-500">Strict eligibility, Strategic Alignment %, Feasibility %, Win probability (Low/Med/High).</p>
                       </div>
                       <div>
-                        <h4 className="font-bold text-slate-900 text-sm mb-1">Module 3 · Proposal engine</h4>
+                        <h4 className="font-bold text-slate-900 text-sm mb-1">3. Proposal writer</h4>
                         <p className="text-xs text-slate-500">
-                          Generate full proposal: Executive Summary · Statement of Need · Project & SMART methodology · Budget narrative · Evaluation plan.
-                          Paste NOFO notes in the sidebar. Select text to simplify / amplify / tone-shift. Run Oracle for critique.
+                          Generate full proposal: Intro · Problem · Plan · Budget · Results.
+                          Paste NOFO notes in the sidebar. Select text to simplify, strengthen, or make it sound professional. Get expert feedback anytime.
                         </p>
                       </div>
                    </div>

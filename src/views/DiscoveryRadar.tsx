@@ -18,7 +18,11 @@ import {
   Minimize2,
   SlidersHorizontal,
   XCircle,
+  Bookmark,
+  Check,
 } from 'lucide-react';
+import { db } from '../lib/firebase';
+import { collection, addDoc } from 'firebase/firestore';
 import { useAuth } from '../components/AuthProvider';
 import { Grant } from '../types';
 import {
@@ -74,6 +78,39 @@ export default function DiscoveryRadar({
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  const saveGrant = async (grant: Grant, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!grant || savedIds.has(grant.id) || savingId === grant.id) return;
+    const orgId = organization?.id;
+    if (!orgId) {
+      alert('Organization profile required to save grants.');
+      return;
+    }
+    setSavingId(grant.id);
+    try {
+      await addDoc(collection(db, 'pipeline_grants'), {
+        orgId,
+        grantId: grant.id,
+        title: grant.title || '',
+        funder: grant.funder || '',
+        amount: grant.amount || 0,
+        matchScore: grant.matchScore || 0,
+        description: grant.description || '',
+        sourceUrl: grant.sourceUrl || '',
+        stage: 'discovery',
+        createdAt: new Date().toISOString(),
+      });
+      setSavedIds((prev) => new Set(prev).add(grant.id));
+    } catch (err) {
+      console.error('Failed to save grant to pipeline:', err);
+      alert('Failed to save grant to pipeline.');
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   const hasActiveDateFilter = dateFrom || dateTo;
 
@@ -605,15 +642,36 @@ export default function DiscoveryRadar({
                           <p className="text-xs text-slate-500 mt-1 font-medium">{grant.funder}</p>
                         </div>
                         <div className="sm:text-right shrink-0 flex sm:flex-col items-center sm:items-end gap-3 sm:gap-1">
-                          {grant.matchScore ? (
-                            <span className="text-xs font-black text-slate-800">
-                              {grant.matchScore}% match
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-semibold text-slate-300 uppercase">
-                              Unscored
-                            </span>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {grant.matchScore ? (
+                              <span className="text-xs font-black text-slate-800">
+                                {grant.matchScore}% match
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-semibold text-slate-300 uppercase">
+                                Unscored
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => saveGrant(grant, e)}
+                              disabled={savedIds.has(grant.id) || savingId === grant.id}
+                              className={`p-1.5 rounded-lg border transition-colors ${
+                                savedIds.has(grant.id)
+                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-600 font-bold'
+                                  : 'bg-white border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-200'
+                              }`}
+                              title={savedIds.has(grant.id) ? 'Saved to Pipeline' : 'Save to Pipeline'}
+                            >
+                              {savingId === grant.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
+                              ) : savedIds.has(grant.id) ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Bookmark className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
                           <span className="text-xs font-mono font-semibold text-slate-500">
                             {new Date(grant.deadline).toLocaleDateString('en-US', {
                               month: 'short',
@@ -667,8 +725,34 @@ export default function DiscoveryRadar({
               </div>
             </div>
             <h2 className="text-lg font-bold text-slate-900 leading-snug mb-2">{selectedGrant.title}</h2>
-            <p className="text-sm text-slate-500 font-medium mb-3">{selectedGrant.funder}</p>
-            <p className="text-sm text-slate-600 leading-relaxed mb-4 max-h-48 overflow-y-auto custom-scrollbar">{selectedGrant.description}</p>
+            <p className="text-sm text-slate-500 font-medium mb-4">{selectedGrant.funder}</p>
+
+            {/* What is this & why it fits you */}
+            <div className="mb-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+              <div>
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1">
+                  <span>🟢</span> What this grant is about
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  {selectedGrant.description || 'No description available for this grant.'}
+                </p>
+              </div>
+
+              <div className="pt-3 border-t border-slate-200/60">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1">
+                  <span>🟣</span> Why it could be a fit for you
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                  {selectedGrant.matchExplanation ? (
+                    selectedGrant.matchExplanation
+                  ) : (
+                    <>
+                      Based on your profile ({organization?.focusAreas?.[0] || profile?.keywords?.[0] || 'workforce development'}, {profile?.state || 'Maryland'}), this is a potential match — click "Run match analysis" below to check exact score.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
 
             {selectedGrant.matchScore > 0 && (
               <div className="mb-4 space-y-3">
@@ -681,7 +765,7 @@ export default function DiscoveryRadar({
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span className="text-xs font-bold text-slate-800">
-                      Module 2 · Match analysis
+                      Match analysis
                     </span>
                     <span
                       className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
@@ -751,6 +835,32 @@ export default function DiscoveryRadar({
                 <ExternalLink className="w-4 h-4" />
                 Open on Grants.gov
               </a>
+
+              <button
+                type="button"
+                onClick={(e) => saveGrant(selectedGrant, e)}
+                disabled={savedIds.has(selectedGrant.id) || savingId === selectedGrant.id}
+                className={`inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl border text-sm font-bold transition-all ${
+                  savedIds.has(selectedGrant.id)
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-semibold'
+                    : 'bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50'
+                }`}
+              >
+                {savingId === selectedGrant.id ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
+                ) : savedIds.has(selectedGrant.id) ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-600" />
+                    Saved ✓
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="w-4 h-4 text-emerald-600" />
+                    Save this
+                  </>
+                )}
+              </button>
+
               <button
                 type="button"
                 disabled={scanning}
