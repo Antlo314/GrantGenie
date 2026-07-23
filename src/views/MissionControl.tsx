@@ -4,6 +4,7 @@ import { Search, FileSignature, PenTool, HandCoins, BookOpen } from 'lucide-reac
 import { useAuth } from '../components/AuthProvider';
 import PageHeader from '../components/PageHeader';
 import GenieAvatar from '../components/GenieAvatar';
+import SpecsBar from '../components/SpecsBar';
 import { BRAND } from '../lib/brand';
 import { GLOSSARY, PAGE_HINTS } from '../lib/hints';
 
@@ -36,21 +37,18 @@ export default function MissionControl({
         animate={{ opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm"
       >
-        <div className="absolute right-0 top-0 h-full w-1/3 opacity-30 pointer-events-none hidden sm:block">
-          <img src={BRAND.assets.wave} alt="" className="h-full w-full object-contain object-right" />
-        </div>
         <div className="relative p-6 md:p-8 flex flex-col sm:flex-row gap-5 items-start">
-          <GenieAvatar src={BRAND.assets.wave} size={88} float />
+          <GenieAvatar src={BRAND.assets.widget} size={88} float />
           <div className="min-w-0 flex-1">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 mb-1">
               Welcome
             </p>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-              Hi {name.split(' ')[0]} — let’s find real opportunities
+              Hi {name.split(' ')[0]} — pick your industry, then search
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed max-w-xl mb-4">
-              You don’t need to be a grant expert. Start by searching free government listings, then save
-              the ones that fit. I’ll explain as we go.
+              Change your industry anytime. We search real government listings for you. The Genie only
+              talks in detail when you ask.
             </p>
             <div className="flex flex-wrap gap-2">
               <button
@@ -58,7 +56,7 @@ export default function MissionControl({
                 onClick={() => onNavigate('radar')}
                 className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 hover:bg-emerald-500"
               >
-                <Search className="h-4 w-4" /> Start searching
+                <Search className="h-4 w-4" /> Search my industry
               </button>
               {onStartTour && (
                 <button
@@ -73,6 +71,12 @@ export default function MissionControl({
           </div>
         </div>
       </motion.div>
+
+      <SpecsBar
+        onSpecsChange={() => {
+          /* chips saved; user can open Find */
+        }}
+      />
 
       {/* Glossary */}
       <div className="grid sm:grid-cols-2 gap-4">

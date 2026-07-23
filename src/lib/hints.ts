@@ -1,5 +1,5 @@
 /**
- * Beginner-friendly copy — assume the user knows nothing about grants.
+ * Beginner-friendly copy — short nudges; detail only when asked.
  */
 
 export const GLOSSARY = {
@@ -23,86 +23,117 @@ export const GLOSSARY = {
 
 export const PAGE_HINTS: Record<
   string,
-  { title: string; subtitle: string; hint: string }
+  { title: string; subtitle: string; hint: string; nudge: string }
 > = {
   mission: {
     title: 'Home',
-    subtitle: 'Your starting point — see what to do next.',
-    hint: 'New here? Use Find to search real listings, then save the ones that fit. The Genie (bottom right) can explain anything.',
+    subtitle: 'Set your industry, then search.',
+    hint: 'Pick what you do below. Then hit Find — we’ll search real government listings for you.',
+    nudge: 'Set your industry chips, then search. Ask me only if you’re stuck.',
   },
   radar: {
     title: 'Find opportunities',
-    subtitle: 'Search free U.S. government databases for grants or contracts.',
-    hint: 'Green chips mean that data source returned results. Always open the official page before you apply.',
+    subtitle: 'Real free U.S. data. Change industries anytime.',
+    hint: 'Green chips = that source returned results. Open the official page before you apply.',
+    nudge: 'Change industry chips to search different fields. I’m here if you have a question.',
   },
   pipeline: {
     title: 'My applications',
-    subtitle: 'Listings you saved and drafts you are working on.',
-    hint: 'We help you prepare. You still submit on the government’s own website when you are ready.',
+    subtitle: 'Saved listings and drafts.',
+    hint: 'We help you prepare. You submit on the government’s website.',
+    nudge: 'Open a saved listing or start a draft when you’re ready.',
   },
   writer: {
     title: 'Draft helper',
-    subtitle: 'Get help writing from your profile and a listing you picked.',
-    hint: 'AI drafts are a starting point only. Edit carefully and never invent facts. You submit on the official site.',
+    subtitle: 'Writing help from your profile.',
+    hint: 'AI is a starting point only. You edit and submit on the official site.',
+    nudge: 'Ask me to help write — or paste what you’re stuck on.',
   },
   vault: {
     title: 'My files',
-    subtitle: 'Notes and documents you keep for applications.',
-    hint: 'Store things like your mission statement or past budgets so you can reuse them later.',
+    subtitle: 'Notes and documents for applications.',
+    hint: 'Keep mission text and docs here to reuse later.',
+    nudge: 'Store notes here so drafts are faster next time.',
   },
   profile: {
     title: 'Profile',
-    subtitle: 'Who you are and what you do — used to match listings and fill drafts.',
-    hint: 'A clear description of your work helps Find and the Genie give better suggestions.',
+    subtitle: 'Who you are — used for matching.',
+    hint: 'A clear description of your work improves search and drafts.',
+    nudge: 'Update your profile when your work changes.',
   },
   settings: {
     title: 'Settings',
-    subtitle: 'Account details and app preferences.',
-    hint: 'You can replay the beginner tour from here anytime.',
+    subtitle: 'Account and tour.',
+    hint: 'Replay the beginner tour anytime.',
+    nudge: 'Need a refresher? Replay the tour from here.',
   },
 };
 
-export const TOUR_STEPS = [
+export type TourStepDef = {
+  id: string;
+  title: string;
+  body: string;
+  /** CSS selector for spotlight; null = centered card */
+  target: string | null;
+  placement?: 'top' | 'bottom' | 'left' | 'right';
+};
+
+export const TOUR_STEPS: TourStepDef[] = [
   {
     id: 'welcome',
     title: 'Hi — I’m the Genie',
-    body: 'I’ll help you find real government funding and paid work. You don’t need to be an expert. We’ll go one step at a time.',
+    body: 'I’ll help you find real government funding and paid work. No experience needed. This short tour points at the real buttons.',
+    target: null,
   },
   {
-    id: 'grant-vs-contract',
-    title: 'Two different paths',
-    body: 'A grant is free money for a project. A contract is paid work the government hires you to do. Pick the path that fits you — you can switch anytime.',
+    id: 'sector',
+    title: 'Pick Grants or Contracts',
+    body: 'Grants = free money for a project. Contracts = paid work. Tap either side anytime.',
+    target: '[data-tour="sector"]',
+    placement: 'right',
   },
   {
-    id: 'home',
-    title: 'Home is your base',
-    body: 'Come back here to see your progress and what to do next. Think of it as your dashboard.',
+    id: 'specs',
+    title: 'Choose your industry',
+    body: 'Tap chips for the work you do (health, construction, IT…). Change them anytime — search follows.',
+    target: '[data-tour="specs"]',
+    placement: 'bottom',
   },
   {
     id: 'find',
-    title: 'Find real listings',
-    body: 'Search free official sources like Grants.gov and USASpending. For open contract bids we use SAM.gov when your key is set. We never invent fake listings.',
+    title: 'Search real listings',
+    body: 'Find pulls free official data (Grants.gov, USASpending, SAM when keyed). We never invent grants.',
+    target: '[data-tour="find-nav"]',
+    placement: 'right',
   },
   {
-    id: 'score',
-    title: 'Check if it fits you',
-    body: 'On a listing, you can ask how well it matches your profile. Always double-check the official rules — the final call is yours.',
+    id: 'search',
+    title: 'Type or use your chips',
+    body: 'Search runs from your industry chips. Open any result’s official .gov page before you apply.',
+    target: '[data-tour="search"]',
+    placement: 'bottom',
+  },
+  {
+    id: 'results',
+    title: 'Results & next steps',
+    body: 'Save what fits, score fit, or ask for draft help. You always submit on the government site.',
+    target: '[data-tour="results"]',
+    placement: 'left',
   },
   {
     id: 'pipeline',
-    title: 'Track what you care about',
-    body: 'Save listings into My applications so you don’t lose them. Move them from Saved → Writing → Submitted as you go.',
-  },
-  {
-    id: 'draft',
-    title: 'Writing help',
-    body: 'Draft helper can suggest text using your profile. You edit it, then submit on the government’s website — not inside this app.',
+    title: 'My applications',
+    body: 'Saved listings live here so you don’t lose them.',
+    target: '[data-tour="pipeline-nav"]',
+    placement: 'right',
   },
   {
     id: 'genie',
-    title: 'Tap me anytime',
-    body: 'I’m the floating genie at the bottom right. Ask for the next step, a plain-English explanation, or the tour again.',
+    title: 'I’m here if you need me',
+    body: 'I float down here. I only give short tips unless you ask a question.',
+    target: '[data-tour="genie"]',
+    placement: 'left',
   },
-] as const;
+];
 
 export const TOUR_STORAGE_KEY = 'grantgenie_tour_v1';

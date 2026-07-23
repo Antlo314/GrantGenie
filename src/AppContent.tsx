@@ -66,6 +66,7 @@ export default function AppContent() {
   const [genieOpen, setGenieOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [globalAdvice, setGlobalAdvice] = React.useState<string | null>(null);
+  const [genieLoading, setGenieLoading] = React.useState(false);
   const [authMode, setAuthMode] = React.useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -82,13 +83,10 @@ export default function AppContent() {
     else if (profile?.sector === 'grants' || profile?.sector === 'both') setActiveSector('grants');
   }, [profile?.sector]);
 
+  // Clear detailed answer when view changes; keep Genie light until asked
   React.useEffect(() => {
-    if (genieOpen && (organization || profile)) {
-      setGlobalAdvice(null);
-      const mission = profile?.description || organization?.mission || '';
-      getGlobalAdvice(mission, activeView).then(setGlobalAdvice);
-    }
-  }, [genieOpen, activeView, organization, profile]);
+    setGlobalAdvice(null);
+  }, [activeView]);
 
   // First-time tour after profile is ready
   React.useEffect(() => {
@@ -99,6 +97,22 @@ export default function AppContent() {
       return () => window.clearTimeout(t);
     }
   }, [user, profile?.profileComplete]);
+
+  const askGenie = React.useCallback(
+    async (question: string) => {
+      setGenieLoading(true);
+      setGlobalAdvice(null);
+      try {
+        const mission = profile?.description || organization?.mission || '';
+        const prompt = `User question: ${question}. Context page: ${activeView}. User work: ${mission}. Answer in plain English, short paragraphs, for a beginner. Never invent grant or contract titles.`;
+        const text = await getGlobalAdvice(prompt, activeView);
+        setGlobalAdvice(text);
+      } finally {
+        setGenieLoading(false);
+      }
+    },
+    [activeView, organization?.mission, profile?.description]
+  );
 
   if (loading) {
     return (
@@ -388,7 +402,7 @@ export default function AppContent() {
           </div>
         </div>
 
-        <div className="px-3 pt-4 hidden lg:block">
+        <div className="px-3 pt-4 hidden lg:block" data-tour="sector">
           <div className="px-2 mb-2 flex items-center gap-1.5">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               Looking for
@@ -424,8 +438,12 @@ export default function AppContent() {
 
         <nav className="flex-1 px-3 mt-5 flex flex-col gap-1">
           <SidebarItem icon={<BarChart3 />} label="Home" active={activeView === 'mission'} onClick={() => setActiveView('mission')} />
-          <SidebarItem icon={<Search />} label={findLabel} active={activeView === 'radar'} onClick={() => setActiveView('radar')} />
-          <SidebarItem icon={<Zap />} label="My applications" active={activeView === 'pipeline'} onClick={() => setActiveView('pipeline')} />
+          <div data-tour="find-nav">
+            <SidebarItem icon={<Search />} label={findLabel} active={activeView === 'radar'} onClick={() => setActiveView('radar')} />
+          </div>
+          <div data-tour="pipeline-nav">
+            <SidebarItem icon={<Zap />} label="My applications" active={activeView === 'pipeline'} onClick={() => setActiveView('pipeline')} />
+          </div>
           <SidebarItem icon={<PenTool />} label="Draft helper" active={activeView === 'writer'} onClick={() => setActiveView('writer')} />
           <SidebarItem icon={<Database />} label="My files" active={activeView === 'vault'} onClick={() => setActiveView('vault')} />
           <div className="my-2 border-t border-emerald-50 mx-2" />
@@ -503,25 +521,30 @@ export default function AppContent() {
 
         <GenieWidget
           open={genieOpen}
-          onOpenChange={setGenieOpen}
-          advice={
-            globalAdvice ||
-            PAGE_HINTS[activeView]?.hint ||
-            'Search for listings that match what you do, then open the official page.'
+          onOpenChange={(o) => {
+            setGenieOpen(o);
+            if (!o) setGlobalAdvice(null);
+          }}
+          nudge={
+            PAGE_HINTS[activeView]?.nudge ||
+            'Set your industry, then Find. Ask me only if you have a question.'
           }
-          loadingAdvice={genieOpen && !globalAdvice}
+          answer={globalAdvice}
+          loadingAnswer={genieLoading}
+          onAsk={(q) => {
+            void askGenie(q);
+          }}
           onExplainPage={() => {
             setGenieOpen(true);
-            const h = PAGE_HINTS[activeView];
-            setGlobalAdvice(
-              h
-                ? `${h.subtitle} ${h.hint}`
-                : 'You are in Grant Genie. Use Find to search real government listings.'
+            void askGenie(
+              `Explain the ${activeView} page in plain English for a total beginner. Keep it under 5 sentences.`
             );
           }}
           onNextStep={() => {
-            setGenieOpen(false);
-            setActiveView('radar');
+            setGenieOpen(true);
+            void askGenie(
+              'What should I do next in Grant Genie? Be concrete and short. Prefer: set industry, search, save, draft, open official page.'
+            );
           }}
           onHelpWrite={() => {
             setActiveView('writer');
@@ -535,7 +558,22 @@ export default function AppContent() {
         />
       </main>
 
-      <ProductTour open={tourOpen} onClose={() => setTourOpen(false)} />
+      <ProductTour
+        open={tourOpen}
+        onClose={() => setTourOpen(false)}
+        onStepChange={(step) => {
+          // Ensure Find is open when tour needs search/results
+          if (step.id === 'search' || step.id === 'results' || step.id === 'specs') {
+            setActiveView(step.id === 'specs' ? 'mission' : 'radar');
+          }
+          if (step.id === 'sector' || step.id === 'find' || step.id === 'pipeline') {
+            /* targets in sidebar always mounted on desktop */
+          }
+          if (step.id === 'welcome' || step.id === 'genie') {
+            setActiveView('mission');
+          }
+        }}
+      />
 
       <AnimatePresence>
         {mobileMenuOpen && (

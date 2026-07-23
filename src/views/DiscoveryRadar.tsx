@@ -30,6 +30,7 @@ import InfoTip from '../components/InfoTip';
 import GenieAvatar from '../components/GenieAvatar';
 import { BRAND } from '../lib/brand';
 import { GLOSSARY, PAGE_HINTS } from '../lib/hints';
+import SpecsBar, { keywordsToQuery } from '../components/SpecsBar';
 
 const CONTRACT_QUERIES = [
   'construction',
@@ -112,15 +113,14 @@ export default function DiscoveryRadar({
 
   useEffect(() => {
     const seed =
-      profile?.keywords?.[0] ||
+      keywordsToQuery(profile?.keywords || []) ||
       organization?.focusAreas?.[0] ||
-      organization?.mission?.split(/\s+/).slice(0, 3).join(' ') ||
-      (isContracts ? 'construction' : 'community nonprofit');
+      (isContracts ? 'construction' : 'community development');
     const q = seed.length > 2 ? seed : isContracts ? 'services' : 'community development';
     setSearchTerm(q);
     setOpenOnly(!isContracts);
     runLiveSearch(q);
-  }, [organization?.id, profile?.uid, sector]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [organization?.id, profile?.uid, sector, profile?.keywords?.join('|')]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filteredGrants = useMemo(() => {
     let result = [...grants];
@@ -297,15 +297,30 @@ export default function DiscoveryRadar({
             </div>
           </div>
 
+          <div className="mb-4">
+            <SpecsBar
+              compact
+              onSpecsChange={(kw) => {
+                const q = keywordsToQuery(kw);
+                setSearchTerm(q);
+                void runLiveSearch(q);
+              }}
+            />
+          </div>
+
           {/* Search bar */}
-          <form onSubmit={onSubmitSearch} className="flex flex-col sm:flex-row gap-2">
+          <form
+            data-tour="search"
+            onSubmit={onSubmitSearch}
+            className="flex flex-col sm:flex-row gap-2"
+          >
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Try education, housing, youth, STEM…"
+                placeholder="Or type any keyword…"
                 className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 outline-none"
               />
               {searchTerm && (
@@ -423,7 +438,10 @@ export default function DiscoveryRadar({
         </div>
 
         {/* Results */}
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div
+          data-tour="results"
+          className="bg-white border border-slate-200 rounded-2xl shadow-sm flex-1 flex flex-col min-h-0 overflow-hidden"
+        >
           <div className="flex-1 overflow-auto relative">
             {loading && (
               <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex flex-col items-center justify-center">
