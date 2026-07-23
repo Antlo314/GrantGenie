@@ -16,6 +16,8 @@ import {
   AlertCircle,
   Maximize2,
   Minimize2,
+  SlidersHorizontal,
+  XCircle,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { Grant } from '../types';
@@ -69,6 +71,11 @@ export default function DiscoveryRadar({
   const [sortBy, setSortBy] = useState<'deadline' | 'matchScore'>('deadline');
   const [openOnly, setOpenOnly] = useState(sector === 'grants');
   const [isExpandedDetail, setIsExpandedDetail] = useState(false);
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const hasActiveDateFilter = dateFrom || dateTo;
 
   const isContracts = sector === 'contracts';
   const chips = isContracts ? CONTRACT_QUERIES : SUGGESTED_QUERIES;
@@ -132,6 +139,15 @@ export default function DiscoveryRadar({
         (g) => g.isOpenOpportunity !== false && (g.source === 'grants.gov' || g.sourceUrl?.includes('grants.gov'))
       );
     }
+    // Date range filter
+    if (dateFrom) {
+      const from = new Date(dateFrom).getTime();
+      result = result.filter((g) => new Date(g.deadline).getTime() >= from);
+    }
+    if (dateTo) {
+      const to = new Date(dateTo).getTime() + 86_400_000 - 1; // inclusive end of day
+      result = result.filter((g) => new Date(g.deadline).getTime() <= to);
+    }
     result.sort((a, b) => {
       if (sortBy === 'deadline') {
         return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
@@ -139,7 +155,7 @@ export default function DiscoveryRadar({
       return (b.matchScore || 0) - (a.matchScore || 0);
     });
     return result;
-  }, [grants, sortBy, openOnly, isContracts]);
+  }, [grants, sortBy, openOnly, isContracts, dateFrom, dateTo]);
 
   if (viewingIntelligence) {
     return (
@@ -369,22 +385,52 @@ export default function DiscoveryRadar({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 mt-3">
+            {/* Sort toggle */}
             <div className="flex rounded-xl border border-slate-200 overflow-hidden text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setSortBy('deadline')}
-                className={`px-3 py-2 flex items-center gap-1.5 ${sortBy === 'deadline' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500'}`}
+                className={`px-3 py-2 flex items-center gap-1.5 transition-colors ${sortBy === 'deadline' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
               >
                 <Calendar className="w-3.5 h-3.5" /> {isContracts ? 'End date' : 'Deadline'}
               </button>
               <button
                 type="button"
                 onClick={() => setSortBy('matchScore')}
-                className={`px-3 py-2 flex items-center gap-1.5 ${sortBy === 'matchScore' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500'}`}
+                className={`px-3 py-2 flex items-center gap-1.5 transition-colors ${sortBy === 'matchScore' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
               >
                 <Target className="w-3.5 h-3.5" /> Best match
               </button>
             </div>
+
+            {/* Date filter button */}
+            <button
+              type="button"
+              onClick={() => setShowDateFilter((v) => !v)}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${
+                hasActiveDateFilter
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20'
+                  : showDateFilter
+                    ? 'bg-slate-100 border-slate-300 text-slate-700'
+                    : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              {hasActiveDateFilter ? 'Date filter on' : 'Filter by date'}
+              {hasActiveDateFilter && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => { e.stopPropagation(); setDateFrom(''); setDateTo(''); }}
+                  onKeyDown={(e) => e.key === 'Enter' && (setDateFrom(''), setDateTo(''))}
+                  className="ml-1 hover:opacity-70"
+                  aria-label="Clear date filter"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                </span>
+              )}
+            </button>
+
             {!isContracts && (
               <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 cursor-pointer select-none">
                 <input
@@ -393,10 +439,69 @@ export default function DiscoveryRadar({
                   onChange={(e) => setOpenOnly(e.target.checked)}
                   className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                 />
-                Open grants only
+                Open only
               </label>
             )}
           </div>
+
+          {/* Date filter panel */}
+          <AnimatePresence>
+            {showDateFilter && (
+              <motion.div
+                key="date-filter"
+                initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+                exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                transition={{ duration: 0.22, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="glass-panel border border-slate-200/70 rounded-2xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 shrink-0">
+                    <Calendar className="w-3.5 h-3.5 text-emerald-500" />
+                    Deadline range
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 flex-1">
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="date-from" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">From</label>
+                      <input
+                        id="date-from"
+                        type="date"
+                        value={dateFrom}
+                        onChange={(e) => setDateFrom(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 outline-none cursor-pointer"
+                      />
+                    </div>
+                    <span className="text-slate-300 font-bold mt-4 hidden sm:block">—</span>
+                    <div className="flex flex-col gap-1">
+                      <label htmlFor="date-to" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">To</label>
+                      <input
+                        id="date-to"
+                        type="date"
+                        value={dateTo}
+                        min={dateFrom || undefined}
+                        onChange={(e) => setDateTo(e.target.value)}
+                        className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 outline-none cursor-pointer"
+                      />
+                    </div>
+                    {hasActiveDateFilter && (
+                      <button
+                        type="button"
+                        onClick={() => { setDateFrom(''); setDateTo(''); }}
+                        className="mt-4 text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors underline underline-offset-2"
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                  {hasActiveDateFilter && (
+                    <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest shrink-0 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
+                      {filteredGrants.length} result{filteredGrants.length !== 1 ? 's' : ''}
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {sourceNote && (
             <div className="mt-3 text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 leading-relaxed">
