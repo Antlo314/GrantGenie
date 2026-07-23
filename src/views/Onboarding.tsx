@@ -23,9 +23,17 @@ import type {
   UserProfile,
 } from '../types';
 import { US_STATES } from '../services/sources/statePortals';
-import { isPermissionError, saveLocalProfile } from '../lib/profileStore';
+import {
+  buildTestProfileFields,
+  isPermissionError,
+  saveLocalProfile,
+  stripUndefined,
+} from '../lib/profileStore';
 
 const TOTAL_STEPS = 6;
+
+/** Skip steps 1–5 and land on “anything else” with a filled test profile. */
+const START_ON_STEP = 6;
 
 const KEYWORD_CHIPS = [
   'Health',
@@ -47,21 +55,30 @@ const KEYWORD_CHIPS = [
 
 export default function Onboarding({ onComplete }: { onComplete: () => void }) {
   const { user, refreshProfile } = useAuth();
-  const [step, setStep] = useState(1);
+  const seed = buildTestProfileFields({
+    uid: user?.uid || 'pending',
+    email: user?.email,
+    displayName: user?.displayName,
+    photoURL: user?.photoURL,
+  });
+
+  const [step, setStep] = useState(START_ON_STEP);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [entityType, setEntityType] = useState<EntityType | null>(null);
-  const [sector, setSector] = useState<Sector | null>(null);
-  const [name, setName] = useState('');
-  const [state, setState] = useState('');
-  const [city, setCity] = useState('');
-  const [zip, setZip] = useState('');
-  const [description, setDescription] = useState('');
-  const [keywords, setKeywords] = useState<string[]>([]);
-  const [sizeBand, setSizeBand] = useState<SizeBand>('unknown');
-  const [fundingNeedBand, setFundingNeedBand] = useState<FundingNeedBand>('unknown');
-  const [flags, setFlags] = useState<ProfileFlags>({});
+  const [entityType, setEntityType] = useState<EntityType | null>(seed.entityType);
+  const [sector, setSector] = useState<Sector | null>(seed.sector);
+  const [name, setName] = useState(seed.name || '');
+  const [state, setState] = useState(seed.state || '');
+  const [city, setCity] = useState(seed.city || '');
+  const [zip, setZip] = useState(seed.zip || '');
+  const [description, setDescription] = useState(seed.description || '');
+  const [keywords, setKeywords] = useState<string[]>(seed.keywords || []);
+  const [sizeBand, setSizeBand] = useState<SizeBand>(seed.sizeBand || 'small');
+  const [fundingNeedBand, setFundingNeedBand] = useState<FundingNeedBand>(
+    seed.fundingNeedBand || '25k_100k'
+  );
+  const [flags, setFlags] = useState<ProfileFlags>(seed.flags || { smallBiz: true });
   const [ein, setEin] = useState('');
 
   const toggleKeyword = (k: string) => {
@@ -92,11 +109,12 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
     setBusy(true);
     setError(null);
     const now = new Date().toISOString();
+    const einClean = ein.trim();
     const profilePayload: UserProfile = {
       uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL || null,
+      email: user.email ?? null,
+      displayName: user.displayName ?? null,
+      photoURL: user.photoURL ?? null,
       profileComplete: true,
       entityType: entityType || 'other',
       sector: sector || 'grants',
@@ -109,14 +127,16 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
       sizeBand,
       fundingNeedBand,
       flags,
-      ein: ein.trim() || undefined,
+      ...(einClean ? { ein: einClean } : {}),
       tier: 'Free',
       updatedAt: now,
       createdAt: now,
     };
+    // Firestore rejects undefined — only send clean fields
+    const forCloud = stripUndefined(profilePayload as unknown as Record<string, unknown>);
 
     try {
-      await setDoc(doc(db, 'users', user.uid), profilePayload, { merge: true });
+      await setDoc(doc(db, 'users', user.uid), forCloud, { merge: true });
       saveLocalProfile(profilePayload);
       await refreshProfile();
       onComplete();
@@ -126,7 +146,6 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
       saveLocalProfile(profilePayload);
       await refreshProfile();
       if (isPermissionError(e)) {
-        // Continue into the app; cloud rules need publishing in Firebase Console
         onComplete();
         return;
       }
@@ -135,7 +154,6 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
           ? e.message
           : 'Could not save to the cloud. Your answers were kept on this device — try Continue again.'
       );
-      // Still allow entry if we have a local profile
       onComplete();
     } finally {
       setBusy(false);
@@ -399,7 +417,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
         {step === 6 && (
           <StepShell
             title="Anything else we should know?"
-            subtitle="Optional. These can unlock special programs later."
+            subtitle="A test profile is already filled in (company in Georgia, IT / education). Optional flags below — then Finish to open the app."
           >
             <div className="space-y-2">
               {(

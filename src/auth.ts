@@ -10,6 +10,7 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from 'firebase/auth';
+import { stripUndefined } from './lib/profileStore';
 
 async function ensureUserDoc(user: User) {
   const userDocRef = doc(db, 'users', user.uid);
@@ -17,11 +18,11 @@ async function ensureUserDoc(user: User) {
     const userDoc = await getDoc(userDocRef);
 
     if (!userDoc.exists()) {
-      await setDoc(userDocRef, {
+      const payload = stripUndefined({
         uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL || null,
+        email: user.email ?? null,
+        displayName: user.displayName ?? null,
+        photoURL: user.photoURL ?? null,
         profileComplete: false,
         sector: 'grants',
         entityType: 'other',
@@ -29,6 +30,7 @@ async function ensureUserDoc(user: User) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
+      await setDoc(userDocRef, payload);
     }
   } catch (err) {
     // Firestore rules not published yet — sign-in still works; onboarding can save locally

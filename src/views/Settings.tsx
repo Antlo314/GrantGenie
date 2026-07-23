@@ -4,6 +4,7 @@ import { Save, Settings as SettingsIcon, Target, CheckCircle2 } from 'lucide-rea
 import { useAuth } from '../components/AuthProvider';
 import { db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import { stripUndefined } from '../lib/profileStore';
 
 export default function Settings() {
   const { organization, profile, user, refreshProfile, isDemo } = useAuth();
@@ -29,14 +30,15 @@ export default function Settings() {
     setError(null);
 
     try {
+      const einClean = formData.ein.trim();
       await setDoc(
         doc(db, 'users', user.uid),
-        {
+        stripUndefined({
           name: formData.name.trim(),
           description: formData.description.trim(),
-          ein: formData.ein.trim() || null,
+          ...(einClean ? { ein: einClean } : {}),
           updatedAt: new Date().toISOString(),
-        },
+        }),
         { merge: true }
       );
       await refreshProfile();
