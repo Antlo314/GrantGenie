@@ -46,7 +46,6 @@ function isUsableTarget(el: Element | null): el is HTMLElement {
   if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') {
     return false;
   }
-  // Hidden off-layout (e.g. desktop-only sidebar on mobile)
   if (r.width < 4 || r.height < 4) return false;
   if (r.bottom < 0 || r.top > window.innerHeight || r.right < 0 || r.left > window.innerWidth) {
     return false;
@@ -54,42 +53,14 @@ function isUsableTarget(el: Element | null): el is HTMLElement {
   return true;
 }
 
-function useIsMobile(breakpoint = 768) {
-  const [mobile, setMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < breakpoint : true
-  );
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    const apply = () => setMobile(mq.matches);
-    apply();
-    mq.addEventListener('change', apply);
-    return () => mq.removeEventListener('change', apply);
-  }, [breakpoint]);
-  return mobile;
-}
-
 /**
- * Clamp tooltip card fully inside the viewport with padding.
+ * Always a bottom sheet with scrollable body + sticky footer (works on PC + mobile).
+ * Optional green highlight on the target control.
  */
-function clampCard(
-  preferred: { top: number; left: number },
-  cardW: number,
-  cardH: number,
-  pad = 12
-): { top: number; left: number } {
-  const maxL = Math.max(pad, window.innerWidth - cardW - pad);
-  const maxT = Math.max(pad, window.innerHeight - cardH - pad);
-  return {
-    left: Math.min(Math.max(pad, preferred.left), maxL),
-    top: Math.min(Math.max(pad, preferred.top), maxT),
-  };
-}
-
 export default function ProductTour({ open, onClose, onStepChange }: Props) {
   const [i, setI] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
   const [missingTarget, setMissingTarget] = useState(false);
-  const isMobile = useIsMobile();
   const step = TOUR_STEPS[i];
   const last = i >= TOUR_STEPS.length - 1;
 
@@ -99,7 +70,6 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
       setMissingTarget(false);
       return;
     }
-    // Support comma-separated selectors; pick first visible match
     const candidates = Array.from(document.querySelectorAll(step.target));
     const el = candidates.find((n) => isUsableTarget(n)) as HTMLElement | undefined;
     if (!el) {
@@ -109,7 +79,6 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
     }
     setMissingTarget(false);
     el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
-    // Remeasure after scroll settles
     window.setTimeout(() => {
       if (!isUsableTarget(el)) {
         setRect(null);
@@ -117,15 +86,15 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
         return;
       }
       const r = el.getBoundingClientRect();
-      const pad = isMobile ? 6 : 10;
+      const pad = 8;
       setRect({
         top: r.top - pad,
         left: r.left - pad,
         width: Math.max(r.width + pad * 2, 40),
         height: Math.max(r.height + pad * 2, 40),
       });
-    }, 320);
-  }, [step?.target, isMobile]);
+    }, 300);
+  }, [step?.target]);
 
   useEffect(() => {
     if (open) setI(0);
@@ -134,8 +103,7 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
   useEffect(() => {
     if (!open || !step) return;
     onStepChange?.(step);
-    // Wait for view switch / layout
-    const t = window.setTimeout(measure, 350);
+    const t = window.setTimeout(measure, 400);
     return () => window.clearTimeout(t);
   }, [open, i, step, measure, onStepChange]);
 
@@ -155,40 +123,11 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
     onClose();
   };
 
-  /** Desktop floating card near highlight; mobile = bottom sheet (always readable). */
-  const desktopCardPos = (): { top: number; left: number } | null => {
-    if (isMobile || !rect) return null;
-    const cardW = Math.min(380, window.innerWidth - 24);
-    const cardH = 280;
-    const gap = 16;
-    const place = step.placement || 'bottom';
-    let top = rect.top;
-    let left = rect.left;
-
-    if (place === 'bottom') {
-      top = rect.top + rect.height + gap;
-      left = rect.left + rect.width / 2 - cardW / 2;
-    } else if (place === 'top') {
-      top = rect.top - cardH - gap;
-      left = rect.left + rect.width / 2 - cardW / 2;
-    } else if (place === 'right') {
-      top = rect.top + rect.height / 2 - cardH / 2;
-      left = rect.left + rect.width + gap;
-    } else {
-      top = rect.top + rect.height / 2 - cardH / 2;
-      left = rect.left - cardW - gap;
-    }
-    return clampCard({ top, left }, cardW, cardH, 16);
-  };
-
-  const pos = desktopCardPos();
-  const showSpotlight = !!rect && !isMobile;
-
   return (
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[200]"
+          className="fixed inset-0 z-[200] flex flex-col justify-end"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -196,99 +135,73 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
           aria-modal="true"
           aria-labelledby="tour-title"
         >
-          {/* Full dim (always) */}
-          <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[1px]" />
+          {/* Dim */}
+          <div className="absolute inset-0 bg-slate-950/75" aria-hidden />
 
-          {/* Spotlight cutout — desktop only (mobile uses bottom sheet) */}
-          {showSpotlight && rect && (
+          {/* Spotlight */}
+          {rect && (
             <div
-              className="pointer-events-none absolute z-[201] rounded-2xl border-2 border-emerald-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)] transition-all duration-300"
+              className="pointer-events-none absolute z-[201] rounded-2xl border-[3px] border-emerald-400 transition-all duration-300"
               style={{
                 top: rect.top,
                 left: rect.left,
                 width: rect.width,
                 height: rect.height,
                 boxShadow:
-                  '0 0 0 4px rgba(52, 211, 153, 0.45), 0 0 0 9999px rgba(2, 6, 23, 0.72)',
+                  '0 0 0 4px rgba(52, 211, 153, 0.5), 0 0 0 9999px rgba(2, 6, 23, 0.72)',
               }}
-            >
-              <div className="absolute inset-0 rounded-2xl animate-pulse bg-emerald-400/10" />
-            </div>
+            />
           )}
 
-          {/* Mobile: label chip above bottom sheet when target found */}
-          {isMobile && rect && (
-            <div
-              className="pointer-events-none fixed z-[202] flex items-center gap-1 rounded-full bg-emerald-500 px-3 py-1 text-[11px] font-bold text-white shadow-lg"
-              style={{
-                top: Math.max(8, rect.top - 28),
-                left: Math.min(rect.left, window.innerWidth - 140),
-              }}
-            >
-              <MapPin className="h-3 w-3" /> Look here
-            </div>
-          )}
-
-          {/* CARD */}
+          {/* Bottom sheet — always; scrollable middle, sticky actions */}
           <motion.div
             key={step.id}
-            initial={{ opacity: 0, y: isMobile ? 40 : 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 16 }}
-            className={
-              isMobile
-                ? 'fixed inset-x-0 bottom-0 z-[203] max-h-[min(72vh,520px)] overflow-y-auto rounded-t-3xl border border-emerald-100 bg-white shadow-2xl'
-                : 'fixed z-[203] w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-3xl border-2 border-emerald-200 bg-white shadow-2xl shadow-black/40'
-            }
-            style={
-              isMobile
-                ? { paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }
-                : pos
-                  ? { top: pos.top, left: pos.left }
-                  : {
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                    }
-            }
+            initial={{ y: '100%' }}
+            animate={{ y: 0 }}
+            exit={{ y: '40%' }}
+            transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            className="relative z-[203] flex w-full max-h-[min(85dvh,640px)] flex-col rounded-t-3xl border border-emerald-100 bg-white shadow-2xl"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
-            {/* Progress bar */}
-            <div className="h-1.5 w-full bg-slate-100">
+            {/* Drag affordance */}
+            <div className="flex shrink-0 justify-center pt-3 pb-1">
+              <div className="h-1.5 w-12 rounded-full bg-slate-300" aria-hidden />
+            </div>
+
+            {/* Progress */}
+            <div className="mx-4 mb-2 h-1.5 shrink-0 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full bg-emerald-500 transition-all duration-300"
+                className="h-full rounded-full bg-emerald-500 transition-all duration-300"
                 style={{ width: `${((i + 1) / TOUR_STEPS.length) * 100}%` }}
               />
             </div>
 
-            <div className="relative bg-gradient-to-br from-emerald-50 via-white to-amber-50/50 px-5 pt-4 pb-3 sm:px-6">
+            {/* Header — fixed */}
+            <div className="relative shrink-0 border-b border-emerald-50 bg-gradient-to-br from-emerald-50 via-white to-amber-50/40 px-5 pb-3 pt-1 sm:px-6">
               <button
                 type="button"
                 onClick={finish}
-                className="absolute right-3 top-3 z-10 rounded-lg bg-white/90 p-2 text-slate-500 shadow-sm hover:bg-white hover:text-slate-800"
+                className="absolute right-3 top-1 z-10 rounded-lg bg-white p-2.5 text-slate-600 shadow border border-slate-100 hover:bg-slate-50"
                 aria-label="Skip tour"
               >
                 <X className="h-5 w-5" />
               </button>
 
-              {isMobile && (
-                <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-slate-200" aria-hidden />
-              )}
-
-              <div className="flex items-center gap-3 pr-10">
+              <div className="flex items-center gap-3 pr-12">
                 <GenieAvatar
                   src={i === 0 ? BRAND.assets.wave : BRAND.assets.widget}
-                  size={isMobile ? 52 : 64}
+                  size={56}
                   float={!rect}
                 />
                 <div className="min-w-0">
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-700">
                     Step {i + 1} of {TOUR_STEPS.length}
                   </p>
-                  <div className="mt-1.5 flex flex-wrap gap-1">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     {TOUR_STEPS.map((_, idx) => (
                       <div
                         key={idx}
-                        className={`h-2 w-2 rounded-full sm:h-1.5 sm:w-5 ${
+                        className={`h-2 w-2 rounded-full sm:h-1.5 sm:w-6 ${
                           idx <= i ? 'bg-emerald-500' : 'bg-slate-200'
                         }`}
                       />
@@ -298,7 +211,11 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
               </div>
             </div>
 
-            <div className="px-5 py-4 sm:px-6 sm:py-5">
+            {/* Scrollable body — this is the fix */}
+            <div
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6 sm:py-5"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+            >
               <h2
                 id="tour-title"
                 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl mb-2 leading-snug"
@@ -308,35 +225,42 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
               <p className="text-[15px] sm:text-base text-slate-700 leading-relaxed">
                 {step.body}
               </p>
+
+              {rect && (
+                <p className="mt-4 text-sm font-semibold text-emerald-900 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
+                  Green outline on the page = the control this step is about. Scroll this box if
+                  needed, then tap Next.
+                </p>
+              )}
+
               {missingTarget && step.target && (
                 <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-sm text-amber-900">
                   <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
                   <span>
-                    That control is on desktop sidebar or another screen — read the tip, then tap{' '}
-                    <strong>Next</strong>. You can explore it after the tour.
+                    That control may be in the left menu (desktop) or another tab — read the tip,
+                    then tap <strong>Next</strong>.
                   </span>
                 </p>
               )}
-              {showSpotlight && (
-                <p className="mt-3 text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2">
-                  ↑ The green outline shows what we’re talking about.
-                </p>
-              )}
+
+              {/* Extra space so last lines never hide under footer while scrolling */}
+              <div className="h-4" aria-hidden />
             </div>
 
-            <div className="sticky bottom-0 flex items-center justify-between gap-2 border-t border-slate-200 bg-white px-4 py-3 sm:px-5">
+            {/* Footer — always visible, never clipped */}
+            <div className="shrink-0 flex items-center justify-between gap-2 border-t-2 border-slate-100 bg-white px-4 py-3 sm:px-5 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
               <button
                 type="button"
                 onClick={() => setI((v) => Math.max(0, v - 1))}
                 disabled={i === 0}
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-xl px-3 py-2 text-sm font-bold text-slate-600 disabled:opacity-30 hover:bg-slate-50"
+                className="inline-flex min-h-[48px] items-center gap-1 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-30 hover:bg-slate-50"
               >
                 <ChevronLeft className="h-5 w-5" /> Back
               </button>
               <button
                 type="button"
                 onClick={finish}
-                className="min-h-[44px] px-3 text-sm font-semibold text-slate-400 hover:text-slate-600"
+                className="min-h-[48px] px-3 text-sm font-semibold text-slate-500 hover:text-slate-800"
               >
                 Skip
               </button>
@@ -346,7 +270,7 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
                   if (last) finish();
                   else setI((v) => v + 1);
                 }}
-                className="inline-flex min-h-[44px] min-w-[7rem] items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
+                className="inline-flex min-h-[48px] min-w-[8rem] items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
               >
                 {last ? 'Got it' : 'Next'}
                 {!last && <ChevronRight className="h-5 w-5" />}
