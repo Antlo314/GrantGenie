@@ -3,9 +3,15 @@ import { User } from 'firebase/auth';
 import { subscribeToAuth } from '../auth';
 import { db } from '../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import type { Organization, UserProfile } from '../types';
+import type { Organization, UserProfile, WorkspaceOrg, UserRole } from '../types';
 import { profileToOrganization } from '../types';
 import { loadLocalProfile, saveLocalProfile } from '../lib/profileStore';
+import {
+  getActiveOrgId,
+  setActiveOrgId,
+  getStoredWorkspaces,
+  saveStoredWorkspaces,
+} from '../lib/workspaceStore';
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +20,14 @@ interface AuthContextType {
   profile: UserProfile | null;
   /** Org-shaped view for older screens */
   organization: Organization | null;
+  /** Active workspace organization */
+  activeWorkspace: WorkspaceOrg | null;
+  /** Current user role in active workspace */
+  userRole: UserRole;
+  /** All accessible workspace organizations */
+  workspaces: WorkspaceOrg[];
+  switchWorkspace: (orgId: string) => void;
+  createWorkspace: (orgData: Omit<WorkspaceOrg, 'id'>) => void;
   /** Explicit demo mode (user clicked Try demo) */
   isDemo: boolean;
   enterDemo: () => void;
@@ -59,26 +73,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isDemo, setIsDemo] = useState(false);
 
+  const [workspaces, setWorkspaces] = useState<WorkspaceOrg[]>([]);
+  const [activeOrgId, setActiveOrgIdState] = useState<string>('');
+
   const loadProfile = useCallback(async (uid: string) => {
     if (uid === DEMO_USER.uid) {
       setProfile(DEMO_PROFILE);
+      const ws = getStoredWorkspaces(DEMO_PROFILE);
+      setWorkspaces(ws);
+      setActiveOrgIdState(getActiveOrgId(uid, ws[0]?.id));
       return;
     }
     // Prefer local complete profile if cloud is blocked
     const local = loadLocalProfile(uid);
     try {
       const snap = await getDoc(doc(db, 'users', uid));
+      let currentProfile = local;
       if (snap.exists()) {
-        const cloud = { uid, ...snap.data() } as UserProfile;
-        setProfile(cloud);
-        if (cloud.profileComplete) saveLocalProfile(cloud);
-        return;
+        currentProfile = { uid, ...snap.data() } as UserProfile;
+        if (currentProfile.profileComplete) saveLocalProfile(currentProfile);
       }
-      // No cloud doc yet — use local onboarding answers if any
-      setProfile(local);
+      setProfile(currentProfile);
+      if (currentProfile) {
+        const ws = getStoredWorkspaces(currentProfile);
+        setWorkspaces(ws);
+        setActiveOrgIdState(getActiveOrgId(uid, ws[0]?.id));
+      }
     } catch (err) {
       console.error('Error loading profile:', err);
       setProfile(local);
+      if (local) {
+        const ws = getStoredWorkspaces(local);
+        setWorkspaces(ws);
+        setActiveOrgIdState(getActiveOrgId(uid, ws[0]?.id));
+      }
     }
   }, []);
 
@@ -91,6 +119,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else if (!isDemo) {
         setUser(null);
         setProfile(null);
+        setWorkspaces([]);
+        setActiveOrgIdState('');
       }
       setLoading(false);
     });
@@ -101,6 +131,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDemo(true);
     setUser(DEMO_USER);
     setProfile(DEMO_PROFILE);
+    const ws = getStoredWorkspaces(DEMO_PROFILE);
+    setWorkspaces(ws);
+    setActiveOrgIdState(ws[0]?.id || DEMO_PROFILE.uid);
     setLoading(false);
   };
 
@@ -108,13 +141,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsDemo(false);
     setUser(null);
     setProfile(null);
+    setWorkspaces([]);
+    setActiveOrgIdState('');
   };
 
   const refreshProfile = async () => {
     if (user) await loadProfile(user.uid);
   };
 
-  const organization = profile ? profileToOrganization(profile) : null;
+  const switchWorkspace = (orgId: string) => {
+    const uid = user?.uid || DEMO_USER.uid;
+    setActiveOrgId(uid, orgId);
+    setActiveOrgIdState(orgId);
+  };
+
+  const createWorkspace = (orgData: Omit<WorkspaceOrg, 'id'>) => {
+    const newId = `org_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    const newWs: WorkspaceOrg = {
+      id: newId,
+      ...orgData,
+    };
+    const updated = [...workspaces, newWs];
+    setWorkspaces(updated);
+    const uid = user?.uid || DEMO_USER.uid;
+    saveStoredWorkspaces(uid, updated);
+    switchWorkspace(newId);
+  };
+
+  const activeWorkspace = React.useMemo(() => {
+    if (!workspaces.length) return null;
+    return workspaces.find(w => w.id === activeOrgId) || workspaces[0] || null;
+  }, [workspaces, activeOrgId]);
+
+  const userRole: UserRole = activeWorkspace?.role || profile?.role || 'admin';
+
+  const organization: Organization | null = React.useMemo(() => {
+    if (activeWorkspace) {
+      return {
+        id: activeWorkspace.id,
+        name: activeWorkspace.name,
+        ein: activeWorkspace.ein || '',
+        mission: activeWorkspace.mission || profile?.description || '',
+        focusAreas: activeWorkspace.keywords || profile?.keywords || [],
+        ownerId: profile?.uid || '',
+        tier: profile?.tier || 'Pro',
+      };
+    }
+    return profile ? profileToOrganization(profile) : null;
+  }, [activeWorkspace, profile]);
 
   return (
     <AuthContext.Provider
@@ -123,6 +197,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loading,
         profile,
         organization,
+        activeWorkspace,
+        userRole,
+        workspaces,
+        switchWorkspace,
+        createWorkspace,
         isDemo,
         enterDemo,
         exitDemo,

@@ -35,6 +35,7 @@ import SettingsView from './views/Settings';
 import ProfileView from './views/ProfileView';
 import LandingPage from './views/LandingPage';
 import LoginPage from './views/LoginPage';
+import WorkspaceSwitcher from './components/WorkspaceSwitcher';
 
 type View =
   | 'mission'
@@ -328,6 +329,7 @@ export default function AppContent() {
             )}
           </div>
           <div className="flex items-center gap-3">
+            <WorkspaceSwitcher />
             <div className="hidden sm:flex flex-col items-end">
               <span className="text-sm font-bold text-slate-900 leading-tight">
                 {user.displayName || profile?.name || 'User'}

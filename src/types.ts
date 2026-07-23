@@ -19,6 +19,19 @@ export type OpportunitySource =
   | 'ai';
 
 export type WinProbability = 'Low' | 'Medium' | 'High';
+export type UserRole = 'admin' | 'lead_writer' | 'reviewer' | 'finance' | 'viewer';
+
+export interface WorkspaceOrg {
+  id: string;
+  name: string;
+  role: UserRole;
+  ein?: string;
+  mission?: string;
+  state?: string;
+  city?: string;
+  keywords?: string[];
+  entityType?: EntityType;
+}
 
 export type SizeBand = 'solo' | 'small' | 'medium' | 'large' | 'unknown';
 export type FundingNeedBand =
@@ -59,6 +72,9 @@ export interface UserProfile {
   flags?: ProfileFlags;
   ein?: string;
   orgId?: string;
+  role?: UserRole;
+  activeOrgId?: string;
+  workspaces?: WorkspaceOrg[];
   tier?: 'Free' | 'Pro' | 'Enterprise';
   createdAt?: string;
   updatedAt?: string;
