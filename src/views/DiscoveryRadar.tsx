@@ -55,6 +55,9 @@ export default function DiscoveryRadar({
   const [hitCount, setHitCount] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [sourceNote, setSourceNote] = useState<string | null>(null);
+  const [sourceRuns, setSourceRuns] = useState<
+    { id: string; ok: boolean; count: number; error?: string; note?: string }[]
+  >([]);
   const [sortBy, setSortBy] = useState<'deadline' | 'matchScore'>('deadline');
   const [openOnly, setOpenOnly] = useState(sector === 'grants');
 
@@ -69,10 +72,12 @@ export default function DiscoveryRadar({
       setLoading(true);
       setError(null);
       setSourceNote(null);
+      setSourceRuns([]);
       setLastQuery(q);
       try {
         const result = await searchOpportunities(q, sector, { rows: 30 });
         setSourceNote(result.note || null);
+        setSourceRuns(result.sourceRuns || []);
         if (result.error && result.grants.length === 0) {
           setError(result.error);
           setGrants([]);
@@ -83,8 +88,8 @@ export default function DiscoveryRadar({
           if (result.grants.length === 0) {
             setError(
               isContracts
-                ? `No past contract awards found for “${q}”. Try a broader word like construction or IT.`
-                : `No open federal grants found for “${q}”. Try a broader keyword.`
+                ? `No contract results for “${q}”. Try a broader word, or add SAM_API_KEY for open solicitations.`
+                : `No grant results for “${q}”. Try a broader keyword, or add SIMPLER_GRANTS_API_KEY.`
             );
           }
         }
@@ -383,6 +388,34 @@ export default function DiscoveryRadar({
           {sourceNote && (
             <div className="mt-3 text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 leading-relaxed">
               {sourceNote}
+            </div>
+          )}
+
+          {sourceRuns.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {sourceRuns.map((s) => (
+                <span
+                  key={s.id}
+                  title={s.error || s.note || s.id}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                    s.count > 0
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : s.error?.includes('not set')
+                        ? 'bg-slate-50 text-slate-500 border-slate-200'
+                        : s.ok
+                          ? 'bg-slate-50 text-slate-500 border-slate-200'
+                          : 'bg-amber-50 text-amber-800 border-amber-200'
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      s.count > 0 ? 'bg-emerald-500' : s.error?.includes('not set') ? 'bg-slate-300' : 'bg-amber-400'
+                    }`}
+                  />
+                  {s.id}
+                  {s.count > 0 ? ` · ${s.count}` : s.error?.includes('not set') ? ' · needs key' : s.error ? ' · fail' : ' · 0'}
+                </span>
+              ))}
             </div>
           )}
 

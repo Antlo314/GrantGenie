@@ -1,61 +1,77 @@
 # Grant Genie
 
-Find **real** U.S. government **grants** and **contracts** in plain English. Sign in, answer a short setup quiz, search free public databases, track progress, and use Gemini only to explain fits and help write drafts — never to invent listings.
+Find **real** U.S. government **grants** and **contracts** in plain English. Multi-source search fans out to free federal APIs (and optional keyed/paid ones). Gemini only explains fits and helps write drafts — it never invents listings.
 
-## Two sectors (different purposes)
+## Connected data sources
 
-| Sector | What it means | Main free sources (Phase 1) |
-|--------|----------------|-----------------------------|
-| **Grants** | Free funding for a project or mission | [Grants.gov](https://grants.gov) open opportunities (live) |
-| **Contracts** | Paid work — government buys goods/services | [USASpending.gov](https://www.usaspending.gov) **past awards** (who got paid) |
+| Source | Sector | Free? | Key? | Status in app |
+|--------|--------|-------|------|----------------|
+| **[Grants.gov](https://www.grants.gov/api)** `search2` | Grants (open) | Yes | **No** | Always on |
+| **[Simpler.Grants.gov](https://wiki.simpler.grants.gov/product/api)** | Grants (open) | Yes | Free key | On when `SIMPLER_GRANTS_API_KEY` set |
+| **[USASpending.gov](https://api.usaspending.gov/)** | Grants + contracts (past awards) | Yes | **No** | Always on |
+| **[SAM.gov Opportunities](https://open.gsa.gov/api/get-opportunities-public-api/)** | Contracts (open solicitations) | Yes | Free key | On when `SAM_API_KEY` set |
+| **[SBIR.gov](https://www.sbir.gov/api)** | R&D / small biz | Yes | No | Tried always (API sometimes rate-limited) |
+| **[Grants-USA / RapidAPI](https://www.grants-usa.com/)** | Grants wrapper | Paid | RapidAPI key | Optional |
+| **[OpenGrants](https://app.opengrants.io/)** | Grants aggregator | Paid | API key | Scaffold / optional |
+| **[Tango / MakeGov](https://www.makegov.com/)** | All-in-one | Paid | API key | Scaffold / optional |
 
-**Important:** Past awards are **not** open bids. Open federal contract solicitations need a free [SAM.gov API key](https://open.gsa.gov/api/get-opportunities-public-api/) (Phase 2).
+### Get free keys (recommended)
 
-State coverage: curated links to official state grant/procurement portals (no single free national state API).
+1. **SAM.gov** (open contracts): [sam.gov](https://sam.gov) → profile → Account Details → API Key  
+   Docs: https://open.gsa.gov/api/get-opportunities-public-api/
+2. **Simpler.Grants.gov**: [simpler.grants.gov](https://simpler.grants.gov) → Developer → Manage API Keys  
+   Docs: https://wiki.simpler.grants.gov/product/api
 
-## Real free data sources
+Put them in `.env.local` (see `.env.example`). Keys stay on the **server** (`/api/proxy/*`) — never in the browser.
 
-| Source | Use | Cost | Key? |
-|--------|-----|------|------|
-| Grants.gov `search2` | Open federal grants | Free | No |
-| USASpending API | Past grants & contract awards | Free | No |
-| SAM.gov Opportunities | Open contract solicitations | Free | Yes (later) |
-| SBIR.gov API | Small business R&D topics | Free | No (planned) |
-| State .gov portals | State grants / procurement | Free | Link-out |
-| Data.gov / open.gsa.gov | Catalogs & more APIs | Free | Often free key |
+### What “open” vs “past award” means
 
-### Open source references
+- **Open** = you can still apply or bid (Grants.gov, Simpler, SAM solicitations).  
+- **Past award** = already given to someone (USASpending) — useful intel, not an open application.
 
-- [makegov/awesome-procurement-data](https://github.com/makegov/awesome-procurement-data)
-- [fedspendingtransparency/usaspending-api](https://github.com/fedspendingtransparency/usaspending-api)
-- [HHS/simpler-grants-gov](https://github.com/HHS/simpler-grants-gov)
-- [alicelabs-llc/samgov-sdk](https://github.com/alicelabs-llc/samgov-sdk) (when SAM key exists)
+## Two sectors
+
+| Sector | Primary sources |
+|--------|-----------------|
+| **Grants** | Grants.gov + Simpler.Grants (if keyed) + USASpending grant awards + SBIR |
+| **Contracts** | SAM.gov open bids (if keyed) + USASpending contract awards + SBIR |
+
+State portals: curated official .gov links for the user’s state (no single national free state API).
 
 ## Product flow
 
-1. **Sign in** (email or Google) — Firebase project `grant-genie-f3618`
-2. **Get started** quiz — individual/company/nonprofit · grant/contract · location · what you do · size · optional flags
-3. **Home** + sector switcher **Grants | Contracts**
-4. **Search** real databases → open official page → **Score my fit** (Gemini) → **Draft helper**
-5. **My applications** tracks progress
-
-Optional: **Try a demo** (no account) from the login screen.
+1. Sign in (Firebase `grant-genie-f3618`)  
+2. Get started quiz (individual/company · grant/contract · location · mission)  
+3. Sector switcher → multi-source search (chips show which APIs returned data)  
+4. Score fit + draft helper (Gemini)
 
 ## Run locally
 
 ```bash
 npm install
-# Optional — AI match / writer:
-# copy .env.example to .env.local and set GEMINI_API_KEY=...
+cp .env.example .env.local
+# Fill GEMINI_API_KEY, and ideally SAM_API_KEY + SIMPLER_GRANTS_API_KEY
 npm run dev
 ```
 
 Open http://localhost:3000
 
-Proxies (dev + Vercel):
+### Proxies
 
-- `/api/grants.gov/*` → `https://api.grants.gov/*`
-- `/api/usaspending/*` → `https://api.usaspending.gov/*`
+| Path | Target |
+|------|--------|
+| `/api/grants.gov/*` | `https://api.grants.gov/*` |
+| `/api/usaspending/*` | `https://api.usaspending.gov/*` |
+| `/api/proxy/simpler/search` | Simpler.Grants (server key) |
+| `/api/proxy/sam/search` | SAM.gov (server key) |
+| `/api/proxy/grants-usa/search` | RapidAPI (optional) |
+| `/api/proxy/status` | Which sources are configured |
+
+## Deploy (Vercel)
+
+1. Set env vars: `GEMINI_API_KEY`, `SAM_API_KEY`, `SIMPLER_GRANTS_API_KEY`, …  
+2. `vercel.json` rewrites Grants.gov + USASpending  
+3. Serverless functions under `api/proxy/` handle keyed sources  
 
 ## Scripts
 
@@ -65,19 +81,6 @@ Proxies (dev + Vercel):
 | `npm run build` | Production build |
 | `npm run lint` | Typecheck |
 
-## Firebase
-
-- Auth + Firestore for user profiles and progress
-- Config: `firebase-applet-config.json` (project **grant-genie-f3618**)
-- Enable **Email/Password** and **Google** in Firebase Console → Authentication if not already on
-- Deploy rules: `firestore.rules` (user can only access `users/{theirUid}/**`)
-
-## AI rules
-
-- Gemini **never** invents grant/contract titles, amounts, or deadlines
-- Listings only come from search adapters
-- UI always points to the official government page
-
 ## Stack
 
-Vite · React · TypeScript · Tailwind · Firebase · Gemini · Grants.gov · USASpending
+Vite · React · TypeScript · Tailwind · Firebase · Gemini · multi-source federal APIs

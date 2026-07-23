@@ -5,9 +5,14 @@ export type Sector = 'grants' | 'contracts' | 'both';
 export type OpportunitySector = 'grant' | 'contract';
 export type OpportunitySource =
   | 'grants.gov'
+  | 'simpler.grants.gov'
   | 'usaspending'
   | 'sbir'
+  | 'sam.gov'
   | 'sam'
+  | 'grants-usa'
+  | 'opengrants'
+  | 'tango'
   | 'state'
   | 'firestore'
   | 'mock'
