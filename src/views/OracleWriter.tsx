@@ -14,7 +14,11 @@ import {
   HelpCircle,
   X,
   Maximize2,
-  Minimize2
+  Minimize2,
+  ShieldCheck,
+  FileDown,
+  Printer,
+  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import {
@@ -23,6 +27,8 @@ import {
   generateAwardWinningProposal,
   profileFromOrganization,
 } from '../services/geminiService';
+import PreFlightAuditor from '../components/PreFlightAuditor';
+import { exportToWord, exportToPDF } from '../lib/exportUtils';
 
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -41,8 +47,34 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
   const [isExpandedEditor, setIsExpandedEditor] = useState(false);
   const [isExpandedGuidelines, setIsExpandedGuidelines] = useState(false);
   const [isExpandedAdvice, setIsExpandedAdvice] = useState(false);
+  const [showAuditor, setShowAuditor] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const expandedTextareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  const handleExportWord = () => {
+    exportToWord({
+      title: grant?.title || 'Grant Proposal',
+      funder: grant?.funder || 'Funding Agency',
+      draft,
+      organization,
+      amount: grant?.amount,
+      deadline: grant?.deadline,
+    });
+    setShowExportMenu(false);
+  };
+
+  const handleExportPDF = () => {
+    exportToPDF({
+      title: grant?.title || 'Grant Proposal',
+      funder: grant?.funder || 'Funding Agency',
+      draft,
+      organization,
+      amount: grant?.amount,
+      deadline: grant?.deadline,
+    });
+    setShowExportMenu(false);
+  };
 
   const fetchOracleAdvice = async () => {
     if (!organization) return;
@@ -181,6 +213,36 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
             >
               <HelpCircle className="w-4 h-4" /> How proposals work
             </button>
+            <button 
+              onClick={() => setShowAuditor(true)}
+              className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-800 shadow-sm"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Pre-flight check
+            </button>
+            <div className="relative">
+              <button 
+                onClick={() => setShowExportMenu(v => !v)}
+                className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-700 shadow-sm"
+              >
+                <FileDown className="w-4 h-4 text-slate-600" /> Export <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              </button>
+              {showExportMenu && (
+                <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl z-[100] py-2 overflow-hidden">
+                  <button
+                    onClick={handleExportWord}
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2 transition-colors"
+                  >
+                    <FileDown className="w-4 h-4 text-emerald-600" /> Download Word (.doc)
+                  </button>
+                  <button
+                    onClick={handleExportPDF}
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center gap-2 transition-colors"
+                  >
+                    <Printer className="w-4 h-4 text-slate-500" /> Export PDF
+                  </button>
+                </div>
+              )}
+            </div>
             <button 
               onClick={() => handleSave('drafting')}
               disabled={saving}
@@ -642,6 +704,16 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
           </div>
          )}
        </AnimatePresence>
+       <PreFlightAuditor
+         isOpen={showAuditor}
+         onClose={() => setShowAuditor(false)}
+         grant={grant}
+         draft={draft}
+         guidelines={guidelines}
+         organization={organization}
+         onExportWord={handleExportWord}
+         onExportPDF={handleExportPDF}
+       />
     </div>
   );
 }

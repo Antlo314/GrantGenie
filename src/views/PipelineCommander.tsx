@@ -13,11 +13,14 @@ import {
   Send,
   Flag,
   Sparkles,
-  BarChart3
+  BarChart3,
+  FileDown,
+  Printer
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { exportToWord, exportToPDF } from '../lib/exportUtils';
 
 const STAGE_CONFIG: Record<string, { label: string; color: string; gradient: string; glow: string }> = {
   discovery: {
@@ -184,6 +187,7 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
                   stage={grant.stage}
                   match={`${grant.matchScore}%`}
                   value={`$${grant.amount.toLocaleString()}`}
+                  draft={grant.draft}
                   icon={
                     grant.stage === 'drafting' ? <FileEdit className="w-4 h-4 text-slate-700" /> :
                     grant.stage === 'review' ? <Clock className="w-4 h-4 text-amber-500" /> :
@@ -218,14 +222,24 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
   );
 }
 
-function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any) {
+function PipelineRow({ grant, funder, stage, match, value, icon, draft, onAction }: any) {
   const cfg = STAGE_CONFIG[stage] || STAGE_CONFIG['discovery'];
   const tagColor = colorMap[cfg.color] || 'text-slate-500';
+
+  const handleQuickExportWord = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    exportToWord({
+      title: grant,
+      funder,
+      draft: draft || '',
+    });
+  };
 
   return (
     <motion.div
       whileHover={{ backgroundColor: 'rgba(241,245,249,0.6)' }}
-      className="group flex flex-col lg:flex-row lg:items-center px-6 lg:px-7 py-5 gap-3 lg:gap-0 relative transition-colors"
+      className="group flex flex-col lg:flex-row lg:items-center px-6 lg:px-7 py-5 gap-3 lg:gap-0 relative transition-colors cursor-pointer"
+      onClick={onAction}
     >
       <div className="flex-[2] pr-12 lg:pr-4">
         <div className="font-black text-slate-900 group-hover:text-emerald-700 transition-colors tracking-tight text-sm md:text-base leading-tight">{grant}</div>
@@ -250,10 +264,21 @@ function PipelineRow({ grant, funder, stage, match, value, icon, onAction }: any
         <span className="text-slate-900 font-black text-sm tracking-tight">{value}</span>
       </div>
 
-      <div className="lg:w-20 flex justify-end absolute lg:relative top-5 right-5 lg:top-0 lg:right-0">
+      <div className="flex items-center gap-2 justify-end absolute lg:relative top-5 right-5 lg:top-0 lg:right-0">
+        {draft && (
+          <button
+            type="button"
+            onClick={handleQuickExportWord}
+            className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 rounded-xl border border-slate-100 bg-white transition-all shadow-sm"
+            title="Download Word Document"
+          >
+            <FileDown className="w-4 h-4" />
+          </button>
+        )}
         <button
           onClick={onAction}
           className="p-2.5 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all border border-slate-100 group-hover:border-transparent bg-white lg:bg-transparent shadow-sm hover:shadow-lg"
+          title="Open in Writer"
         >
           <ChevronRight className="w-4 h-4 flex-shrink-0" />
         </button>
