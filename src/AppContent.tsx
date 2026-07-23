@@ -476,9 +476,36 @@ export default function AppContent() {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-full text-[10px] font-bold uppercase tracking-wide border border-emerald-100">
-              {activeSector === 'contracts' ? 'Contracts' : 'Grants'}
-            </span>
+            <div className="flex items-center gap-1.5" data-tour="sector-mobile">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSector('grants');
+                  setActiveView('radar');
+                }}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                  activeSector === 'grants'
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-emerald-50 text-emerald-800 border-emerald-100'
+                }`}
+              >
+                Grants
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSector('contracts');
+                  setActiveView('radar');
+                }}
+                className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                  activeSector === 'contracts'
+                    ? 'bg-emerald-600 text-white border-emerald-600'
+                    : 'bg-amber-50 text-amber-900 border-amber-100'
+                }`}
+              >
+                Contracts
+              </button>
+            </div>
             {isDemo && (
               <span className="px-2.5 py-1 bg-amber-50 text-amber-800 rounded-full text-[10px] font-bold uppercase border border-amber-100">
                 Demo
@@ -562,15 +589,15 @@ export default function AppContent() {
         open={tourOpen}
         onClose={() => setTourOpen(false)}
         onStepChange={(step) => {
-          // Ensure Find is open when tour needs search/results
-          if (step.id === 'search' || step.id === 'results' || step.id === 'specs') {
-            setActiveView(step.id === 'specs' ? 'mission' : 'radar');
-          }
-          if (step.id === 'sector' || step.id === 'find' || step.id === 'pipeline') {
-            /* targets in sidebar always mounted on desktop */
-          }
-          if (step.id === 'welcome' || step.id === 'genie') {
+          // Navigate so highlighted controls exist (and are visible when possible)
+          if (step.id === 'welcome' || step.id === 'genie' || step.id === 'specs' || step.id === 'sector') {
             setActiveView('mission');
+          }
+          if (step.id === 'find' || step.id === 'search' || step.id === 'results') {
+            setActiveView('radar');
+          }
+          if (step.id === 'pipeline') {
+            setActiveView('pipeline');
           }
         }}
       />
