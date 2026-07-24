@@ -18,6 +18,8 @@ import {
 import { db } from '../lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { useAuth } from '../components/AuthProvider';
+import GenieAvatar from '../components/GenieAvatar';
+import { BRAND } from '../lib/brand';
 import type {
   EntityType,
   Sector,
@@ -217,29 +219,31 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
   const stateName = US_STATES.find((s) => s.code === state)?.name || state || '—';
 
   return (
-    <div className="h-screen w-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4 md:p-6 relative overflow-hidden font-sans">
-      <div className="absolute inset-0 bg-grid-slate-200/50 [mask-image:radial-gradient(ellipse_at_center,white,transparent)] pointer-events-none" />
+    <div className="h-screen w-screen gg-app-bg text-slate-900 flex items-center justify-center p-4 md:p-6 relative overflow-hidden font-sans">
+      <div className="aurora-field" aria-hidden="true" />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="max-w-xl w-full bg-white border border-slate-200 rounded-3xl p-6 md:p-10 shadow-xl relative z-10 max-h-[95vh] overflow-y-auto"
+        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+        className="max-w-xl w-full glass-panel rounded-[2rem] p-6 md:p-10 relative z-10 max-h-[95vh] overflow-y-auto custom-scrollbar"
       >
         {/* Header: step label + progress */}
         <div className="mb-8">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shrink-0">
-                <Sparkles className="w-4 h-4 text-white" />
+              <div className="shrink-0">
+                <GenieAvatar src={BRAND.assets.wave} size={48} float />
               </div>
               <div>
-                <p className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                  Get started · Step {step} of {TOTAL_STEPS}
+                <p className="text-xs font-bold tracking-widest text-slate-500 uppercase">
+                  Get started · Step <span className="font-mono">{step}</span> of{' '}
+                  <span className="font-mono">{TOTAL_STEPS}</span>
                 </p>
                 <p className="text-sm font-bold text-emerald-700">{STEP_LABELS[step - 1]}</p>
               </div>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+            <p className="text-xs text-slate-500 font-medium hidden sm:block">
               About 2 minutes
             </p>
           </div>
@@ -249,12 +253,14 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
               <div key={label} className="flex-1 group relative" title={label}>
                 <div
                   className={`h-1.5 rounded-full transition-colors ${
-                    step >= i + 1 ? 'bg-emerald-600' : 'bg-slate-100'
+                    step >= i + 1
+                      ? 'bg-gradient-to-r from-emerald-500 to-emerald-400'
+                      : 'bg-slate-200/70'
                   }`}
                 />
                 <span
-                  className={`mt-1.5 hidden md:flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide ${
-                    step === i + 1 ? 'text-emerald-700' : 'text-slate-300'
+                  className={`mt-1.5 hidden md:flex items-center gap-1 text-xs font-bold uppercase tracking-wide ${
+                    step === i + 1 ? 'text-emerald-700' : 'text-slate-400'
                   }`}
                 >
                   {STEP_ICONS[i]}
@@ -271,7 +277,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             initial={{ opacity: 0, x: 12 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -12 }}
-            transition={{ duration: 0.18 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 34 }}
           >
             {step === 1 && (
               <StepShell
@@ -344,7 +350,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Acme Services LLC"
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                    className="field"
                   />
                 </label>
                 <label className="block space-y-1.5">
@@ -354,7 +360,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                   <select
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 bg-white"
+                    className="field"
                   >
                     <option value="">Select state</option>
                     {US_STATES.map((s) => (
@@ -372,7 +378,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                     <input
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                      className="field"
                     />
                   </label>
                   <label className="block space-y-1.5">
@@ -383,7 +389,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                       value={zip}
                       onChange={(e) => setZip(e.target.value)}
                       inputMode="numeric"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                      className="field"
                     />
                   </label>
                 </div>
@@ -401,15 +407,15 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
                     placeholder="Example: We install energy-efficient lighting for small businesses in Georgia."
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 resize-none"
+                    className="field resize-none"
                   />
                   {descriptionRemaining > 0 ? (
-                    <p className="text-[11px] text-slate-400">
-                      Keep going — about {descriptionRemaining} more character
+                    <p className="text-xs text-slate-500">
+                      Keep going — about <span className="font-mono">{descriptionRemaining}</span> more character
                       {descriptionRemaining === 1 ? '' : 's'} so search has enough to work with.
                     </p>
                   ) : (
-                    <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
+                    <p className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
                       <Check className="w-3 h-3" /> That works!
                     </p>
                   )}
@@ -423,10 +429,11 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                       key={k}
                       type="button"
                       onClick={() => toggleKeyword(k)}
+                      aria-pressed={keywords.includes(k)}
                       className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                         keywords.includes(k)
-                          ? 'bg-emerald-600 text-white border-emerald-600'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-300'
+                          ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-transparent shadow-sm shadow-emerald-500/30'
+                          : 'bg-white/80 text-slate-600 border-slate-200 hover:border-emerald-300 hover:bg-white'
                       }`}
                     >
                       {k}
@@ -457,10 +464,11 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                       key={id}
                       type="button"
                       onClick={() => setSizeBand(id)}
-                      className={`rounded-xl border px-3 py-3 text-sm font-semibold text-left ${
+                      aria-pressed={sizeBand === id}
+                      className={`rounded-2xl border px-3 py-3 text-sm font-semibold text-left transition-colors ${
                         sizeBand === id
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-900'
-                          : 'border-slate-200 text-slate-700'
+                          ? 'border-emerald-500 bg-emerald-50/80 text-emerald-900 shadow-sm'
+                          : 'border-slate-200 bg-white/70 text-slate-700 hover:border-emerald-300'
                       }`}
                     >
                       {label}
@@ -483,10 +491,11 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                       key={id}
                       type="button"
                       onClick={() => setFundingNeedBand(id)}
-                      className={`rounded-xl border px-3 py-3 text-sm font-semibold text-left ${
+                      aria-pressed={fundingNeedBand === id}
+                      className={`rounded-2xl border px-3 py-3 font-mono text-sm font-semibold text-left transition-colors ${
                         fundingNeedBand === id
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-900'
-                          : 'border-slate-200 text-slate-700'
+                          ? 'border-emerald-500 bg-emerald-50/80 text-emerald-900 shadow-sm'
+                          : 'border-slate-200 bg-white/70 text-slate-700 hover:border-emerald-300'
                       }`}
                     >
                       {label}
@@ -502,8 +511,8 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 subtitle="Check anything that applies — some funding is set aside for these groups. All of this is optional."
               >
                 {/* Summary of their answers */}
-                <div className="rounded-2xl bg-emerald-50/70 border border-emerald-100 px-4 py-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-1.5">
+                <div className="glass-emerald rounded-2xl px-4 py-3">
+                  <p className="text-xs font-black uppercase tracking-widest text-emerald-700 mb-1.5">
                     Your setup
                   </p>
                   <p className="text-sm text-slate-700 leading-relaxed">
@@ -535,10 +544,11 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                       key={key}
                       type="button"
                       onClick={() => toggleFlag(key)}
-                      className={`w-full flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold text-left ${
+                      aria-pressed={!!flags[key]}
+                      className={`w-full flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-semibold text-left transition-colors ${
                         flags[key]
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-900'
-                          : 'border-slate-200 text-slate-700'
+                          ? 'border-emerald-500 bg-emerald-50/80 text-emerald-900 shadow-sm'
+                          : 'border-slate-200 bg-white/70 text-slate-700 hover:border-emerald-300'
                       }`}
                     >
                       <span
@@ -555,13 +565,13 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
                 {(entityType === 'nonprofit' || entityType === 'company') && (
                   <label className="block space-y-1.5 pt-2">
                     <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
-                      EIN (optional for now)
+                      EIN — your tax ID number <span className="normal-case font-medium text-slate-400">(optional for now)</span>
                     </span>
                     <input
                       value={ein}
                       onChange={(e) => setEin(e.target.value)}
                       placeholder="XX-XXXXXXX"
-                      className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:border-emerald-500"
+                      className="field"
                     />
                   </label>
                 )}
@@ -586,7 +596,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             type="button"
             onClick={back}
             disabled={step === 1 || busy}
-            className="inline-flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-slate-500 hover:text-slate-900 disabled:opacity-40"
+            className="btn btn-ghost"
           >
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
@@ -594,7 +604,7 @@ export default function Onboarding({ onComplete }: { onComplete: () => void }) {
             type="button"
             onClick={next}
             disabled={!canNext() || busy}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold shadow-lg shadow-emerald-600/20"
+            className="btn btn-primary btn-lg"
           >
             {busy ? 'Saving…' : step === TOTAL_STEPS ? 'Finish & open app' : 'Continue'}
             <ArrowRight className="w-4 h-4" />
@@ -644,16 +654,19 @@ function Choice({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`w-full text-left rounded-2xl border p-4 transition-all ${
         active
-          ? 'border-emerald-500 bg-emerald-50 shadow-sm'
-          : 'border-slate-200 hover:border-slate-300 bg-white'
+          ? 'border-emerald-500 bg-emerald-50/80 shadow-md shadow-emerald-500/10'
+          : 'border-slate-200 bg-white/75 hover:border-emerald-300 hover:bg-white'
       }`}
     >
       <div className="flex items-start gap-3">
         <div
-          className={`mt-0.5 p-2 rounded-lg ${
-            active ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'
+          className={`mt-0.5 p-2 rounded-xl transition-colors ${
+            active
+              ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/30'
+              : 'bg-slate-100 text-slate-600'
           }`}
         >
           {icon}

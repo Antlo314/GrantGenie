@@ -57,22 +57,23 @@ export default function AddOrganizationModal({
           initial={{ opacity: 0, scale: 0.95, y: 10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col"
+          className="glass-panel rounded-[2rem] w-full max-w-lg overflow-hidden flex flex-col"
         >
-          <div className="bg-slate-900 text-white p-6 flex items-center justify-between">
+          <div className="glass-panel-dark text-white p-6 flex items-center justify-between rounded-none">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white font-bold shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-500/30">
                 <Building2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold">Add Workspace Organization</h3>
-                <p className="text-xs text-slate-300">Create a client or department workspace</p>
+                <h3 className="text-lg font-bold">Add an organization</h3>
+                <p className="text-xs text-slate-300">A separate space for another group or client you help</p>
               </div>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+              aria-label="Close"
+              className="p-1.5 hover:bg-white/10 rounded-lg text-slate-300 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -89,7 +90,7 @@ export default function AddOrganizationModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Chesapeake Bay Conservation League"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none"
+                className="field"
               />
             </div>
 
@@ -101,7 +102,7 @@ export default function AddOrganizationModal({
                 <select
                   value={entityType}
                   onChange={(e) => setEntityType(e.target.value as EntityType)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none"
+                  className="field"
                 >
                   <option value="nonprofit">501(c)(3) Nonprofit</option>
                   <option value="company">For-Profit Business</option>
@@ -117,7 +118,7 @@ export default function AddOrganizationModal({
                 <select
                   value={role}
                   onChange={(e) => setRole(e.target.value as UserRole)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none"
+                  className="field"
                 >
                   <option value="admin">Admin (Full Control)</option>
                   <option value="lead_writer">Lead Grant Writer</option>
@@ -138,7 +139,7 @@ export default function AddOrganizationModal({
                   value={ein}
                   onChange={(e) => setEin(e.target.value)}
                   placeholder="52-1234567"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none"
+                  className="field"
                 />
               </div>
 
@@ -151,7 +152,7 @@ export default function AddOrganizationModal({
                   value={state}
                   onChange={(e) => setState(e.target.value)}
                   placeholder="MD"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none"
+                  className="field"
                 />
               </div>
             </div>
@@ -164,7 +165,7 @@ export default function AddOrganizationModal({
                 value={mission}
                 onChange={(e) => setMission(e.target.value)}
                 placeholder="Short description of what this organization does..."
-                className="w-full h-24 px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none resize-none custom-scrollbar"
+                className="field h-24 resize-none custom-scrollbar"
               />
             </div>
 
@@ -177,23 +178,16 @@ export default function AddOrganizationModal({
                 value={keywordsText}
                 onChange={(e) => setKeywordsText(e.target.value)}
                 placeholder="environment, education, youth"
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none"
+                className="field"
               />
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50"
-              >
+            <div className="pt-4 border-t border-slate-200/60 flex items-center justify-end gap-3">
+              <button type="button" onClick={onClose} className="btn btn-ghost btn-sm">
                 Cancel
               </button>
-              <button
-                type="submit"
-                className="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/20"
-              >
-                Create Workspace
+              <button type="submit" className="btn btn-primary">
+                Add organization
               </button>
             </div>
           </form>

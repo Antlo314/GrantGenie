@@ -101,19 +101,17 @@ export default function SpecsBar({ onSpecsChange, compact }: Props) {
   return (
     <div
       data-tour="specs"
-      className={`rounded-2xl border border-emerald-100 bg-white/90 shadow-sm ${
-        compact ? 'p-3' : 'p-4 sm:p-5'
-      }`}
+      className={`bento-tile ${compact ? 'p-3' : 'p-4 sm:p-5'}`}
     >
       <div className="mb-2 flex items-center gap-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
+        <p className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
           What industry / work?
         </p>
         <InfoTip title="Change this anytime" label="About industry specs">
           Pick the topics you work in. We use them to search grants and contracts. Change chips
           anytime — search updates automatically.
         </InfoTip>
-        {saving && <span className="text-[10px] text-emerald-600 font-semibold">Saving…</span>}
+        {saving && <span className="text-xs text-emerald-600 font-semibold">Saving…</span>}
       </div>
       <div className="flex flex-wrap gap-2">
         {INDUSTRY_CHIPS.map((k) => (
@@ -121,10 +119,11 @@ export default function SpecsBar({ onSpecsChange, compact }: Props) {
             key={k}
             type="button"
             onClick={() => toggle(k)}
-            className={`rounded-full px-3 py-1.5 text-xs font-bold border transition-colors ${
+            aria-pressed={keywords.includes(k)}
+            className={`rounded-full px-3.5 py-1.5 text-xs font-bold border transition-all ${
               keywords.includes(k)
-                ? 'bg-emerald-600 border-emerald-600 text-white'
-                : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300'
+                ? 'bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-600/25'
+                : 'bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50'
             }`}
           >
             {k}
@@ -142,18 +141,14 @@ export default function SpecsBar({ onSpecsChange, compact }: Props) {
             }
           }}
           placeholder="Add your own (e.g. solar, daycare)"
-          className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+          className="field flex-1"
         />
-        <button
-          type="button"
-          onClick={addCustom}
-          className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-600"
-        >
+        <button type="button" onClick={addCustom} className="btn btn-dark btn-sm">
           Add
         </button>
       </div>
       {keywords.length > 0 && (
-        <p className="mt-2 text-[11px] text-slate-500">
+        <p className="mt-2 text-xs text-slate-500">
           Searching for: <span className="font-semibold text-slate-800">{keywords.join(' · ')}</span>
         </p>
       )}

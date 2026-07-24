@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Sparkles, 
-  Send, 
-  Save, 
-  ChevronLeft, 
+import {
+  Sparkles,
+  Send,
+  Save,
+  ChevronLeft,
   Info,
   DollarSign,
   Calendar,
@@ -30,6 +30,8 @@ import {
 } from '../services/geminiService';
 import PreFlightAuditor from '../components/PreFlightAuditor';
 import VersionHistory from '../components/VersionHistory';
+import InfoTip from '../components/InfoTip';
+import { Modal } from '../components/ui';
 import { exportToWord, exportToPDF } from '../lib/exportUtils';
 import { saveVersion, logAudit } from '../lib/versionStore';
 
@@ -106,7 +108,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       setAdvice(result);
     } catch (err) {
       console.error("Oracle advice failed:", err);
-      alert('Oracle review failed. Check GEMINI_API_KEY.');
+      alert('Could not get feedback. Check GEMINI_API_KEY.');
     } finally {
       setLoadingAdvice(false);
     }
@@ -115,7 +117,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
   /** Module 3 — full award-winning proposal */
   const generateFullProposal = async () => {
     if (!organization || !grant) {
-      alert('Select a grant from Find grants first, then open Writer.');
+      alert('Pick a grant in Find opportunities first, then open the writer.');
       return;
     }
     setGenerating(true);
@@ -131,8 +133,8 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       setDraft(proposal.fullMarkdown);
       setSaveMessage(
         proposal.funderKeywordsUsed?.length
-          ? `Proposal ready · keywords: ${proposal.funderKeywordsUsed.slice(0, 4).join(', ')}`
-          : 'Award-winning draft generated'
+          ? `Draft ready · uses the funder's words: ${proposal.funderKeywordsUsed.slice(0, 4).join(', ')}`
+          : 'Your first draft is ready'
       );
       setTimeout(() => setSaveMessage(null), 5000);
       if (grant?.pipelineId) {
@@ -146,7 +148,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       }
     } catch (err) {
       console.error('Proposal engine failed:', err);
-      alert('Proposal generation failed. Check GEMINI_API_KEY in .env.local');
+      alert('Could not write the draft. Check GEMINI_API_KEY in .env.local');
     } finally {
       setGenerating(false);
     }
@@ -154,11 +156,11 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
 
   const handleSave = async (stage: 'drafting' | 'review' = 'drafting') => {
     if (!grant?.pipelineId) {
-      setSaveMessage("Error: Missing Pipeline ID. Please add to pipeline first.");
+      setSaveMessage("Can't save yet — add this grant to My applications first.");
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
-    
+
     setSaving(true);
     const now = new Date().toISOString();
     try {
@@ -187,10 +189,10 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
           ? 'Marked proposal as ready for review'
           : `Saved draft (${draft.trim().split(/\s+/).filter(Boolean).length} words)`,
       });
-      setSaveMessage(stage === 'review' ? "Finalized and sent to review!" : "Draft Saved ✓ Version snapshot created");
+      setSaveMessage(stage === 'review' ? "Marked as ready ✓" : "Saved ✓ A copy went to History");
     } catch (e) {
       console.error("Failed to save draft:", e);
-      setSaveMessage("Failed to save");
+      setSaveMessage("Couldn't save. Try again.");
     } finally {
       setSaving(false);
       setTimeout(() => setSaveMessage(null), 3000);
@@ -210,7 +212,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       const transformed = await transformText(selectedText, action);
       const newDraft = draft.substring(0, start) + transformed + draft.substring(end);
       setDraft(newDraft);
-      
+
       // Keep selection on the newly transformed text
       setTimeout(() => {
         if (textareaRef.current) {
@@ -236,113 +238,141 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
     <div className="h-full flex flex-col">
        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 md:mb-8 gap-4">
           <div className="flex items-center gap-4">
-            <button 
+            <button
+              type="button"
               onClick={onBack}
-              className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm"
+              aria-label="Go back"
+              className="p-3 glass-panel rounded-2xl text-slate-500 hover:text-emerald-700 transition-colors shrink-0"
             >
-              <ChevronLeft className="w-5 h-5 text-slate-500" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tighter text-slate-900 truncate">Write your proposal</h1>
-              <p className="text-slate-400 text-[10px] md:text-sm font-medium truncate">
-                <span className="text-emerald-600">{grant?.title || 'Select a grant first'}</span>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-900 truncate">Write your proposal</h1>
+              <p className="text-xs md:text-sm text-slate-500 font-medium truncate">
+                <span className="text-emerald-700 font-semibold">{grant?.title || 'Pick a grant in Find opportunities first'}</span>
               </p>
             </div>
           </div>
           <div className="flex flex-wrap gap-2 md:gap-3 items-center w-full md:w-auto">
-            {saveMessage && <span className="text-xs font-bold text-emerald-600 mr-2 w-full md:w-auto">{saveMessage}</span>}
-            <button 
+            {saveMessage && (
+              <motion.span
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+                className="text-xs font-bold text-emerald-700 mr-2 w-full md:w-auto"
+              >
+                {saveMessage}
+              </motion.span>
+            )}
+            <button
+              type="button"
               onClick={generateFullProposal}
               disabled={generating || !grant}
-              className="flex items-center gap-2 px-5 py-3 bg-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-slate-800 disabled:opacity-50 shadow-lg"
+              className="btn btn-dark"
             >
-              <Sparkles className="w-4 h-4" /> {generating ? 'Writing…' : '✨ Write it for me'}
+              <Sparkles className="w-4 h-4 text-emerald-300" /> {generating ? 'Writing…' : 'Write a first draft for me'}
             </button>
-            <button 
+            <button
+              type="button"
               onClick={() => setShowHelp(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-600"
+              className="btn btn-ghost"
             >
-              <HelpCircle className="w-4 h-4" /> How proposals work
+              <HelpCircle className="w-4 h-4 text-emerald-600" /> How this works
             </button>
-            <button 
+            <button
+              type="button"
               onClick={() => setShowAuditor(true)}
-              className="flex items-center gap-2 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-colors text-xs font-bold uppercase tracking-widest text-emerald-800 shadow-sm"
+              className="btn btn-secondary"
             >
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Pre-flight check
+              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Final check
             </button>
             <div className="relative">
-              <button 
+              <button
+                type="button"
                 onClick={() => setShowExportMenu(v => !v)}
-                className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-700 shadow-sm"
+                aria-haspopup="menu"
+                aria-expanded={showExportMenu}
+                className="btn btn-secondary"
               >
-                <FileDown className="w-4 h-4 text-slate-600" /> Export <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+                <FileDown className="w-4 h-4" /> Export <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
               </button>
               {showExportMenu && (
-                <div className="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl z-[100] py-2 overflow-hidden">
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+                  className="absolute right-0 mt-2 w-56 glass-panel rounded-2xl z-[100] py-2 overflow-hidden"
+                >
                   <button
+                    type="button"
                     onClick={handleExportWord}
-                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 flex items-center gap-2 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-emerald-50/80 hover:text-emerald-700 flex items-center gap-2 transition-colors"
                   >
-                    <FileDown className="w-4 h-4 text-emerald-600" /> Download Word (.doc)
+                    <FileDown className="w-4 h-4 text-emerald-600" /> Download as Word (.doc)
                   </button>
                   <button
+                    type="button"
                     onClick={handleExportPDF}
-                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 flex items-center gap-2 transition-colors"
+                    className="w-full text-left px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-100/70 hover:text-slate-900 flex items-center gap-2 transition-colors"
                   >
-                    <Printer className="w-4 h-4 text-slate-500" /> Export PDF
+                    <Printer className="w-4 h-4 text-slate-500" /> Save as PDF
                   </button>
-                </div>
+                </motion.div>
               )}
             </div>
             <button
+              type="button"
               onClick={() => setShowVersionHistory(true)}
-              className="flex items-center gap-2 px-3 py-3 bg-white border border-slate-200 rounded-xl hover:bg-violet-50 hover:border-violet-200 transition-colors text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-violet-700"
-              title="Version History & Audit Trail"
+              className="btn btn-ghost"
+              title="Past versions and activity"
             >
               <History className="w-4 h-4" /> History
             </button>
-            <button 
+            <button
+              type="button"
               onClick={() => handleSave('drafting')}
               disabled={saving}
-              className="flex items-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-xs font-bold uppercase tracking-widest text-slate-600 disabled:opacity-50"
+              className="btn btn-secondary"
             >
-              <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save'}
+              <Save className="w-4 h-4" /> {saving ? 'Saving…' : 'Save'}
             </button>
-            <button 
+            <button
+              type="button"
               onClick={() => handleSave('review')}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-3 bg-emerald-600 rounded-xl font-bold text-xs uppercase tracking-widest text-white hover:bg-emerald-500 transition-all shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+              className="btn btn-primary"
             >
               <Send className="w-4 h-4" /> Mark as ready
             </button>
           </div>
        </div>
        <div className="flex-1 flex flex-col xl:flex-row gap-4 md:gap-8 min-h-[600px] pb-8 xl:pb-0">
-          {/* Main Editing Area */}
-          <motion.div 
+          {/* Main editing area */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex-1 min-h-[450px] md:min-h-[550px] bg-white border border-slate-200 rounded-[2.5rem] flex flex-col relative overflow-hidden shadow-sm shrink-0"
+            transition={{ type: 'spring', stiffness: 110, damping: 20 }}
+            className="flex-1 min-h-[450px] md:min-h-[550px] glass-panel rounded-[2rem] flex flex-col relative overflow-hidden shrink-0"
           >
-             {/* 3-Step Onboarding Banner when empty */}
+             {/* 3-step banner when the draft is empty */}
              {!draft && (
-               <div className="bg-emerald-50/90 border-b border-emerald-100 p-3.5 px-6 text-xs text-emerald-900 flex flex-wrap items-center justify-between gap-2 shrink-0">
+               <div className="bg-emerald-50/80 border-b border-emerald-100 px-4 md:px-6 py-3 text-xs text-emerald-900 flex flex-wrap items-center justify-between gap-2 shrink-0">
                  <div className="flex items-center gap-2 font-bold text-emerald-800">
                    <Sparkles className="w-4 h-4 text-emerald-600 shrink-0" />
-                   <span>How to create your proposal:</span>
+                   <span>Three steps to a finished proposal:</span>
                  </div>
                  <div className="flex flex-wrap items-center gap-3 text-xs font-medium text-emerald-800">
-                   <span><strong>Step 1:</strong> Click "✨ Write it for me" to create a full draft</span>
+                   <span><strong>1.</strong> Click “Write a first draft for me”</span>
                    <span className="text-emerald-300">•</span>
-                   <span><strong>Step 2:</strong> Edit anything you want to change</span>
+                   <span><strong>2.</strong> Edit anything you want to change</span>
                    <span className="text-emerald-300">•</span>
-                   <span><strong>Step 3:</strong> Click "Mark as ready" when done, then apply on official site</span>
+                   <span><strong>3.</strong> Click “Mark as ready”, then apply on the official site</span>
                  </div>
                </div>
              )}
 
-             <div className="h-16 border-b border-slate-100 flex items-center px-4 md:px-8 justify-between bg-slate-50/50 shrink-0">
-                <div className="flex gap-2 md:gap-4 h-full overflow-x-auto custom-scrollbar no-scrollbar whitespace-nowrap items-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+             <div className="h-14 border-b border-slate-200/60 flex items-center px-4 md:px-8 justify-between bg-white/40 shrink-0">
+                <div className="flex gap-2 md:gap-4 h-full overflow-x-auto no-scrollbar whitespace-nowrap items-center text-xs font-bold text-slate-400 uppercase tracking-wider">
                    <span className="text-emerald-600">Intro</span>
                    <span>· Problem</span>
                    <span>· Plan</span>
@@ -350,111 +380,111 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                    <span>· Results</span>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-[10px] text-slate-400 font-mono uppercase tracking-[0.15em] font-bold hidden sm:block">
+                  <div className="text-xs text-slate-400 font-semibold hidden sm:block truncate max-w-[160px]">
                     {grant?.funder || 'Funder'}
                   </div>
-                  <button 
+                  <button
+                    type="button"
                     onClick={() => setIsExpandedEditor(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-sm transition-colors"
-                    title="Expand Full Screen Editor"
+                    aria-label="Open focus mode"
+                    className="btn btn-secondary btn-sm"
                   >
                     <Maximize2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="hidden sm:inline">Expand Editor</span>
-                  </button>
-                </div>
-             </div>
-             
-             {/* Text Selection Tools Toolbar */}
-             <div className="bg-slate-900 border-b border-slate-800 px-4 md:px-8 py-3 flex items-center overflow-x-auto custom-scrollbar shadow-inner shrink-0 no-scrollbar justify-between">
-                <div className="flex items-center gap-4 md:gap-6 w-max">
-                  <div className="text-[10px] text-emerald-500 font-black uppercase tracking-widest flex items-center gap-2 shrink-0">
-                    <Zap className="w-3 h-3" /> AI Tools
-                  </div>
-                  <div className="w-px h-4 bg-slate-700" />
-                  <button 
-                    onClick={() => handleTransform('simplify')}
-                    disabled={!!transforming}
-                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
-                  >
-                    {transforming === 'simplify' ? 'Simplifying...' : 'Simplify this'}
-                    {organization?.tier === 'Free' && (
-                      <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => handleTransform('amplify')}
-                    disabled={!!transforming}
-                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
-                  >
-                    {transforming === 'amplify' ? 'Amplifying...' : 'Strengthen this'}
-                    {organization?.tier === 'Free' && (
-                      <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
-                    )}
-                  </button>
-                  <button 
-                    onClick={() => handleTransform('tone_shift')}
-                    disabled={!!transforming}
-                    className="text-[10px] font-black text-slate-300 hover:text-white uppercase tracking-widest disabled:opacity-50 transition-colors relative group"
-                  >
-                    {transforming === 'tone_shift' ? 'Shifting Tone...' : 'Make it sound professional'}
-                    {organization?.tier === 'Free' && (
-                      <div className="absolute -top-3 -right-2 bg-emerald-500 text-white text-[7px] px-1.5 py-0.5 rounded-full border border-slate-900 shadow-lg">PRO</div>
-                    )}
+                    <span className="hidden sm:inline">Focus mode</span>
                   </button>
                 </div>
              </div>
 
-             <textarea 
+             {/* Select-text rewrite toolbar */}
+             <div className="border-b border-slate-200/60 bg-white/30 px-4 md:px-8 py-2.5 flex items-center gap-3 md:gap-4 overflow-x-auto no-scrollbar shrink-0">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 uppercase tracking-wider shrink-0">
+                  <Zap className="w-3.5 h-3.5" /> Select text, then
+                </div>
+                <div className="w-px h-4 bg-slate-200 shrink-0" />
+                <button
+                  type="button"
+                  onClick={() => handleTransform('simplify')}
+                  disabled={!!transforming}
+                  className="btn btn-ghost btn-sm shrink-0"
+                >
+                  {transforming === 'simplify' ? 'Simplifying…' : 'Simplify this'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTransform('amplify')}
+                  disabled={!!transforming}
+                  className="btn btn-ghost btn-sm shrink-0"
+                >
+                  {transforming === 'amplify' ? 'Strengthening…' : 'Strengthen this'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTransform('tone_shift')}
+                  disabled={!!transforming}
+                  className="btn btn-ghost btn-sm shrink-0"
+                >
+                  {transforming === 'tone_shift' ? 'Polishing…' : 'Make it sound professional'}
+                </button>
+             </div>
+
+             <textarea
                ref={textareaRef}
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
-               placeholder="Click “✨ Write it for me” for a 5-section draft (Intro, Problem, Plan, Budget, Results)—or write here. Select text to simplify, strengthen, or make it sound professional."
-               className="flex-1 bg-transparent p-6 md:p-10 text-sm md:text-base leading-relaxed focus:outline-none resize-none custom-scrollbar font-sans text-slate-800 selection:bg-emerald-100 min-h-[350px]"
+               placeholder="Click “Write a first draft for me” to get a full 5-part draft (Intro, Problem, Plan, Budget, Results) — or start typing here. Select any text to simplify it, strengthen it, or make it sound professional."
+               className="flex-1 m-3 md:m-5 bg-white/90 border border-slate-200/70 rounded-2xl p-5 md:p-8 text-sm md:text-base leading-relaxed focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/15 resize-none custom-scrollbar font-sans text-slate-800 selection:bg-emerald-100 min-h-[350px] transition-shadow"
              />
           </motion.div>
 
-          {/* Intelligence Sidebar */}
-          <div className="w-full xl:w-[450px] flex flex-col gap-6 pr-0 custom-scrollbar shrink-0">
-             {/* Grant Specs */}
-             <motion.div 
+          {/* Sidebar */}
+          <div className="w-full xl:w-[450px] flex flex-col gap-6 pr-0 shrink-0">
+             {/* Funder guidelines */}
+             <motion.div
                initial={{ opacity: 0, x: 20 }}
                animate={{ opacity: 1, x: 0 }}
-               className="bg-white border border-slate-200 rounded-3xl p-6 md:p-8 shadow-sm"
+               transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+               className="bento-tile p-6 md:p-8"
              >
-                  <div className="flex items-center justify-between gap-3 mb-6">
-                    <div className="flex items-center gap-3">
-                      <Info className="w-4 h-4 text-slate-400" />
-                      <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Funder Guidelines</h3>
+                  <div className="flex items-center justify-between gap-3 mb-5">
+                    <div className="flex items-center gap-2">
+                      <Info className="w-4 h-4 text-emerald-600" />
+                      <h3 className="text-xs font-extrabold text-slate-500 uppercase tracking-[0.16em]">Funder guidelines</h3>
+                      <InfoTip title="What are funder guidelines?" label="What are funder guidelines?">
+                        The funder’s own rules for what your proposal must cover. You’ll find them on
+                        the official grant page (often in a document called a NOFO — Notice of Funding
+                        Opportunity). Paste them here so your draft and feedback follow them.
+                      </InfoTip>
                     </div>
-                    <button 
+                    <button
+                      type="button"
                       onClick={() => setIsExpandedGuidelines(true)}
-                      className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
-                      title="Expand Guidelines"
+                      aria-label="Expand guidelines"
+                      className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-emerald-700 transition-colors"
                     >
-                      <Maximize2 className="w-4 h-4 text-emerald-600" />
+                      <Maximize2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+                       <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center shrink-0">
                           <DollarSign className="w-5 h-5 text-emerald-600" />
                        </div>
-                       <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Award (if listed)</p>
-                          <p className="font-bold text-slate-900 text-lg">
+                       <div className="min-w-0">
+                          <p className="text-xs text-slate-500 font-semibold">Award amount</p>
+                          <p className="font-mono font-bold text-slate-900 text-lg truncate">
                             {grant?.amount > 0
                               ? `$${Number(grant.amount).toLocaleString()}`
-                              : 'See NOFO'}
+                              : 'Not listed'}
                           </p>
                        </div>
                     </div>
                     <div className="flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                       <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center shrink-0">
                           <Calendar className="w-5 h-5 text-amber-600" />
                        </div>
-                       <div>
-                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Deadline</p>
-                          <p className="font-bold text-slate-900 text-lg">
+                       <div className="min-w-0">
+                          <p className="text-xs text-slate-500 font-semibold">Deadline</p>
+                          <p className="font-mono font-bold text-slate-900 text-lg truncate">
                             {grant?.deadline
                               ? new Date(grant.deadline).toLocaleDateString('en-US', {
                                   month: 'short',
@@ -465,53 +495,65 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                           </p>
                        </div>
                     </div>
-                    <textarea
-                      value={guidelines}
-                      onChange={(e) => setGuidelines(e.target.value)}
-                      className="w-full h-40 bg-slate-50 border border-slate-100 rounded-xl p-4 text-xs text-slate-600 leading-relaxed italic focus:outline-none focus:ring-1 focus:ring-emerald-500/20 resize-none custom-scrollbar"
-                      placeholder="Paste the funder's specific guidelines or requirements here..."
-                    />
+                    <div>
+                      <p className="text-xs text-slate-500 mb-2 leading-snug">
+                        {grant?.description
+                          ? 'From the listing — edit it or add more detail anytime.'
+                          : 'Sample guidelines — paste the funder’s real instructions here.'}
+                      </p>
+                      <textarea
+                        value={guidelines}
+                        onChange={(e) => setGuidelines(e.target.value)}
+                        className="field h-40 resize-none custom-scrollbar leading-relaxed"
+                        placeholder="Paste the funder's instructions here…"
+                      />
+                    </div>
                   </div>
              </motion.div>
 
-             {/* Oracle Advice */}
-             <motion.div 
+             {/* Feedback panel */}
+             <motion.div
                initial={{ opacity: 0, x: 20 }}
                animate={{ opacity: 1, x: 0 }}
-               className="flex-1 bg-slate-900 text-white rounded-3xl p-6 md:p-10 relative overflow-hidden shadow-2xl min-h-[450px]"
+               transition={{ type: 'spring', stiffness: 120, damping: 18, delay: 0.05 }}
+               className="flex-1 glass-panel-dark text-white rounded-[2rem] p-6 md:p-8 relative overflow-hidden min-h-[450px]"
              >
                 <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                    <BrainCircuit className="w-48 h-48" />
                 </div>
-                
+
                 <div className="relative z-10 flex flex-col h-full">
                    <div className="flex items-center justify-between gap-4 mb-8">
                      <div className="flex items-center gap-3">
                        <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40">
                           <Sparkles className="w-5 h-5 text-white" />
                        </div>
-                       <h3 className="text-lg md:text-xl font-bold tracking-tight">Expert Feedback</h3>
+                       <h3 className="text-lg md:text-xl font-bold tracking-tight">Feedback on your draft</h3>
                      </div>
                      {advice && (
-                       <button 
+                       <button
+                         type="button"
                          onClick={() => setIsExpandedAdvice(true)}
-                         className="p-2 hover:bg-slate-800 rounded-xl text-slate-300 transition-colors"
-                         title="Expand Advice"
+                         aria-label="Expand feedback"
+                         className="p-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
                        >
-                         <Maximize2 className="w-4 h-4 text-emerald-400" />
+                         <Maximize2 className="w-4 h-4 text-emerald-300" />
                        </button>
                      )}
                    </div>
 
                    {!advice && !loadingAdvice && (
                       <div className="text-center py-12 my-auto">
-                         <div className="w-20 h-20 bg-slate-800 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl">
-                            <MessageSquareCode className="w-10 h-10 text-emerald-400" />
+                         <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8">
+                            <MessageSquareCode className="w-10 h-10 text-emerald-300" />
                          </div>
-                         <p className="text-slate-300 mb-8 font-medium italic">"Ready to analyze your narrative against funder expectations?"</p>
-                         <button 
+                         <p className="text-slate-300 mb-8 text-sm leading-relaxed">
+                           We’ll compare your draft to the funder’s guidelines and suggest changes.
+                         </p>
+                         <button
+                           type="button"
                            onClick={fetchOracleAdvice}
-                           className="w-full bg-emerald-600 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-emerald-500 transition-all shadow-xl shadow-emerald-900/40"
+                           className="btn btn-primary w-full"
                          >
                             Get feedback
                          </button>
@@ -521,51 +563,54 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                    {loadingAdvice && (
                      <div className="flex flex-col items-center justify-center py-20 gap-6 my-auto">
                         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 3, ease: "linear" }}>
-                           <Sparkles className="w-16 h-16 text-emerald-400" />
+                           <Sparkles className="w-16 h-16 text-emerald-300" />
                         </motion.div>
-                        <p className="text-[10px] font-black text-emerald-400 animate-pulse tracking-[0.3em] uppercase">Decrypting Funder Intent...</p>
+                        <p className="text-xs font-bold text-emerald-300 animate-pulse uppercase tracking-widest">Reading the funder's priorities…</p>
                      </div>
                    )}
 
                    {advice && (
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="space-y-8"
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ type: 'spring', stiffness: 200, damping: 24 }}
+                        className="space-y-7"
                       >
-                         <div className="bg-emerald-500/10 border border-emerald-400/20 p-6 rounded-2xl">
-                            <div className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-3">Strategic Signal</div>
-                            <div className="space-y-4">
-                               <p className="text-sm font-bold text-white italic leading-relaxed">"{advice.strategicSignal}"</p>
-                               <div className="flex gap-2">
-                                  <span className="px-2 py-1 bg-emerald-500/20 rounded text-[9px] font-bold text-emerald-400 border border-emerald-500/20 uppercase tracking-widest">SIGNAL: HIGH</span>
-                                  <span className="px-2 py-1 bg-blue-500/20 rounded text-[9px] font-bold text-blue-400 border border-blue-500/20 uppercase tracking-widest">TONE: STRATEGIC</span>
-                               </div>
-                            </div>
+                         <div className="glass-emerald p-5 rounded-2xl">
+                            <p className="text-xs font-extrabold text-emerald-300 uppercase tracking-wider mb-2.5">Main takeaway</p>
+                            <p className="text-sm font-semibold text-white leading-relaxed">“{advice.strategicSignal}”</p>
                          </div>
 
-                         <div className="space-y-6">
-                            <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Narrative Shifts ({advice.narrativeShifts?.length || 0})</div>
+                         <div className="space-y-5">
+                            <p className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+                              Suggested changes (<span className="font-mono">{advice.narrativeShifts?.length || 0}</span>)
+                            </p>
                             {advice.narrativeShifts?.map((shift: string, idx: number) => (
                               <div key={idx} className="flex gap-4 group">
-                                <div className="text-emerald-400 font-mono text-xs font-bold mt-0.5">0{idx + 1}</div>
-                                <p className="text-xs text-slate-300 leading-relaxed font-medium group-hover:text-white transition-colors">{shift}</p>
+                                <div className="text-emerald-300 font-mono text-xs font-bold mt-0.5">0{idx + 1}</div>
+                                <p className="text-sm text-slate-300 leading-relaxed group-hover:text-white transition-colors">{shift}</p>
                               </div>
                             ))}
                          </div>
 
-                         <div className="pt-6 border-t border-slate-800 flex items-center justify-between">
-                            <button 
-                              onClick={() => { setAdvice(null); setDraft(''); }}
-                              className="text-[10px] font-black text-slate-500 hover:text-emerald-400 uppercase tracking-[0.2em] flex items-center gap-2 transition-colors"
+                         <div className="pt-6 border-t border-white/10 flex items-center justify-between gap-3 flex-wrap">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (draft.trim() && !window.confirm('Clear your draft and start over? This erases the text in the editor.')) return;
+                                setAdvice(null);
+                                setDraft('');
+                              }}
+                              className="btn btn-secondary btn-sm"
                             >
-                               Recalibrate Narrative <Zap className="w-3 h-3" />
+                               Start over <Zap className="w-3 h-3 text-emerald-600" />
                             </button>
-                            <button 
+                            <button
+                              type="button"
                               onClick={() => setIsExpandedAdvice(true)}
-                              className="text-xs font-bold text-emerald-400 hover:underline flex items-center gap-1"
+                              className="text-xs font-bold text-emerald-300 hover:text-emerald-200 hover:underline flex items-center gap-1 transition-colors"
                             >
-                              Expand View <Maximize2 className="w-3.5 h-3.5" />
+                              Open full view <Maximize2 className="w-3.5 h-3.5" />
                             </button>
                          </div>
                       </motion.div>
@@ -575,73 +620,139 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
           </div>
        </div>
 
-       {/* Full Screen Editor Modal */}
+       {/* Focus mode — full screen editor */}
        <AnimatePresence>
          {isExpandedEditor && (
-           <div className="fixed inset-0 z-[120] flex flex-col bg-white p-4 sm:p-8">
-             <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-4">
-               <div className="flex items-center gap-3">
-                 <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center">
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             className="fixed inset-0 z-[120] flex flex-col gg-app-bg p-4 sm:p-6"
+           >
+             <div className="flex items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-200/70 shrink-0">
+               <div className="flex items-center gap-3 min-w-0">
+                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 shrink-0">
                    <Sparkles className="w-5 h-5" />
                  </div>
-                 <div>
-                   <h2 className="text-xl font-bold text-slate-900">Proposal Engine · Immersive Editor</h2>
-                   <p className="text-xs text-slate-500 font-medium">{grant?.title || 'Drafting Mode'}</p>
+                 <div className="min-w-0">
+                   <h2 className="text-xl font-bold text-slate-900 tracking-tight">Focus mode</h2>
+                   <p className="text-xs text-slate-500 font-medium truncate">{grant?.title || 'Your draft, without distractions'}</p>
                  </div>
                </div>
-               <div className="flex items-center gap-3">
-                 <button 
+               <div className="flex items-center gap-2 shrink-0">
+                 <button
+                   type="button"
                    onClick={() => handleSave('drafting')}
                    disabled={saving}
-                   className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-emerald-500 shadow-md"
+                   className="btn btn-primary btn-sm"
                  >
-                   {saving ? 'Saving...' : 'Save Draft'}
+                   <Save className="w-4 h-4" /> {saving ? 'Saving…' : 'Save'}
                  </button>
-                 <button 
+                 <button
+                   type="button"
                    onClick={() => setIsExpandedEditor(false)}
-                   className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-500"
-                   title="Exit Full Screen"
+                   aria-label="Exit focus mode"
+                   className="p-2.5 rounded-xl text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 transition-colors"
                  >
-                   <Minimize2 className="w-6 h-6 text-slate-700" />
+                   <Minimize2 className="w-5 h-5" />
                  </button>
                </div>
              </div>
-             <textarea 
+             <textarea
                ref={expandedTextareaRef}
                value={draft}
                onChange={(e) => setDraft(e.target.value)}
-               placeholder="Write your grant proposal here..."
-               className="flex-1 w-full bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-10 text-base md:text-lg leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none custom-scrollbar font-sans text-slate-900"
+               placeholder="Write your proposal here…"
+               className="flex-1 w-full bg-white/90 border border-slate-200/70 rounded-2xl p-6 md:p-10 text-base md:text-lg leading-relaxed focus:outline-none focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/15 resize-none custom-scrollbar font-sans text-slate-900"
              />
-           </div>
+           </motion.div>
          )}
        </AnimatePresence>
 
-       {/* Full Screen Funder Guidelines Modal */}
-       <AnimatePresence>
-         {isExpandedGuidelines && (
-           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               exit={{ opacity: 0, scale: 0.95 }}
-               className="bg-white rounded-3xl w-full max-w-3xl p-6 sm:p-10 shadow-2xl flex flex-col max-h-[90vh]"
+       {/* Funder guidelines — expanded */}
+       <Modal
+         open={isExpandedGuidelines}
+         onClose={() => setIsExpandedGuidelines(false)}
+         title="Funder guidelines"
+         wide
+         footer={
+           <div className="flex justify-end">
+             <button
+               type="button"
+               onClick={() => setIsExpandedGuidelines(false)}
+               className="btn btn-primary"
              >
-               <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
-                 <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                   <Info className="w-5 h-5 text-emerald-600" /> Funder Guidelines & Requirements
-                 </h3>
-                 <button onClick={() => setIsExpandedGuidelines(false)} className="p-2 hover:bg-slate-100 rounded-xl">
-                   <X className="w-5 h-5 text-slate-500" />
+               Done
+             </button>
+           </div>
+         }
+       >
+         <p className="text-xs text-slate-500 mb-3 leading-relaxed">
+           {grant?.description
+             ? 'These came from the listing — edit them or add more detail anytime.'
+             : 'Sample guidelines — paste the funder’s real instructions here.'}
+         </p>
+         <textarea
+           value={guidelines}
+           onChange={(e) => setGuidelines(e.target.value)}
+           className="field min-h-[380px] resize-none custom-scrollbar leading-relaxed"
+           aria-label="Funder guidelines"
+         />
+       </Modal>
+
+       {/* Full feedback — expanded */}
+       <AnimatePresence>
+         {isExpandedAdvice && advice && (
+           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md">
+             <motion.div
+               role="dialog"
+               aria-modal="true"
+               initial={{ opacity: 0, scale: 0.96, y: 16 }}
+               animate={{ opacity: 1, scale: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.97, y: 10 }}
+               transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+               className="glass-panel-dark text-white rounded-[2rem] w-full max-w-4xl p-6 sm:p-10 flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
+             >
+               <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/10">
+                 <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40">
+                     <Sparkles className="w-5 h-5 text-white" />
+                   </div>
+                   <h3 className="text-2xl font-bold text-white tracking-tight">Full feedback</h3>
+                 </div>
+                 <button
+                   type="button"
+                   onClick={() => setIsExpandedAdvice(false)}
+                   aria-label="Close feedback"
+                   className="p-2 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
+                 >
+                   <X className="w-6 h-6" />
                  </button>
                </div>
-               <textarea
-                 value={guidelines}
-                 onChange={(e) => setGuidelines(e.target.value)}
-                 className="flex-1 w-full min-h-[400px] bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm text-slate-700 leading-relaxed focus:outline-none focus:ring-2 focus:ring-emerald-500/20 resize-none custom-scrollbar"
-               />
-               <div className="mt-6 flex justify-end">
-                 <button onClick={() => setIsExpandedGuidelines(false)} className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-xs uppercase tracking-widest">
+
+               <div className="space-y-8">
+                 <div className="glass-emerald p-6 sm:p-8 rounded-2xl">
+                   <p className="text-xs font-extrabold text-emerald-300 uppercase tracking-wider mb-3">Main takeaway</p>
+                   <p className="text-lg font-semibold text-white leading-relaxed">“{advice.strategicSignal}”</p>
+                 </div>
+
+                 <div className="space-y-4">
+                   <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">Suggested changes</h4>
+                   {advice.narrativeShifts?.map((shift: string, idx: number) => (
+                     <div key={idx} className="bg-white/5 border border-white/10 p-5 sm:p-6 rounded-2xl flex gap-4 items-start">
+                       <span className="text-emerald-300 font-mono font-bold text-lg">0{idx + 1}</span>
+                       <p className="text-sm text-slate-200 leading-relaxed">{shift}</p>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+
+               <div className="mt-8 pt-6 border-t border-white/10 flex justify-end">
+                 <button
+                   type="button"
+                   onClick={() => setIsExpandedAdvice(false)}
+                   className="btn btn-primary"
+                 >
                    Done
                  </button>
                </div>
@@ -650,118 +761,50 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
          )}
        </AnimatePresence>
 
-       {/* Full Screen Oracle Advice Modal */}
-       <AnimatePresence>
-         {isExpandedAdvice && advice && (
-           <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.95 }}
-               animate={{ opacity: 1, scale: 1 }}
-               exit={{ opacity: 0, scale: 0.95 }}
-               className="bg-slate-900 border border-slate-800 text-white rounded-3xl w-full max-w-4xl p-6 sm:p-10 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
-             >
-               <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
-                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/40">
-                     <Sparkles className="w-5 h-5 text-white" />
-                   </div>
-                   <h3 className="text-2xl font-bold text-white">Detailed Expert Critique</h3>
-                 </div>
-                 <button onClick={() => setIsExpandedAdvice(false)} className="p-2 hover:bg-slate-800 rounded-xl text-slate-400">
-                   <X className="w-6 h-6" />
-                 </button>
-               </div>
-               
-               <div className="space-y-8">
-                 <div className="bg-emerald-500/10 border border-emerald-400/20 p-8 rounded-3xl">
-                   <div className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-3">Strategic Signal & Alignment</div>
-                   <p className="text-lg font-bold text-white italic leading-relaxed">"{advice.strategicSignal}"</p>
-                 </div>
-
-                 <div className="space-y-6">
-                   <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest">Recommended Narrative Shifts</h4>
-                   {advice.narrativeShifts?.map((shift: string, idx: number) => (
-                     <div key={idx} className="bg-slate-800/60 border border-slate-700/50 p-6 rounded-2xl flex gap-4 items-start">
-                       <span className="text-emerald-400 font-mono font-bold text-lg">0{idx + 1}</span>
-                       <p className="text-sm text-slate-200 leading-relaxed font-medium">{shift}</p>
-                     </div>
-                   ))}
-                 </div>
-               </div>
-
-               <div className="mt-8 pt-6 border-t border-slate-800 flex justify-end">
-                 <button onClick={() => setIsExpandedAdvice(false)} className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg">
-                   Close Detailed View
-                 </button>
-               </div>
-             </motion.div>
-           </div>
-         )}
-       </AnimatePresence>
-
-       <AnimatePresence>
-         {showHelp && (
-           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-             <motion.div 
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-               exit={{ opacity: 0 }}
+       {/* How this works */}
+       <Modal
+         open={showHelp}
+         onClose={() => setShowHelp(false)}
+         title="How proposals work"
+         footer={
+           <div className="flex justify-end">
+             <button
+               type="button"
                onClick={() => setShowHelp(false)}
-               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-             />
-             <motion.div 
-               initial={{ opacity: 0, scale: 0.9, y: 20 }}
-               animate={{ opacity: 1, scale: 1, y: 0 }}
-               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-               className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl relative z-10"
+               className="btn btn-primary"
              >
-                <div className="px-10 py-12">
-                   <div className="flex items-center justify-between mb-10">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-600/20">
-                           <HelpCircle className="w-6 h-6 text-white" />
-                        </div>
-                        <h2 className="text-3xl font-bold tracking-tighter">How proposals work</h2>
-                      </div>
-                      <button 
-                        onClick={() => setShowHelp(false)}
-                        className="p-3 hover:bg-slate-50 rounded-xl transition-colors"
-                      >
-                        <X className="w-6 h-6 text-slate-400" />
-                      </button>
-                   </div>
+               Got it
+             </button>
+           </div>
+         }
+       >
+         <div className="space-y-5">
+            <div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">1. Find</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                We search real government listings and match them to your profile — your mission,
+                location, and focus areas.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">2. Match</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                We check who is allowed to apply, then score how well each grant fits your work and
+                your odds of winning (low, medium, or high).
+              </p>
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 text-sm mb-1">3. Write</h4>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                Click “Write a first draft for me” to get a full draft: Intro, Problem, Plan, Budget,
+                and Results. Paste the funder’s instructions in the sidebar, select any text to
+                rewrite it, and ask for feedback anytime. You always submit on the official
+                government site.
+              </p>
+            </div>
+         </div>
+       </Modal>
 
-                   <div className="space-y-5 text-sm text-slate-600 leading-relaxed">
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-sm mb-1">1. Discovery</h4>
-                        <p className="text-xs text-slate-500">Live search + your org profile (type, mission, geography, focus).</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-sm mb-1">2. Match analysis</h4>
-                        <p className="text-xs text-slate-500">Strict eligibility, Strategic Alignment %, Feasibility %, Win probability (Low/Med/High).</p>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-slate-900 text-sm mb-1">3. Proposal writer</h4>
-                        <p className="text-xs text-slate-500">
-                          Generate full proposal: Intro · Problem · Plan · Budget · Results.
-                          Paste NOFO notes in the sidebar. Select text to simplify, strengthen, or make it sound professional. Get expert feedback anytime.
-                        </p>
-                      </div>
-                   </div>
-                   
-                   <div className="mt-12 pt-10 border-t border-slate-100 flex justify-center">
-                      <button 
-                        onClick={() => setShowHelp(false)}
-                        className="bg-slate-900 text-white px-12 py-4 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl shadow-slate-900/10"
-                      >
-                         Got it — write winning proposals
-                      </button>
-                   </div>
-                </div>
-             </motion.div>
-          </div>
-         )}
-       </AnimatePresence>
        <PreFlightAuditor
          isOpen={showAuditor}
          onClose={() => setShowAuditor(false)}
@@ -771,6 +814,28 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
          organization={organization}
          onExportWord={handleExportWord}
          onExportPDF={handleExportPDF}
+       />
+
+       <VersionHistory
+         isOpen={showVersionHistory}
+         onClose={() => setShowVersionHistory(false)}
+         pipelineId={grant?.pipelineId || ''}
+         currentDraft={draft}
+         onRestore={(restoredDraft, versionId) => {
+           setDraft(restoredDraft);
+           setShowVersionHistory(false);
+           setSaveMessage('Older version restored — remember to Save to keep it.');
+           setTimeout(() => setSaveMessage(null), 4000);
+           if (grant?.pipelineId) {
+             logAudit(grant.pipelineId, {
+               action: 'draft_restored',
+               actor: user?.uid || 'unknown',
+               actorName: user?.displayName || 'Unknown',
+               timestamp: new Date().toISOString(),
+               details: `Restored version ${versionId}`,
+             });
+           }
+         }}
        />
     </div>
   );

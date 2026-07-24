@@ -8,14 +8,13 @@ import {
   Search,
   X,
   Calendar,
-  Layers,
+  CircleDot,
   Loader2,
   RefreshCw,
   Link2,
   CheckCircle2,
   AlertCircle,
   Maximize2,
-  Minimize2,
   SlidersHorizontal,
   XCircle,
   Bookmark,
@@ -32,10 +31,9 @@ import {
 import { SUGGESTED_QUERIES } from '../services/grantSearch';
 import { searchOpportunities } from '../services/searchHub';
 import { getPortalForState } from '../services/sources/statePortals';
-import GrantIntelligence from './GrantIntelligence';
 import PageHeader from '../components/PageHeader';
 import InfoTip from '../components/InfoTip';
-import GenieAvatar from '../components/GenieAvatar';
+import { EmptyState } from '../components/ui';
 import { BRAND } from '../lib/brand';
 import { GLOSSARY, PAGE_HINTS } from '../lib/hints';
 import SpecsBar, { keywordsToQuery } from '../components/SpecsBar';
@@ -64,7 +62,6 @@ export default function DiscoveryRadar({
   const [loading, setLoading] = useState(true);
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
   const [scanning, setScanning] = useState(false);
-  const [viewingIntelligence, setViewingIntelligence] = useState<Grant | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [lastQuery, setLastQuery] = useState('');
   const [hitCount, setHitCount] = useState(0);
@@ -97,7 +94,7 @@ export default function DiscoveryRadar({
     if (!orgId) {
       setNotice({
         kind: 'error',
-        text: 'Finish your profile first (Profile page) so we know where to save this.',
+        text: 'Finish your profile first (Settings page) so we know where to save this.',
       });
       return;
     }
@@ -212,16 +209,6 @@ export default function DiscoveryRadar({
     return result;
   }, [grants, sortBy, openOnly, isContracts, dateFrom, dateTo]);
 
-  if (viewingIntelligence) {
-    return (
-      <GrantIntelligence
-        grant={viewingIntelligence}
-        onBack={() => setViewingIntelligence(null)}
-        onStartDraft={onStartDraft}
-      />
-    );
-  }
-
   const handleDeepScan = async (grant: Grant) => {
     const mission = profile?.description || organization?.mission;
     if (!mission) {
@@ -284,6 +271,7 @@ export default function DiscoveryRadar({
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             className={`fixed top-20 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl backdrop-blur ${
               notice.kind === 'success'
                 ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900'
@@ -324,7 +312,7 @@ export default function DiscoveryRadar({
                 type="button"
                 onClick={() => runLiveSearch(lastQuery || searchTerm || 'community')}
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-emerald-200 bg-white text-sm font-semibold text-slate-700 hover:bg-emerald-50 disabled:opacity-50"
+                className="btn btn-secondary"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
@@ -334,28 +322,30 @@ export default function DiscoveryRadar({
           <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
             <div>
               <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 glass-emerald px-2.5 py-1 rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
                   {isContracts ? 'SAM + USASpending' : 'Live · Grants.gov'}
                 </span>
                 <InfoTip title={GLOSSARY.openVsPast.title} label="Open vs past">
                   {GLOSSARY.openVsPast.body}
                 </InfoTip>
                 {hitCount > 0 && (
-                  <span className="text-xs text-slate-400 font-medium">
-                    {hitCount.toLocaleString()} total · showing {filteredGrants.length}
+                  <span className="text-xs text-slate-500 font-medium">
+                    <span className="font-mono">{hitCount.toLocaleString()}</span> total · showing{' '}
+                    <span className="font-mono">{filteredGrants.length}</span>
                   </span>
                 )}
               </div>
               {onSectorChange && (
-                <div className="flex gap-2 mb-3">
+                <div className="flex gap-2 mb-3" role="group" aria-label="Choose grants or contracts">
                   <button
                     type="button"
                     onClick={() => onSectorChange('grants')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                    aria-pressed={!isContracts}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                       !isContracts
-                        ? 'bg-emerald-600 text-white border-emerald-600'
-                        : 'bg-white text-slate-600 border-slate-200'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/25'
+                        : 'bg-white/80 text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'
                     }`}
                   >
                     Grants (free money)
@@ -363,10 +353,11 @@ export default function DiscoveryRadar({
                   <button
                     type="button"
                     onClick={() => onSectorChange('contracts')}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border ${
+                    aria-pressed={isContracts}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors ${
                       isContracts
-                        ? 'bg-emerald-600 text-white border-emerald-600'
-                        : 'bg-white text-slate-600 border-slate-200'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/25'
+                        : 'bg-white/80 text-slate-600 border-slate-200 hover:border-emerald-300 hover:text-emerald-700'
                     }`}
                   >
                     Contracts (paid work)
@@ -419,20 +410,20 @@ export default function DiscoveryRadar({
             className="flex flex-col sm:flex-row gap-2"
           >
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="search"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Or type any keyword…"
-                className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-200 bg-white text-sm font-medium shadow-sm focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 outline-none"
+                className="field !pl-10 !pr-10 font-medium"
               />
               {searchTerm && (
                 <button
                   type="button"
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  aria-label="Clear"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  aria-label="Clear search"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -441,7 +432,7 @@ export default function DiscoveryRadar({
             <button
               type="submit"
               disabled={loading || !searchTerm.trim()}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-emerald-600 text-white text-sm font-bold shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 disabled:opacity-50"
+              className="btn btn-primary"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Radar className="w-4 h-4" />}
               Search live
@@ -458,10 +449,11 @@ export default function DiscoveryRadar({
                   setSearchTerm(q);
                   runLiveSearch(q);
                 }}
+                aria-pressed={lastQuery === q}
                 className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                   lastQuery === q
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : 'bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-emerald-700'
+                    ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-600/25'
+                    : 'bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-emerald-700'
                 }`}
               >
                 {q}
@@ -471,53 +463,58 @@ export default function DiscoveryRadar({
 
           <div className="flex flex-wrap items-center gap-3 mt-3">
             {/* Sort toggle */}
-            <div className="flex rounded-xl border border-slate-200 overflow-hidden text-xs font-semibold">
+            <div className="flex rounded-xl border border-slate-200 bg-white/80 overflow-hidden text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setSortBy('deadline')}
-                className={`px-3 py-2 flex items-center gap-1.5 transition-colors ${sortBy === 'deadline' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                aria-pressed={sortBy === 'deadline'}
+                className={`px-3 py-2 flex items-center gap-1.5 transition-colors ${sortBy === 'deadline' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
               >
                 <Calendar className="w-3.5 h-3.5" /> {isContracts ? 'End date' : 'Deadline'}
               </button>
               <button
                 type="button"
                 onClick={() => setSortBy('matchScore')}
-                className={`px-3 py-2 flex items-center gap-1.5 transition-colors ${sortBy === 'matchScore' ? 'bg-slate-900 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+                aria-pressed={sortBy === 'matchScore'}
+                className={`px-3 py-2 flex items-center gap-1.5 transition-colors ${sortBy === 'matchScore' ? 'bg-slate-900 text-white' : 'text-slate-500 hover:bg-slate-50'}`}
               >
                 <Target className="w-3.5 h-3.5" /> Best match
               </button>
             </div>
 
-            {/* Date filter button */}
-            <button
-              type="button"
-              onClick={() => setShowDateFilter((v) => !v)}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-semibold transition-all ${
+            {/* Date filter toggle + clear */}
+            <div
+              className={`inline-flex items-stretch rounded-xl border text-xs font-semibold overflow-hidden transition-all ${
                 hasActiveDateFilter
                   ? 'bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-500/20'
                   : showDateFilter
                     ? 'bg-slate-100 border-slate-300 text-slate-700'
-                    : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50'
+                    : 'bg-white/80 border-slate-200 text-slate-500 hover:border-slate-300'
               }`}
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              {hasActiveDateFilter ? 'Date filter on' : 'Filter by date'}
+              <button
+                type="button"
+                onClick={() => setShowDateFilter((v) => !v)}
+                aria-expanded={showDateFilter}
+                className="inline-flex items-center gap-1.5 px-3 py-2"
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                {hasActiveDateFilter ? 'Date filter on' : 'Filter by date'}
+              </button>
               {hasActiveDateFilter && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => { e.stopPropagation(); setDateFrom(''); setDateTo(''); }}
-                  onKeyDown={(e) => e.key === 'Enter' && (setDateFrom(''), setDateTo(''))}
-                  className="ml-1 hover:opacity-70"
+                <button
+                  type="button"
+                  onClick={() => { setDateFrom(''); setDateTo(''); }}
+                  className="inline-flex items-center pl-0.5 pr-2.5 hover:opacity-70 transition-opacity"
                   aria-label="Clear date filter"
                 >
                   <XCircle className="w-3.5 h-3.5" />
-                </span>
+                </button>
               )}
-            </button>
+            </div>
 
             {!isContracts && (
-              <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 cursor-pointer select-none">
+              <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={openOnly}
@@ -540,47 +537,47 @@ export default function DiscoveryRadar({
                 transition={{ duration: 0.22, ease: 'easeInOut' }}
                 className="overflow-hidden"
               >
-                <div className="glass-panel border border-slate-200/70 rounded-2xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                  <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 shrink-0">
+                <div className="glass-panel rounded-2xl px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <div className="flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-slate-500 shrink-0">
                     <Calendar className="w-3.5 h-3.5 text-emerald-500" />
                     Deadline range
                   </div>
                   <div className="flex flex-wrap items-center gap-3 flex-1">
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="date-from" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">From</label>
+                    <div className="flex flex-col gap-1 w-44">
+                      <label htmlFor="date-from" className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">From</label>
                       <input
                         id="date-from"
                         type="date"
                         value={dateFrom}
                         onChange={(e) => setDateFrom(e.target.value)}
-                        className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 outline-none cursor-pointer"
+                        className="field font-mono cursor-pointer"
                       />
                     </div>
-                    <span className="text-slate-300 font-bold mt-4 hidden sm:block">—</span>
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="date-to" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">To</label>
+                    <span className="text-slate-400 font-bold mt-5 hidden sm:block" aria-hidden="true">—</span>
+                    <div className="flex flex-col gap-1 w-44">
+                      <label htmlFor="date-to" className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">To</label>
                       <input
                         id="date-to"
                         type="date"
                         value={dateTo}
                         min={dateFrom || undefined}
                         onChange={(e) => setDateTo(e.target.value)}
-                        className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500/25 focus:border-emerald-500 outline-none cursor-pointer"
+                        className="field font-mono cursor-pointer"
                       />
                     </div>
                     {hasActiveDateFilter && (
                       <button
                         type="button"
                         onClick={() => { setDateFrom(''); setDateTo(''); }}
-                        className="mt-4 text-xs font-bold text-slate-400 hover:text-slate-700 transition-colors underline underline-offset-2"
+                        className="btn btn-ghost btn-sm mt-5"
                       >
                         Clear
                       </button>
                     )}
                   </div>
                   {hasActiveDateFilter && (
-                    <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest shrink-0 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-full">
-                      {filteredGrants.length} result{filteredGrants.length !== 1 ? 's' : ''}
+                    <div className="text-[11px] font-extrabold text-emerald-700 uppercase tracking-widest shrink-0 glass-emerald px-2.5 py-1 rounded-full">
+                      <span className="font-mono">{filteredGrants.length}</span> result{filteredGrants.length !== 1 ? 's' : ''}
                     </div>
                   )}
                 </div>
@@ -589,7 +586,7 @@ export default function DiscoveryRadar({
           </AnimatePresence>
 
           {sourceNote && (
-            <div className="mt-3 text-xs text-slate-600 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 leading-relaxed">
+            <div className="mt-3 text-xs text-slate-600 glass-panel rounded-2xl px-4 py-3 leading-relaxed">
               {sourceNote}
             </div>
           )}
@@ -600,7 +597,7 @@ export default function DiscoveryRadar({
                 <span
                   key={s.id}
                   title={s.error || s.note || s.id}
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border ${
                     s.count > 0
                       ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                       : s.error?.includes('not set')
@@ -611,33 +608,45 @@ export default function DiscoveryRadar({
                   }`}
                 >
                   <span
+                    aria-hidden="true"
                     className={`w-1.5 h-1.5 rounded-full ${
                       s.count > 0 ? 'bg-emerald-500' : s.error?.includes('not set') ? 'bg-slate-300' : 'bg-amber-400'
                     }`}
                   />
                   {s.id}
-                  {s.count > 0 ? ` · ${s.count} results` : s.error?.includes('not set') ? ' · add free key' : s.error ? ' · unavailable' : ' · 0 results'}
+                  {s.count > 0 ? (
+                    <> · <span className="font-mono">{s.count}</span> results</>
+                  ) : s.error?.includes('not set') ? (
+                    <> · add free key</>
+                  ) : s.error ? (
+                    <> · unavailable</>
+                  ) : (
+                    <> · <span className="font-mono">0</span> results</>
+                  )}
                 </span>
               ))}
             </div>
           )}
 
           {error && (
-            <div className="mt-3 flex items-start gap-2 text-sm text-amber-800 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+            <div className="mt-3 flex items-start gap-2 text-sm text-amber-900 bg-amber-50/90 border border-amber-200 rounded-2xl px-4 py-3">
+              <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-amber-600" />
               <span>{error}</span>
             </div>
           )}
         </div>
 
         {/* Results */}
-        <div
+        <motion.div
           data-tour="results"
-          className="bg-white border border-slate-200 rounded-2xl shadow-sm flex-1 flex flex-col min-h-0 overflow-hidden"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 26 }}
+          className="glass-panel rounded-[2rem] flex-1 flex flex-col min-h-0 overflow-hidden"
         >
-          <div className="flex-1 overflow-auto relative">
+          <div className="flex-1 overflow-auto custom-scrollbar relative">
             {loading && (
-              <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-[2px] flex flex-col items-center justify-center">
+              <div className="absolute inset-0 z-10 bg-white/75 backdrop-blur-[2px] flex flex-col items-center justify-center">
                 <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
                 <p className="mt-3 text-xs font-bold uppercase tracking-widest text-emerald-700">
                   {isContracts ? 'Searching USASpending…' : 'Searching Grants.gov…'}
@@ -646,73 +655,82 @@ export default function DiscoveryRadar({
             )}
 
             {!loading && filteredGrants.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center p-10 text-center">
-                <GenieAvatar src={BRAND.assets.wave} size={96} float className="mb-2" />
-                <h3 className="font-bold text-slate-800 text-lg">Nothing matched that search</h3>
-                <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">
-                  Try a simpler, broader word — one tap below runs a fresh search. Results come from
-                  free U.S. government databases; we never invent listings.
-                </p>
-                <div className="mt-4 flex flex-wrap justify-center gap-2 max-w-sm">
-                  {(isContracts
-                    ? ['construction', 'training', 'services']
-                    : ['education', 'health', 'community']
-                  ).map((q) => (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => {
-                        setSearchTerm(q);
-                        void runLiveSearch(q);
-                      }}
-                      className="px-4 py-2 rounded-full text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 transition-colors"
-                    >
-                      Try “{q}”
-                    </button>
-                  ))}
-                </div>
-                {openOnly && !isContracts && grants.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setOpenOnly(false)}
-                    className="mt-3 text-xs font-semibold text-emerald-700 underline underline-offset-2 hover:text-emerald-900"
-                  >
-                    Or show {grants.length} result{grants.length === 1 ? '' : 's'} hidden by the
-                    “Open only” filter
-                  </button>
-                )}
-              </div>
+              <EmptyState
+                className="h-full"
+                image={BRAND.assets.wave}
+                title="Nothing matched that search"
+                body="Try a simpler, broader word — one tap below runs a fresh search. Results come from free U.S. government databases; we never invent listings."
+                action={
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="flex flex-wrap justify-center gap-2 max-w-sm">
+                      {(isContracts
+                        ? ['construction', 'training', 'services']
+                        : ['education', 'health', 'community']
+                      ).map((q) => (
+                        <button
+                          key={q}
+                          type="button"
+                          onClick={() => {
+                            setSearchTerm(q);
+                            void runLiveSearch(q);
+                          }}
+                          className="btn btn-primary btn-sm"
+                        >
+                          Try “{q}”
+                        </button>
+                      ))}
+                    </div>
+                    {openOnly && !isContracts && grants.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setOpenOnly(false)}
+                        className="text-xs font-semibold text-emerald-700 underline underline-offset-2 hover:text-emerald-900"
+                      >
+                        Or show <span className="font-mono">{grants.length}</span> result{grants.length === 1 ? '' : 's'} hidden by the
+                        “Open only” filter
+                      </button>
+                    )}
+                  </div>
+                }
+              />
             ) : (
-              <ul className="divide-y divide-slate-100">
-                {filteredGrants.map((grant) => (
-                  <li key={grant.id}>
-                    <button
-                      type="button"
+              <ul className="p-3 sm:p-4 space-y-2.5">
+                {filteredGrants.map((grant, i) => (
+                  <motion.li
+                    key={grant.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: Math.min(i * 0.04, 0.4), type: 'spring', stiffness: 260, damping: 26 }}
+                  >
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedGrant(grant)}
-                      className={`w-full text-left px-4 sm:px-5 py-4 transition-colors ${
+                      onKeyDown={(e) => e.key === 'Enter' && setSelectedGrant(grant)}
+                      className={`card-3d w-full cursor-pointer rounded-2xl border px-4 sm:px-5 py-4 transition-colors ${
                         selectedGrant?.id === grant.id
-                          ? 'bg-emerald-50/70'
-                          : 'hover:bg-slate-50'
+                          ? 'glass-emerald'
+                          : 'bg-white/70 border-white/80 hover:border-emerald-200'
                       }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
                               {grant.source === 'grants.gov' ? 'Live' : grant.source || 'Grant'}
                             </span>
                             {grant.status && (
-                              <span className="text-[10px] font-semibold uppercase text-slate-400">
+                              <span className="text-[11px] font-semibold uppercase text-slate-500">
                                 {grant.status}
                               </span>
                             )}
                             {grant.opportunityNumber && (
-                              <span className="text-[10px] font-mono text-slate-400">
+                              <span className="text-[11px] font-mono text-slate-500">
                                 {grant.opportunityNumber}
                               </span>
                             )}
                           </div>
-                          <h3 className="font-bold text-slate-900 leading-snug group-hover:text-emerald-800">
+                          <h3 className="font-bold text-slate-900 leading-snug">
                             {grant.title}
                           </h3>
                           <p className="text-xs text-slate-500 mt-1 font-medium">{grant.funder}</p>
@@ -721,23 +739,24 @@ export default function DiscoveryRadar({
                           <div className="flex items-center gap-2">
                             {grant.matchScore ? (
                               <span className="text-xs font-black text-slate-800">
-                                {grant.matchScore}% match
+                                <span className="font-mono">{grant.matchScore}%</span> match
                               </span>
                             ) : (
-                              <span className="text-[10px] font-semibold text-slate-300 uppercase">
-                                Unscored
+                              <span className="text-[11px] font-semibold text-slate-500 uppercase">
+                                Not scored
                               </span>
                             )}
                             <button
                               type="button"
                               onClick={(e) => saveGrant(grant, e)}
                               disabled={savedIds.has(grant.id) || savingId === grant.id}
+                              aria-label={savedIds.has(grant.id) ? 'Saved to My applications' : 'Save to My applications'}
+                              title={savedIds.has(grant.id) ? 'Saved to My applications' : 'Save to My applications'}
                               className={`p-1.5 rounded-lg border transition-colors ${
                                 savedIds.has(grant.id)
-                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-600 font-bold'
-                                  : 'bg-white border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-200'
+                                  ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                  : 'bg-white/80 border-slate-200 text-slate-500 hover:text-emerald-600 hover:border-emerald-300'
                               }`}
-                              title={savedIds.has(grant.id) ? 'Saved to Pipeline' : 'Save to Pipeline'}
                             >
                               {savingId === grant.id ? (
                                 <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600" />
@@ -757,13 +776,13 @@ export default function DiscoveryRadar({
                           </span>
                         </div>
                       </div>
-                    </button>
-                  </li>
+                    </div>
+                  </motion.li>
                 ))}
               </ul>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
 
       {/* Detail pane */}
@@ -774,26 +793,28 @@ export default function DiscoveryRadar({
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 16 }}
-            className="xl:w-[420px] w-full shrink-0 bg-white border border-slate-200 rounded-2xl shadow-sm p-5 md:p-6 flex flex-col max-h-[85vh] xl:max-h-full overflow-auto custom-scrollbar"
+            transition={{ type: 'spring', stiffness: 240, damping: 28 }}
+            className="xl:w-[420px] w-full shrink-0 glass-panel rounded-[2rem] p-5 md:p-6 flex flex-col max-h-[85vh] xl:max-h-full overflow-auto custom-scrollbar"
           >
             <div className="flex items-start justify-between gap-2 mb-3">
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider text-emerald-700 glass-emerald px-2.5 py-1 rounded-full">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {selectedGrant.source ? `${selectedGrant.source} · official data` : 'Official data'}
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <button
                   type="button"
                   onClick={() => setIsExpandedDetail(true)}
-                  className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
-                  title="Expand Full View"
+                  className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors"
+                  aria-label="Expand to full view"
+                  title="Expand to full view"
                 >
-                  <Maximize2 className="w-4 h-4 text-emerald-600" />
+                  <Maximize2 className="w-4 h-4" />
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedGrant(null)}
-                  className="text-slate-400 hover:text-slate-600 p-1"
+                  className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
                   aria-label="Close"
                 >
                   <X className="w-4 h-4" />
@@ -804,19 +825,21 @@ export default function DiscoveryRadar({
             <p className="text-sm text-slate-500 font-medium mb-4">{selectedGrant.funder}</p>
 
             {/* What is this & why it fits you */}
-            <div className="mb-5 p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+            <div className="mb-5 p-4 rounded-2xl glass-panel space-y-3">
               <div>
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1">
-                  <span>🟢</span> What this grant is about
+                  <CircleDot className="w-4 h-4 text-emerald-600" aria-hidden="true" />
+                  {isContracts ? 'What this contract is about' : 'What this grant is about'}
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed font-medium">
-                  {selectedGrant.description || 'No description available for this grant.'}
+                  {selectedGrant.description || 'No description available for this listing.'}
                 </p>
               </div>
 
               <div className="pt-3 border-t border-slate-200/60">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 mb-1">
-                  <span>🟣</span> Why it could be a fit for you
+                  <Target className="w-4 h-4 text-violet-500" aria-hidden="true" />
+                  Why it could be a fit for you
                 </div>
                 <p className="text-xs text-slate-600 leading-relaxed font-medium">
                   {selectedGrant.matchExplanation ? (
@@ -841,10 +864,10 @@ export default function DiscoveryRadar({
             {selectedGrant.matchScore > 0 && (
               <div className="mb-4 space-y-3">
                 <div
-                  className={`p-4 rounded-2xl border ${
+                  className={`p-4 rounded-2xl ${
                     selectedGrant.eligible === false
-                      ? 'bg-red-50 border-red-100'
-                      : 'bg-emerald-50 border-emerald-100'
+                      ? 'bg-rose-50/80 border border-rose-200'
+                      : 'glass-emerald'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
@@ -852,19 +875,19 @@ export default function DiscoveryRadar({
                       Match analysis
                     </span>
                     <span
-                      className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                      className={`text-[11px] font-black uppercase px-2 py-0.5 rounded-full ${
                         selectedGrant.winProbability === 'High'
                           ? 'bg-emerald-600 text-white'
                           : selectedGrant.winProbability === 'Medium'
                             ? 'bg-amber-500 text-white'
-                            : 'bg-slate-400 text-white'
+                            : 'bg-slate-500 text-white'
                       }`}
                     >
-                      Win: {selectedGrant.winProbability || '—'}
+                      Win chance: {selectedGrant.winProbability || '—'}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mb-2">
-                    <ScoreChip label="Composite" value={selectedGrant.matchScore} />
+                    <ScoreChip label="Overall" value={selectedGrant.matchScore} />
                     <ScoreChip
                       label="Alignment"
                       value={selectedGrant.strategicAlignmentScore ?? selectedGrant.matchScore}
@@ -875,15 +898,15 @@ export default function DiscoveryRadar({
                     />
                   </div>
                   {selectedGrant.eligible === false && (
-                    <p className="text-[11px] font-bold text-red-700 mb-1">
-                      Strict eligibility: not recommended
+                    <p className="text-[11px] font-bold text-rose-700 mb-1">
+                      Heads up: you may not meet the rules for this one.
                     </p>
                   )}
                   <p className="text-xs text-slate-700 leading-relaxed">
                     {selectedGrant.matchExplanation}
                   </p>
                   {selectedGrant.eligibilityFailures && selectedGrant.eligibilityFailures.length > 0 && (
-                    <ul className="mt-2 text-[11px] text-red-700 list-disc pl-4 space-y-0.5">
+                    <ul className="mt-2 text-[11px] text-rose-700 list-disc pl-4 space-y-0.5">
                       {selectedGrant.eligibilityFailures.map((f) => (
                         <li key={f}>{f}</li>
                       ))}
@@ -902,7 +925,7 @@ export default function DiscoveryRadar({
               {selectedGrant.tags.slice(0, 8).map((t) => (
                 <span
                   key={t}
-                  className="px-2 py-0.5 rounded-md bg-slate-100 text-[10px] font-bold text-slate-500 uppercase"
+                  className="px-2 py-0.5 rounded-md bg-slate-100/80 text-[11px] font-bold text-slate-500 uppercase"
                 >
                   {t}
                 </span>
@@ -914,7 +937,7 @@ export default function DiscoveryRadar({
                 href={selectedGrant.sourceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                className="btn btn-secondary w-full"
               >
                 <ExternalLink className="w-4 h-4" />
                 Open the official page
@@ -924,18 +947,18 @@ export default function DiscoveryRadar({
                 type="button"
                 onClick={(e) => saveGrant(selectedGrant, e)}
                 disabled={savedIds.has(selectedGrant.id) || savingId === selectedGrant.id}
-                className={`inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl border text-sm font-bold transition-all ${
+                className={
                   savedIds.has(selectedGrant.id)
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-700 font-semibold'
-                    : 'bg-white border-emerald-600 text-emerald-700 hover:bg-emerald-50'
-                }`}
+                    ? 'btn w-full bg-emerald-100/80 !border-emerald-300 text-emerald-800'
+                    : 'btn btn-secondary w-full'
+                }
               >
                 {savingId === selectedGrant.id ? (
                   <Loader2 className="w-4 h-4 animate-spin text-emerald-600" />
                 ) : savedIds.has(selectedGrant.id) ? (
                   <>
                     <Check className="w-4 h-4 text-emerald-600" />
-                    Saved ✓
+                    Saved
                   </>
                 ) : (
                   <>
@@ -949,7 +972,7 @@ export default function DiscoveryRadar({
                 type="button"
                 disabled={scanning}
                 onClick={() => handleDeepScan(selectedGrant)}
-                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-800 disabled:opacity-50"
+                className="btn btn-dark w-full"
               >
                 {scanning ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -961,7 +984,7 @@ export default function DiscoveryRadar({
               <button
                 type="button"
                 onClick={() => onStartDraft(selectedGrant)}
-                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-emerald-600 text-white text-sm font-bold hover:bg-emerald-500 shadow-lg shadow-emerald-600/20"
+                className="btn btn-primary w-full"
               >
                 <Link2 className="w-4 h-4" />
                 Write proposal
@@ -973,13 +996,13 @@ export default function DiscoveryRadar({
             key="empty"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="hidden xl:flex xl:w-[380px] shrink-0 border border-dashed border-slate-200 rounded-2xl items-center justify-center p-8 text-center bg-slate-50/50"
+            className="hidden xl:flex xl:w-[380px] shrink-0 rounded-[2rem] border-2 border-dashed border-slate-200/90 bg-white/40 items-center justify-center p-8 text-center"
           >
             <div>
-              <Radar className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-semibold text-slate-500">Select a grant</p>
-              <p className="text-xs text-slate-400 mt-1">
-                View details, score against your mission, or open the official posting.
+              <Radar className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+              <p className="text-sm font-semibold text-slate-600">Pick a listing to see details</p>
+              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                Check the fit, run a match score, or open the official page.
               </p>
             </div>
           </motion.aside>
@@ -990,84 +1013,88 @@ export default function DiscoveryRadar({
       <AnimatePresence>
         {isExpandedDetail && selectedGrant && (
           <div className="fixed inset-0 z-[130] flex items-center justify-center p-4 sm:p-8 bg-slate-900/70 backdrop-blur-md">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl w-full max-w-4xl p-6 sm:p-10 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ type: 'spring', stiffness: 240, damping: 26 }}
+              className="glass-panel rounded-[2rem] w-full max-w-4xl p-6 sm:p-10 shadow-2xl flex flex-col max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
-              <div className="flex items-start justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+              <div className="flex items-start justify-between gap-4 mb-6 pb-4 border-b border-slate-200/60">
                 <div>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full mb-2">
-                    <CheckCircle2 className="w-4 h-4" /> Official Posting
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-700 glass-emerald px-3 py-1 rounded-full mb-2">
+                    <CheckCircle2 className="w-4 h-4" /> Official posting
                   </span>
                   <h2 className="text-2xl font-bold text-slate-900">{selectedGrant.title}</h2>
                   <p className="text-sm text-slate-500 font-medium">{selectedGrant.funder}</p>
                 </div>
-                <button 
+                <button
+                  type="button"
                   onClick={() => setIsExpandedDetail(false)}
-                  className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"
+                  className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+                  aria-label="Close full view"
                 >
-                  <X className="w-6 h-6 text-slate-600" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 
               <div className="space-y-6 flex-1">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
-                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Award Ceiling</div>
-                    <div className="text-xl font-bold text-slate-900 mt-1">
-                      {selectedGrant.amount > 0 ? `$${Number(selectedGrant.amount).toLocaleString()}` : 'See NOFO'}
+                  <div className="glass-emerald p-4 rounded-2xl">
+                    <div className="text-[11px] font-extrabold text-emerald-800/70 uppercase tracking-widest">Most you could get</div>
+                    <div className="text-xl font-bold font-mono text-slate-900 mt-1">
+                      {selectedGrant.amount > 0 ? `$${Number(selectedGrant.amount).toLocaleString()}` : 'Not listed'}
                     </div>
                   </div>
-                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
-                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Deadline</div>
-                    <div className="text-xl font-bold text-slate-900 mt-1">
+                  <div className="glass-gold p-4 rounded-2xl">
+                    <div className="text-[11px] font-extrabold text-amber-800/70 uppercase tracking-widest">Deadline</div>
+                    <div className="text-xl font-bold font-mono text-slate-900 mt-1">
                       {new Date(selectedGrant.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </div>
                   </div>
-                  <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl">
-                    <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Match Score</div>
-                    <div className="text-xl font-bold text-emerald-600 mt-1">
-                      {selectedGrant.matchScore ? `${selectedGrant.matchScore}%` : 'Unscored'}
+                  <div className="glass-panel p-4 rounded-2xl">
+                    <div className="text-[11px] font-extrabold text-slate-500 uppercase tracking-widest">Match score</div>
+                    <div className="text-xl font-bold font-mono text-emerald-600 mt-1">
+                      {selectedGrant.matchScore ? `${selectedGrant.matchScore}%` : 'Not scored yet'}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Full Description & Scope</h4>
-                  <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl text-sm text-slate-700 leading-relaxed font-sans whitespace-pre-wrap">
+                  <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Full description</h4>
+                  <div className="glass-panel rounded-2xl p-6 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
                     {selectedGrant.description}
                   </div>
                 </div>
 
                 {selectedGrant.matchExplanation && (
                   <div>
-                    <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">AI Match Intelligence</h4>
-                    <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl text-sm text-slate-800 leading-relaxed">
+                    <h4 className="text-xs font-extrabold text-slate-500 uppercase tracking-widest mb-2">Match analysis</h4>
+                    <div className="glass-emerald rounded-2xl p-6 text-sm text-slate-800 leading-relaxed">
                       {selectedGrant.matchExplanation}
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-end gap-3">
+              <div className="mt-8 pt-6 border-t border-slate-200/60 flex flex-col sm:flex-row items-center justify-end gap-3">
                 <a
                   href={selectedGrant.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-6 py-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2 w-full sm:w-auto justify-center"
+                  className="btn btn-secondary w-full sm:w-auto"
                 >
-                  <ExternalLink className="w-4 h-4" /> Open Grants.gov
+                  <ExternalLink className="w-4 h-4" /> Open the official page
                 </a>
                 <button
+                  type="button"
                   onClick={() => {
                     setIsExpandedDetail(false);
                     onStartDraft(selectedGrant);
                   }}
-                  className="px-8 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest shadow-lg flex items-center gap-2 w-full sm:w-auto justify-center"
+                  className="btn btn-primary w-full sm:w-auto"
                 >
-                  <Link2 className="w-4 h-4" /> Write Proposal
+                  <Link2 className="w-4 h-4" /> Write proposal
                 </button>
               </div>
             </motion.div>
@@ -1080,9 +1107,9 @@ export default function DiscoveryRadar({
 
 function ScoreChip({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg bg-white/80 border border-black/5 px-2 py-1.5 text-center">
-      <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400">{label}</div>
-      <div className="text-sm font-black text-slate-900">{value}%</div>
+    <div className="rounded-xl bg-white/80 border border-white/90 px-2 py-1.5 text-center shadow-sm">
+      <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</div>
+      <div className="text-sm font-black font-mono text-slate-900">{value}%</div>
     </div>
   );
 }

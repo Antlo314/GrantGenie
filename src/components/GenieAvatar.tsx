@@ -29,7 +29,7 @@ export default function GenieAvatar({
       alt={alt}
       width={size}
       height={size}
-      className={`object-contain object-center drop-shadow-[0_8px_16px_rgba(16,185,129,0.25)] bg-transparent ${className}`}
+      className={`object-contain object-center depth-shadow bg-transparent ${className}`}
       style={{ width: size, height: size, background: 'transparent' }}
       draggable={false}
     />

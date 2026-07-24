@@ -90,7 +90,7 @@ export default function GenieWidget({
         m.role === 'user' ? (
           <div key={i} className="flex justify-end">
             <p
-              className={`${large ? 'text-base' : 'text-sm'} bg-emerald-600 text-white px-3.5 py-2.5 rounded-2xl rounded-br-md max-w-[85%] leading-relaxed shadow-sm`}
+              className={`${large ? 'text-base' : 'text-sm'} bg-gradient-to-br from-emerald-500 to-emerald-600 text-white px-3.5 py-2.5 rounded-2xl rounded-br-md max-w-[85%] leading-relaxed shadow-md shadow-emerald-600/20`}
             >
               {m.text}
             </p>
@@ -99,7 +99,7 @@ export default function GenieWidget({
           <div key={i} className="flex items-end gap-2">
             <GenieAvatar src={BRAND.assets.widget} size={large ? 32 : 26} />
             <div
-              className={`${large ? 'text-base' : 'text-sm'} text-slate-800 leading-relaxed bg-slate-50 px-3.5 py-2.5 rounded-2xl rounded-bl-md border border-slate-100 max-w-[85%] whitespace-pre-wrap`}
+              className={`${large ? 'text-base' : 'text-sm'} text-slate-800 leading-relaxed bg-white/80 px-3.5 py-2.5 rounded-2xl rounded-bl-md border border-white/70 shadow-sm max-w-[85%] whitespace-pre-wrap`}
             >
               {m.text}
             </div>
@@ -109,7 +109,7 @@ export default function GenieWidget({
       {loadingAnswer && (
         <div className="flex items-end gap-2">
           <GenieAvatar src={BRAND.assets.widget} size={large ? 32 : 26} />
-          <div className="bg-slate-50 border border-slate-100 px-4 py-3 rounded-2xl rounded-bl-md">
+          <div className="bg-white/80 border border-white/70 shadow-sm px-4 py-3 rounded-2xl rounded-bl-md">
             <span className="inline-flex gap-1">
               {[0, 1, 2].map((d) => (
                 <span
@@ -137,15 +137,14 @@ export default function GenieWidget({
               initial={{ opacity: 0, scale: 0.9, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 16 }}
-              className="w-[min(28rem,calc(100vw-2rem))] rounded-3xl border border-emerald-100/80 bg-white/95 backdrop-blur shadow-2xl shadow-emerald-900/15 overflow-hidden"
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+              className="w-[min(28rem,calc(100vw-2rem))] glass-panel rounded-[2rem] overflow-hidden"
             >
-              <div className="flex items-center gap-3 border-b border-emerald-50 bg-gradient-to-r from-emerald-50/80 to-amber-50/30 px-4 py-3">
+              <div className="flex items-center gap-3 border-b border-emerald-100/50 px-4 py-3">
                 <GenieAvatar src={BRAND.assets.widget} size={48} />
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-slate-900">Ask Genie</p>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-emerald-600">
-                    Live Grant Assistant
-                  </p>
+                  <p className="text-sm font-bold text-slate-900">Ask the Genie</p>
+                  <p className="text-xs text-slate-500">Answers in plain English</p>
                 </div>
                 <div className="flex items-center gap-1">
                   {hasThread && (
@@ -154,6 +153,7 @@ export default function GenieWidget({
                       onClick={onClearChat}
                       className="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700 transition-colors"
                       title="Start a new chat"
+                      aria-label="Start a new chat"
                     >
                       <RotateCcw className="h-4 w-4" />
                     </button>
@@ -162,7 +162,8 @@ export default function GenieWidget({
                     type="button"
                     onClick={() => setExpanded(true)}
                     className="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-emerald-700 transition-colors"
-                    title="Expand Genie Chat"
+                    title="Make the chat bigger"
+                    aria-label="Make the chat bigger"
                   >
                     <Maximize2 className="h-4 w-4 text-emerald-600" />
                   </button>
@@ -195,14 +196,14 @@ export default function GenieWidget({
                         submit();
                       }
                     }}
-                    placeholder={hasThread ? 'Ask a follow-up…' : 'Ask Genie anything…'}
-                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
+                    placeholder={hasThread ? 'Ask a follow-up…' : 'Ask the Genie anything…'}
+                    className="field flex-1"
                   />
                   <button
                     type="button"
                     onClick={submit}
                     disabled={loadingAnswer || !question.trim()}
-                    className="rounded-xl bg-emerald-600 p-2.5 text-white hover:bg-emerald-500 disabled:opacity-40 shadow-sm"
+                    className="btn btn-primary"
                     aria-label="Send question"
                   >
                     <Send className="h-4 w-4" />
@@ -238,8 +239,15 @@ export default function GenieWidget({
           aria-label={open ? 'Close Genie' : 'Open Genie helper'}
           className="relative rounded-full p-0 bg-transparent border-0 shadow-none focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
         >
-          {/* soft glow only — no white plate */}
-          <span className="pointer-events-none absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-400/25 blur-xl" />
+          {/* soft glow ring only — no white plate */}
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-16 w-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-400/25 blur-xl"
+          />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[4.25rem] w-[4.25rem] -translate-x-1/2 -translate-y-1/2 rounded-full glow-emerald"
+          />
           <GenieAvatar src={BRAND.assets.widget} size={72} float={!open} />
         </button>
       </div>
@@ -252,15 +260,16 @@ export default function GenieWidget({
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="bg-white rounded-3xl w-full max-w-3xl p-6 sm:p-10 shadow-2xl flex flex-col max-h-[90vh]"
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+              className="glass-panel rounded-[2rem] w-full max-w-3xl p-6 sm:p-10 flex flex-col max-h-[90vh]"
             >
-              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200/60">
                 <div className="flex items-center gap-3">
                   <GenieAvatar src={BRAND.assets.widget} size={48} />
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">Genie AI Consultation</h3>
+                    <h3 className="text-xl font-bold text-slate-900">Ask the Genie</h3>
                     <p className="text-xs text-slate-500 font-medium">
-                      Strategic guidance & grant writing intelligence
+                      More room for longer questions and answers
                     </p>
                   </div>
                 </div>
@@ -271,13 +280,16 @@ export default function GenieWidget({
                       onClick={onClearChat}
                       className="p-2 hover:bg-slate-100 rounded-xl text-slate-500"
                       title="Start a new chat"
+                      aria-label="Start a new chat"
                     >
                       <RotateCcw className="w-5 h-5" />
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => setExpanded(false)}
                     className="p-2 hover:bg-slate-100 rounded-xl text-slate-500"
+                    aria-label="Back to the small chat"
                   >
                     <Minimize2 className="w-6 h-6" />
                   </button>
@@ -286,7 +298,7 @@ export default function GenieWidget({
 
               <div
                 ref={expandedThreadRef}
-                className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/60 border border-slate-200 rounded-2xl mb-6"
+                className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-white/50 border border-white/70 rounded-2xl mb-6"
               >
                 {renderThread(true)}
               </div>
@@ -301,13 +313,14 @@ export default function GenieWidget({
                       submit();
                     }
                   }}
-                  placeholder={hasThread ? 'Ask a follow-up…' : 'Ask Genie a detailed question...'}
-                  className="flex-1 rounded-2xl border border-slate-300 px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-sans"
+                  placeholder={hasThread ? 'Ask a follow-up…' : 'Ask the Genie a detailed question…'}
+                  className="field flex-1"
                 />
                 <button
+                  type="button"
                   onClick={submit}
                   disabled={loadingAnswer || !question.trim()}
-                  className="px-6 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm uppercase tracking-wider disabled:opacity-40 shadow-lg shadow-emerald-600/20 flex items-center gap-2"
+                  className="btn btn-primary btn-lg"
                 >
                   <Send className="w-4 h-4" /> Send
                 </button>
@@ -333,7 +346,8 @@ function ActionBtn({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2.5 rounded-xl border border-slate-100 bg-slate-50 px-3 py-2 text-left text-xs font-bold text-slate-800 hover:border-emerald-200 hover:bg-emerald-50 transition-colors"
+      className="btn btn-secondary btn-sm w-full"
+      style={{ justifyContent: 'flex-start' }}
     >
       <span className="text-emerald-600">{icon}</span>
       {children}

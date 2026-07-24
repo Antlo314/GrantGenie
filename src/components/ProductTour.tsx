@@ -160,7 +160,7 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
             animate={{ y: 0 }}
             exit={{ y: '40%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 320 }}
-            className="relative z-[203] flex w-full max-h-[min(85dvh,640px)] flex-col rounded-t-3xl border border-emerald-100 bg-white shadow-2xl"
+            className="relative z-[203] flex w-full max-h-[min(85dvh,640px)] flex-col overflow-hidden rounded-t-[2rem] glass-panel"
             style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
           >
             {/* Drag affordance */}
@@ -169,19 +169,19 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
             </div>
 
             {/* Progress */}
-            <div className="mx-4 mb-2 h-1.5 shrink-0 overflow-hidden rounded-full bg-slate-100">
+            <div className="mx-4 mb-2 h-1.5 shrink-0 overflow-hidden rounded-full bg-slate-200/70">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-300"
                 style={{ width: `${((i + 1) / TOUR_STEPS.length) * 100}%` }}
               />
             </div>
 
             {/* Header — fixed */}
-            <div className="relative shrink-0 border-b border-emerald-50 bg-gradient-to-br from-emerald-50 via-white to-amber-50/40 px-5 pb-3 pt-1 sm:px-6">
+            <div className="relative shrink-0 border-b border-emerald-100/60 px-5 pb-3 pt-1 sm:px-6">
               <button
                 type="button"
                 onClick={finish}
-                className="absolute right-3 top-1 z-10 rounded-lg bg-white p-2.5 text-slate-600 shadow border border-slate-100 hover:bg-slate-50"
+                className="absolute right-3 top-1 z-10 rounded-xl bg-white/80 p-2.5 text-slate-600 shadow-sm border border-white/70 hover:bg-white hover:text-slate-900 transition-colors"
                 aria-label="Skip tour"
               >
                 <X className="h-5 w-5" />
@@ -194,8 +194,9 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
                   float={!rect}
                 />
                 <div className="min-w-0">
-                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-emerald-700">
-                    Step {i + 1} of {TOUR_STEPS.length}
+                  <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
+                    Step <span className="font-mono">{i + 1}</span> of{' '}
+                    <span className="font-mono">{TOUR_STEPS.length}</span>
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {TOUR_STEPS.map((_, idx) => (
@@ -227,14 +228,14 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
               </p>
 
               {rect && (
-                <p className="mt-4 text-sm font-semibold text-emerald-900 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2.5">
+                <p className="mt-4 text-sm font-semibold text-emerald-900 glass-emerald rounded-xl px-3 py-2.5">
                   Green outline on the page = the control this step is about. Scroll this box if
                   needed, then tap Next.
                 </p>
               )}
 
               {missingTarget && step.target && (
-                <p className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-3 py-2.5 text-sm text-amber-900">
+                <p className="mt-3 flex items-start gap-2 rounded-xl glass-gold px-3 py-2.5 text-sm text-amber-900">
                   <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
                   <span>
                     That control may be in the left menu (desktop) or another tab — read the tip,
@@ -248,19 +249,19 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
             </div>
 
             {/* Footer — always visible, never clipped */}
-            <div className="shrink-0 flex items-center justify-between gap-2 border-t-2 border-slate-100 bg-white px-4 py-3 sm:px-5 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+            <div className="shrink-0 flex items-center justify-between gap-2 border-t border-slate-200/60 bg-white/50 px-4 py-3 sm:px-5">
               <button
                 type="button"
                 onClick={() => setI((v) => Math.max(0, v - 1))}
                 disabled={i === 0}
-                className="inline-flex min-h-[48px] items-center gap-1 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 disabled:opacity-30 hover:bg-slate-50"
+                className="btn btn-ghost min-h-[48px]"
               >
                 <ChevronLeft className="h-5 w-5" /> Back
               </button>
               <button
                 type="button"
                 onClick={finish}
-                className="min-h-[48px] px-3 text-sm font-semibold text-slate-500 hover:text-slate-800"
+                className="btn btn-ghost min-h-[48px]"
               >
                 Skip
               </button>
@@ -270,7 +271,7 @@ export default function ProductTour({ open, onClose, onStepChange }: Props) {
                   if (last) finish();
                   else setI((v) => v + 1);
                 }}
-                className="inline-flex min-h-[48px] min-w-[8rem] items-center justify-center gap-1 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-500"
+                className="btn btn-primary min-h-[48px] min-w-[8rem]"
               >
                 {last ? 'Got it' : 'Next'}
                 {!last && <ChevronRight className="h-5 w-5" />}

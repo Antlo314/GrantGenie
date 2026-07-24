@@ -19,6 +19,18 @@ export const GLOSSARY = {
     title: 'Always open the official page',
     body: 'Grant Genie shows real data from U.S. government sites. Before you apply or bid, open the official .gov page and read the rules yourself.',
   },
+  eligibility: {
+    title: 'What does "eligible" mean?',
+    body: 'Every grant has rules about who can apply — like "nonprofits only" or "small businesses in Texas." If you don’t match the rules, don’t spend time applying. The official page always lists them.',
+  },
+  deadline: {
+    title: 'Deadlines are strict',
+    body: 'Government deadlines are real deadlines. One minute late usually means your application is not read at all. Aim to finish a few days early.',
+  },
+  freeHelp: {
+    title: 'You never have to pay to apply',
+    body: 'Applying for government grants and contracts is always free. Anyone charging you just to apply or register on SAM.gov is a scam. Free official help exists — see the Free Toolbox.',
+  },
 } as const;
 
 export const PAGE_HINTS: Record<
@@ -55,17 +67,17 @@ export const PAGE_HINTS: Record<
     hint: 'Keep mission text and docs here to reuse later.',
     nudge: 'Store notes here so drafts are faster next time.',
   },
-  profile: {
-    title: 'Profile',
-    subtitle: 'Who you are — used for matching.',
-    hint: 'A clear description of your work improves search and drafts.',
-    nudge: 'Update your profile when your work changes.',
+  toolbox: {
+    title: 'Free toolbox',
+    subtitle: 'Real free tools and free human help.',
+    hint: 'Everything here costs $0. Applying to government programs is always free — never pay to apply.',
+    nudge: 'Browse free tools by goal: find money, win contracts, research funders, write better, get human help.',
   },
   settings: {
     title: 'Settings',
-    subtitle: 'Account and tour.',
-    hint: 'Replay the beginner tour anytime.',
-    nudge: 'Need a refresher? Replay the tour from here.',
+    subtitle: 'Your profile, account, and the tour.',
+    hint: 'A clear description of your work improves search and drafts. Replay the beginner tour anytime.',
+    nudge: 'Update your profile when your work changes. Replay the tour if you need a refresher.',
   },
 };
 
@@ -119,6 +131,13 @@ export const TOUR_STEPS: TourStepDef[] = [
     title: 'My applications',
     body: 'Saved listings live under My applications so you don’t lose them. (Desktop: left menu. Mobile: menu button.)',
     target: '[data-tour="pipeline-nav"]',
+    placement: 'right',
+  },
+  {
+    id: 'toolbox',
+    title: 'Free tools & free help',
+    body: 'The Free Toolbox lists real free tools — and real people who help for free. Remember: applying to government programs never costs money.',
+    target: '[data-tour="toolbox-nav"]',
     placement: 'right',
   },
   {

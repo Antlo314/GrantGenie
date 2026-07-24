@@ -41,7 +41,7 @@ export default function InfoTip({ title, children, label = 'More info', classNam
       {open && (
         <div
           role="dialog"
-          className="absolute left-0 top-8 z-50 w-72 max-w-[min(18rem,calc(100vw-2rem))] rounded-2xl border border-emerald-100 bg-white p-4 shadow-xl shadow-emerald-900/10"
+          className="absolute left-0 top-8 z-50 w-72 max-w-[min(18rem,calc(100vw-2rem))] rounded-2xl glass-panel p-4"
         >
           <div className="mb-2 flex items-start justify-between gap-2">
             <p className="text-sm font-bold text-slate-900">{title}</p>
@@ -54,7 +54,7 @@ export default function InfoTip({ title, children, label = 'More info', classNam
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="text-xs leading-relaxed text-slate-600">{children}</div>
+          <div className="text-[13px] leading-relaxed text-slate-600">{children}</div>
         </div>
       )}
     </div>

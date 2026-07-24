@@ -7,56 +7,61 @@ import {
   Inbox,
   FileEdit,
   Send,
-  Sparkles,
-  BarChart3,
   FileDown,
   Loader2,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
+import PageHeader from '../components/PageHeader';
+import { StatTile, EmptyState } from '../components/ui';
+import { PAGE_HINTS } from '../lib/hints';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { exportToWord, exportToPDF } from '../lib/exportUtils';
+import { exportToWord } from '../lib/exportUtils';
 
-const STAGE_CONFIG: Record<string, { label: string; color: string; gradient: string; glow: string }> = {
+type StageTone = 'emerald' | 'slate' | 'gold' | 'dark';
+
+const STAGE_CONFIG: Record<
+  string,
+  { label: string; hint: string; tone: StageTone; pill: string; bar: string }
+> = {
   discovery: {
     label: 'Discovery',
-    color: 'emerald',
-    gradient: 'from-emerald-500/20 to-emerald-400/5',
-    glow: 'shadow-emerald-500/10',
+    hint: 'Saved from search',
+    tone: 'emerald',
+    pill: 'bg-emerald-50 border-emerald-200 text-emerald-700',
+    bar: 'bg-emerald-500',
   },
   drafting: {
     label: 'Drafting',
-    color: 'slate',
-    gradient: 'from-slate-500/15 to-slate-400/5',
-    glow: 'shadow-slate-400/10',
+    hint: 'Being written',
+    tone: 'slate',
+    pill: 'bg-slate-100 border-slate-200 text-slate-600',
+    bar: 'bg-slate-400',
   },
   review: {
     label: 'In Review',
-    color: 'amber',
-    gradient: 'from-amber-500/20 to-amber-400/5',
-    glow: 'shadow-amber-500/10',
+    hint: 'Almost ready to submit',
+    tone: 'gold',
+    pill: 'bg-amber-50 border-amber-200 text-amber-700',
+    bar: 'bg-amber-500',
   },
   submitted: {
     label: 'Submitted',
-    color: 'teal',
-    gradient: 'from-teal-500/20 to-teal-400/5',
-    glow: 'shadow-teal-500/10',
+    hint: 'Sent on the official site',
+    tone: 'dark',
+    pill: 'bg-teal-50 border-teal-200 text-teal-700',
+    bar: 'bg-teal-500',
   },
 };
 
-const colorMap: Record<string, string> = {
-  emerald: 'text-emerald-600',
-  slate: 'text-slate-500',
-  amber: 'text-amber-500',
-  teal: 'text-teal-600',
+const STAGE_ICONS: Record<string, React.ReactNode> = {
+  discovery: <Inbox />,
+  drafting: <FileEdit />,
+  review: <Clock />,
+  submitted: <Send />,
 };
 
-const barColorMap: Record<string, string> = {
-  emerald: 'bg-emerald-500',
-  slate: 'bg-slate-400',
-  amber: 'bg-amber-500',
-  teal: 'bg-teal-500',
-};
+const COLUMN_LABEL = 'text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-500';
 
 export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g: any) => void }) {
   const { organization } = useAuth();
@@ -93,87 +98,76 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
   const totalValue = pipeline.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
   const withDrafts = pipeline.filter((p) => p.draft).length;
 
+  const h = PAGE_HINTS.pipeline;
+
   return (
     <div className="space-y-6 h-full flex flex-col pb-12">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="flex items-center justify-between flex-wrap gap-4"
-      >
-        <div>
-          <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-600 flex items-center gap-1.5 mb-1">
-            <Sparkles className="w-3 h-3" /> Saved listings & drafts
-          </span>
-          <h1 className="text-3xl font-black tracking-tighter text-slate-900">My applications</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Everything you saved from search, plus draft progress. You always submit on the
-            official government site.
-          </p>
-        </div>
-      </motion.div>
+      <PageHeader
+        title="My applications"
+        subtitle="Saved listings and drafts, in one place."
+        hint={h.hint}
+        infoTitle="How this page works"
+        infoBody="Save listings from Find opportunities and they show up here. Open one to keep drafting — when it’s ready, you submit on the official government website."
+      />
 
-      {/* Stage Stat Cards – Bento row */}
+      {/* ── Stage stat tiles ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stages.map((stage, idx) => (
           <motion.div
             key={stage.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.08 }}
-            whileHover={{ y: -4, scale: 1.02 }}
-            className={`relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br ${stage.gradient} border border-white/60 glass-panel hover:shadow-xl ${stage.glow} transition-all cursor-default`}
+            transition={{ delay: idx * 0.07 }}
+            className="h-full"
           >
-            <div className={`text-[10px] font-black uppercase tracking-[0.2em] mb-3 ${colorMap[stage.color]}`}>
-              {stage.label}
-            </div>
-            <div className="text-4xl font-black text-slate-900 tracking-tighter mb-4">{stage.count}</div>
-            <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min((stage.count / 10) * 100, 100)}%` }}
-                transition={{ delay: idx * 0.08 + 0.3, duration: 0.8, ease: 'easeOut' }}
-                className={`h-full rounded-full ${barColorMap[stage.color]}`}
-              />
-            </div>
+            <StatTile
+              value={stage.count}
+              label={stage.label}
+              hint={stage.hint}
+              tone={stage.tone}
+              icon={STAGE_ICONS[stage.id]}
+              className="h-full"
+            />
           </motion.div>
         ))}
       </div>
 
-      {/* Pipeline Table */}
+      {/* ── Saved listings table ── */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="flex-1 glass-panel border border-slate-200/60 rounded-3xl overflow-hidden flex flex-col shadow-sm min-h-0"
+        transition={{ delay: 0.3 }}
+        className="flex-1 bento-tile overflow-hidden flex flex-col min-h-0"
       >
-        {/* Table toolbar — real numbers only */}
-        <div className="px-6 py-4 border-b border-slate-100/80 flex items-center justify-between bg-slate-50/50 flex-wrap gap-3">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
-            {pipeline.length} saved · {withDrafts} with drafts
+        {/* Toolbar — real numbers only */}
+        <div className="px-6 py-4 border-b border-slate-200/60 flex items-center justify-between bg-white/40 flex-wrap gap-3">
+          <span className="text-xs font-bold text-slate-500">
+            <span className="font-mono text-slate-900">{pipeline.length}</span> saved ·{' '}
+            <span className="font-mono text-slate-900">{withDrafts}</span> with drafts
           </span>
           {totalValue > 0 && (
-            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black font-mono uppercase tracking-[0.2em]">
-              <TrendingUp className="w-4 h-4 text-emerald-500" /> ${totalValue.toLocaleString()} combined value
-            </div>
+            <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700">
+              <TrendingUp className="w-4 h-4 text-emerald-500" />
+              <span className="font-mono">${totalValue.toLocaleString()}</span> combined value
+            </span>
           )}
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
           {/* Desktop column headers */}
-          <div className="hidden lg:flex items-center px-7 py-4 bg-slate-50/80 border-b border-slate-100 sticky top-0 z-10 backdrop-blur-sm">
-            <div className="flex-[2] text-[10px] font-black text-slate-400 uppercase tracking-widest">Grant / Funder</div>
-            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Stage</div>
-            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Alignment</div>
-            <div className="flex-1 text-[10px] font-black text-slate-400 uppercase tracking-widest">Value</div>
-            <div className="w-20 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</div>
+          <div className="hidden lg:flex items-center px-7 py-3.5 bg-white/75 border-b border-slate-200/60 sticky top-0 z-10 backdrop-blur-md">
+            <div className={`flex-[2] ${COLUMN_LABEL}`}>Listing / funder</div>
+            <div className={`flex-1 ${COLUMN_LABEL}`}>Stage</div>
+            <div className={`flex-1 ${COLUMN_LABEL}`}>Match</div>
+            <div className={`flex-1 ${COLUMN_LABEL}`}>Value</div>
+            <div className={`w-24 text-right ${COLUMN_LABEL}`}>Actions</div>
           </div>
 
-          <div className="flex flex-col divide-y divide-slate-50">
+          <div className="flex flex-col divide-y divide-slate-100/80">
             {loading ? (
               <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
                 <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
-                <p className="text-sm text-slate-400 font-semibold">Loading your saved listings…</p>
+                <p className="text-sm text-slate-500 font-semibold">Loading your saved listings…</p>
               </div>
             ) : pipeline.length > 0 ? (
               pipeline.map(grant => (
@@ -189,12 +183,6 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
                       : 'See listing'
                   }
                   draft={grant.draft}
-                  icon={
-                    grant.stage === 'drafting' ? <FileEdit className="w-4 h-4 text-slate-700" /> :
-                    grant.stage === 'review' ? <Clock className="w-4 h-4 text-amber-500" /> :
-                    grant.stage === 'submitted' ? <Send className="w-4 h-4 text-teal-600" /> :
-                    <Inbox className="w-4 h-4 text-emerald-600" />
-                  }
                   onAction={() => onStartDraft && onStartDraft({
                     id: grant.grantId,
                     pipelineId: grant.id,
@@ -208,16 +196,11 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
                 />
               ))
             ) : (
-              <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
-                <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
-                  <BarChart3 className="w-7 h-7 text-emerald-400" />
-                </div>
-                <p className="font-black text-slate-700 mb-1">Nothing saved yet</p>
-                <p className="text-sm text-slate-400 max-w-xs">
-                  Search for grants or contracts, then tap the bookmark on any listing — it will
-                  show up here so you never lose it.
-                </p>
-              </div>
+              <EmptyState
+                image="/genie-wave.png"
+                title="Nothing saved yet"
+                body="Search for grants or contracts, then tap the bookmark on any listing — it will show up here so you never lose it."
+              />
             )}
           </div>
         </div>
@@ -226,9 +209,25 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
   );
 }
 
-function PipelineRow({ grant, funder, stage, match, value, icon, draft, onAction }: any) {
+function PipelineRow({
+  grant,
+  funder,
+  stage,
+  match,
+  value,
+  draft,
+  onAction,
+}: {
+  key?: React.Key;
+  grant: string;
+  funder: string;
+  stage: string;
+  match: string;
+  value: string;
+  draft?: string;
+  onAction: () => void;
+}) {
   const cfg = STAGE_CONFIG[stage] || STAGE_CONFIG['discovery'];
-  const tagColor = colorMap[cfg.color] || 'text-slate-500';
 
   const handleQuickExportWord = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -245,44 +244,50 @@ function PipelineRow({ grant, funder, stage, match, value, icon, draft, onAction
       className="group flex flex-col lg:flex-row lg:items-center px-6 lg:px-7 py-5 gap-3 lg:gap-0 relative transition-colors cursor-pointer"
       onClick={onAction}
     >
-      <div className="flex-[2] pr-12 lg:pr-4">
-        <div className="font-black text-slate-900 group-hover:text-emerald-700 transition-colors tracking-tight text-sm md:text-base leading-tight">{grant}</div>
-        <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] mt-1">{funder}</div>
+      <div className="flex-[2] pr-24 lg:pr-4 min-w-0">
+        <div className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors tracking-tight text-sm md:text-base leading-tight">
+          {grant}
+        </div>
+        <div className="text-xs text-slate-500 font-medium mt-1 truncate">{funder}</div>
       </div>
 
-      <div className="flex-1 flex items-center gap-2.5">
-        <div className="p-2 bg-slate-100/80 rounded-xl group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100 hidden lg:flex">
-          {icon}
-        </div>
-        <span className={`text-[10px] font-black uppercase tracking-widest ${tagColor}`}>{cfg.label}</span>
+      <div className="flex-1 flex items-center">
+        <span
+          className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-wider ${cfg.pill}`}
+        >
+          {cfg.label}
+        </span>
       </div>
 
       <div className="flex-1 flex items-center gap-3">
-        <div className="flex-1 h-1.5 bg-slate-100 rounded-full max-w-[72px] overflow-hidden hidden sm:block">
-          <motion.div initial={{ width: 0 }} animate={{ width: match }} className="h-full bg-emerald-500" />
+        <div className="flex-1 h-1.5 bg-slate-200/70 rounded-full max-w-[72px] overflow-hidden hidden sm:block">
+          <motion.div initial={{ width: 0 }} animate={{ width: match }} className={`h-full rounded-full ${cfg.bar}`} />
         </div>
-        <span className="text-xs font-black text-emerald-600 tracking-tight">{match}</span>
+        <span className="font-mono text-xs font-bold text-emerald-700">{match}</span>
       </div>
 
-      <div className="flex-1 text-[10px] font-black uppercase tracking-widest text-slate-400">
-        <span className="text-slate-900 font-black text-sm tracking-tight">{value}</span>
+      <div className="flex-1">
+        <span className="font-mono text-sm font-bold text-slate-900 tracking-tight">{value}</span>
       </div>
 
-      <div className="flex items-center gap-2 justify-end absolute lg:relative top-5 right-5 lg:top-0 lg:right-0">
+      <div className="flex items-center gap-2 justify-end absolute lg:relative top-5 right-5 lg:top-0 lg:right-0 lg:w-24 shrink-0">
         {draft && (
           <button
             type="button"
             onClick={handleQuickExportWord}
-            className="p-2 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 rounded-xl border border-slate-100 bg-white transition-all shadow-sm"
-            title="Download Word Document"
+            aria-label={`Download ${grant} as a Word document`}
+            title="Download Word document"
+            className="btn btn-secondary btn-sm !px-2.5"
           >
             <FileDown className="w-4 h-4" />
           </button>
         )}
         <button
+          type="button"
           onClick={onAction}
-          className="p-2.5 hover:bg-slate-900 rounded-xl text-slate-400 hover:text-white transition-all border border-slate-100 group-hover:border-transparent bg-white lg:bg-transparent shadow-sm hover:shadow-lg"
-          title="Open in Writer"
+          aria-label={`Open ${grant} in the Draft helper`}
+          title="Open in Draft helper"
+          className="btn btn-secondary btn-sm !px-2.5 group-hover:border-emerald-400"
         >
           <ChevronRight className="w-4 h-4 flex-shrink-0" />
         </button>

@@ -44,9 +44,19 @@ State portals: curated official .gov links for the user’s state (no single nat
 2. Get started quiz — 6 short labeled steps (who you are · grants/contracts · location · what you do · size · optional extras). ~2 minutes; final step shows a summary of your answers.  
 3. First-run beginner tour + **Getting started checklist** on Home (search → save → draft), tracked from real activity  
 4. Sector switcher → multi-source search (chips show which APIs returned data)  
-5. Score fit + draft helper (Gemini); the Genie widget is a full chat with follow-up memory
+5. Score fit + draft helper (Gemini); the Genie widget is a full chat with follow-up memory  
+6. **Free toolbox** — curated page of genuinely free tools: APEX Accelerators, SCORE, ProPublica Nonprofit Explorer, SBA certifications, the [ai-for-grant-writing](https://github.com/eseckel/ai-for-grant-writing) prompt library, and more. Includes a "never pay to apply" scam warning.
 
 **Dev shortcut:** open the app with `?dev=1` to pre-fill a test profile and jump to the last quiz step. Without the flag, users always start at step 1 with blank answers.
+
+## 2026 UI
+
+- **Design system** in `src/index.css`: brand tokens (genie emerald + lamp gold), Glass 2.0 surfaces, bento tiles, aurora background, one `.btn-*` button system, `.field` inputs, skeleton shimmer — all honoring `prefers-reduced-motion`.
+- **3D**: pointer-tracked `Tilt3D` cards, layered `depth-shadow` on the floating genie, perspective bento grids.
+- **Type**: Space Grotesk (display) + Inter (body) + JetBrains Mono (numbers).
+- **Shared primitives** in `src/components/ui.tsx`: Button, Tile, Badge, Modal, Field, StatTile, ProgressBar, EmptyState, Tilt3D.
+- **Plain language everywhere**: no invented stats, no security theater, jargon explained inline with InfoTips; beginner tour + per-page hints in `src/lib/hints.ts`.
+- **Brand assets** in `public/` now have true transparent backgrounds (processed with a palette-strict flood-fill; originals in git history).
 
 ## Run locally
 
