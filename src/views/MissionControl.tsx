@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Search, FileSignature, PenTool, HandCoins, BookOpen, Sparkles, ArrowRight, Zap, TrendingUp } from 'lucide-react';
+import { Search, FileSignature, PenTool, HandCoins, BookOpen, Sparkles, ArrowRight, Zap, TrendingUp, CheckCircle2, Circle } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import PageHeader from '../components/PageHeader';
 import GenieAvatar from '../components/GenieAvatar';
 import SpecsBar from '../components/SpecsBar';
 import { BRAND } from '../lib/brand';
 import { GLOSSARY, PAGE_HINTS } from '../lib/hints';
+import { getActivity, onActivityChange, type ActivityCounts } from '../lib/activityStore';
 
 export default function MissionControl({
   onNavigate,
@@ -17,9 +18,50 @@ export default function MissionControl({
   onStartDraft: (g: any) => void;
   onStartTour?: () => void;
 }) {
-  const { organization, profile } = useAuth();
+  const { organization, profile, user } = useAuth();
   const name = profile?.name || organization?.name || 'there';
   const h = PAGE_HINTS.mission;
+
+  const uid = user?.uid || 'anon';
+  const [activity, setActivity] = React.useState<ActivityCounts>(() => getActivity(uid));
+
+  React.useEffect(() => {
+    setActivity(getActivity(uid));
+    return onActivityChange(setActivity);
+  }, [uid]);
+
+  const checklist = [
+    {
+      id: 'profile',
+      label: 'Tell us what you do',
+      hint: 'Done in Get started — edit anytime in Profile',
+      done: !!profile?.profileComplete,
+      go: () => onNavigate('profile'),
+    },
+    {
+      id: 'search',
+      label: 'Run your first search',
+      hint: 'Real listings from free .gov databases',
+      done: activity.search > 0,
+      go: () => onNavigate('radar'),
+    },
+    {
+      id: 'save',
+      label: 'Save a listing you like',
+      hint: 'Tap the bookmark on any result',
+      done: activity.save > 0,
+      go: () => onNavigate('radar'),
+    },
+    {
+      id: 'draft',
+      label: 'Start your first draft',
+      hint: 'The Draft helper writes a starting point from your profile',
+      done: activity.draft > 0,
+      go: () => onNavigate('writer'),
+    },
+  ];
+  const doneCount = checklist.filter((c) => c.done).length;
+  const allDone = doneCount === checklist.length;
 
   return (
     <div className="space-y-6 pb-16 max-w-5xl">
@@ -82,6 +124,67 @@ export default function MissionControl({
           </div>
         </div>
       </motion.div>
+
+      {/* Getting-started checklist — until everything is checked off */}
+      {!allDone && (
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="glass-panel rounded-2xl border border-emerald-200/60 p-5 sm:p-6"
+        >
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <h3 className="font-black text-slate-900 tracking-tight">Getting started</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-1.5 w-28 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                  style={{ width: `${(doneCount / checklist.length) * 100}%` }}
+                />
+              </div>
+              <span className="text-xs font-bold text-emerald-700">
+                {doneCount}/{checklist.length}
+              </span>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {checklist.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={item.go}
+                disabled={item.done}
+                className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-left transition-all ${
+                  item.done
+                    ? 'border-emerald-100 bg-emerald-50/60 cursor-default'
+                    : 'border-slate-200 bg-white hover:border-emerald-300 hover:shadow-sm'
+                }`}
+              >
+                {item.done ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                ) : (
+                  <Circle className="w-5 h-5 text-slate-300 shrink-0 mt-0.5" />
+                )}
+                <span className="min-w-0">
+                  <span
+                    className={`block text-sm font-bold ${
+                      item.done ? 'text-emerald-800 line-through decoration-emerald-300' : 'text-slate-800'
+                    }`}
+                  >
+                    {item.label}
+                  </span>
+                  <span className="block text-[11px] text-slate-500 leading-snug mt-0.5">
+                    {item.hint}
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      )}
 
       <SpecsBar
         onSpecsChange={() => {
@@ -149,9 +252,9 @@ export default function MissionControl({
           <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-5">Your activity</span>
           <div className="space-y-4">
             {[
-              { label: 'Radar scans', value: '—', color: 'emerald' },
-              { label: 'Pipeline items', value: '—', color: 'slate' },
-              { label: 'Drafts started', value: '—', color: 'amber' },
+              { label: 'Searches run', value: activity.search, color: 'emerald' },
+              { label: 'Listings saved', value: activity.save, color: 'slate' },
+              { label: 'Drafts started', value: activity.draft, color: 'amber' },
             ].map((item) => (
               <div key={item.label} className="flex items-center justify-between">
                 <span className="text-xs text-slate-500 font-semibold">{item.label}</span>
@@ -160,6 +263,11 @@ export default function MissionControl({
                 </span>
               </div>
             ))}
+            {activity.search === 0 && (
+              <p className="text-[11px] text-slate-400 leading-snug pt-1">
+                Your numbers show up here as you use the app.
+              </p>
+            )}
           </div>
         </motion.div>
       </div>

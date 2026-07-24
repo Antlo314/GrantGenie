@@ -39,6 +39,7 @@ import GenieAvatar from '../components/GenieAvatar';
 import { BRAND } from '../lib/brand';
 import { GLOSSARY, PAGE_HINTS } from '../lib/hints';
 import SpecsBar, { keywordsToQuery } from '../components/SpecsBar';
+import { trackEvent } from '../lib/activityStore';
 
 const CONTRACT_QUERIES = [
   'construction',
@@ -58,7 +59,7 @@ export default function DiscoveryRadar({
   sector?: 'grants' | 'contracts';
   onSectorChange?: (s: 'grants' | 'contracts') => void;
 }) {
-  const { organization, profile } = useAuth();
+  const { organization, profile, user } = useAuth();
   const [grants, setGrants] = useState<Grant[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedGrant, setSelectedGrant] = useState<Grant | null>(null);
@@ -80,13 +81,24 @@ export default function DiscoveryRadar({
   const [dateTo, setDateTo] = useState('');
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ kind: 'success' | 'error'; text: string } | null>(null);
+
+  // Toasts auto-dismiss
+  useEffect(() => {
+    if (!notice) return;
+    const t = window.setTimeout(() => setNotice(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [notice]);
 
   const saveGrant = async (grant: Grant, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (!grant || savedIds.has(grant.id) || savingId === grant.id) return;
     const orgId = organization?.id;
     if (!orgId) {
-      alert('Organization profile required to save grants.');
+      setNotice({
+        kind: 'error',
+        text: 'Finish your profile first (Profile page) so we know where to save this.',
+      });
       return;
     }
     setSavingId(grant.id);
@@ -104,9 +116,14 @@ export default function DiscoveryRadar({
         createdAt: new Date().toISOString(),
       });
       setSavedIds((prev) => new Set(prev).add(grant.id));
+      if (user?.uid) trackEvent(user.uid, 'save');
+      setNotice({ kind: 'success', text: 'Saved! Find it anytime under My applications.' });
     } catch (err) {
       console.error('Failed to save grant to pipeline:', err);
-      alert('Failed to save grant to pipeline.');
+      setNotice({
+        kind: 'error',
+        text: 'Could not save right now — check your connection and try again.',
+      });
     } finally {
       setSavingId(null);
     }
@@ -138,6 +155,7 @@ export default function DiscoveryRadar({
         } else {
           setGrants(result.grants);
           setHitCount(result.hitCount);
+          if (user?.uid) trackEvent(user.uid, 'search');
           if (result.grants.length === 0) {
             setError(
               isContracts
@@ -155,7 +173,7 @@ export default function DiscoveryRadar({
         setLoading(false);
       }
     },
-    [sector, isContracts]
+    [sector, isContracts, user?.uid]
   );
 
   useEffect(() => {
@@ -207,7 +225,10 @@ export default function DiscoveryRadar({
   const handleDeepScan = async (grant: Grant) => {
     const mission = profile?.description || organization?.mission;
     if (!mission) {
-      alert('Add a short description of what you do (Profile) so we can score the fit.');
+      setNotice({
+        kind: 'error',
+        text: 'Add a short description of what you do (Profile page) so we can score the fit.',
+      });
       return;
     }
     setScanning(true);
@@ -238,7 +259,10 @@ export default function DiscoveryRadar({
       setGrants((prev) => prev.map((g) => (g.id === grant.id ? updatedGrant : g)));
     } catch (err) {
       console.error('Match analysis failed:', err);
-      alert('Match analysis failed. Check GEMINI_API_KEY in .env.local');
+      setNotice({
+        kind: 'error',
+        text: 'Match analysis is unavailable right now (AI key missing or offline). You can still open the official page.',
+      });
     } finally {
       setScanning(false);
     }
@@ -252,7 +276,31 @@ export default function DiscoveryRadar({
   const ph = PAGE_HINTS.radar;
 
   return (
-    <div className="h-full flex flex-col xl:flex-row gap-6 min-h-0">
+    <div className="h-full flex flex-col xl:flex-row gap-6 min-h-0 relative">
+      {/* Toast */}
+      <AnimatePresence>
+        {notice && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            className={`fixed top-20 left-1/2 -translate-x-1/2 z-[120] flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold shadow-xl backdrop-blur ${
+              notice.kind === 'success'
+                ? 'bg-emerald-50/95 border-emerald-200 text-emerald-900'
+                : 'bg-amber-50/95 border-amber-200 text-amber-900'
+            }`}
+            role="status"
+          >
+            {notice.kind === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+            )}
+            {notice.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Header */}
         <div className="mb-5 shrink-0">
@@ -568,7 +616,7 @@ export default function DiscoveryRadar({
                     }`}
                   />
                   {s.id}
-                  {s.count > 0 ? ` · ${s.count}` : s.error?.includes('not set') ? ' · needs key' : s.error ? ' · fail' : ' · 0'}
+                  {s.count > 0 ? ` · ${s.count} results` : s.error?.includes('not set') ? ' · add free key' : s.error ? ' · unavailable' : ' · 0 results'}
                 </span>
               ))}
             </div>
@@ -602,9 +650,37 @@ export default function DiscoveryRadar({
                 <GenieAvatar src={BRAND.assets.wave} size={96} float className="mb-2" />
                 <h3 className="font-bold text-slate-800 text-lg">Nothing matched that search</h3>
                 <p className="text-sm text-slate-500 mt-2 max-w-sm leading-relaxed">
-                  Try a simpler word like “education”, “construction”, or “health”. Results come from free
-                  U.S. government databases — we never invent listings.
+                  Try a simpler, broader word — one tap below runs a fresh search. Results come from
+                  free U.S. government databases; we never invent listings.
                 </p>
+                <div className="mt-4 flex flex-wrap justify-center gap-2 max-w-sm">
+                  {(isContracts
+                    ? ['construction', 'training', 'services']
+                    : ['education', 'health', 'community']
+                  ).map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      onClick={() => {
+                        setSearchTerm(q);
+                        void runLiveSearch(q);
+                      }}
+                      className="px-4 py-2 rounded-full text-xs font-bold bg-emerald-600 text-white hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 transition-colors"
+                    >
+                      Try “{q}”
+                    </button>
+                  ))}
+                </div>
+                {openOnly && !isContracts && grants.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setOpenOnly(false)}
+                    className="mt-3 text-xs font-semibold text-emerald-700 underline underline-offset-2 hover:text-emerald-900"
+                  >
+                    Or show {grants.length} result{grants.length === 1 ? '' : 's'} hidden by the
+                    “Open only” filter
+                  </button>
+                )}
               </div>
             ) : (
               <ul className="divide-y divide-slate-100">
@@ -703,7 +779,7 @@ export default function DiscoveryRadar({
             <div className="flex items-start justify-between gap-2 mb-3">
               <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-100">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                Grants.gov live
+                {selectedGrant.source ? `${selectedGrant.source} · official data` : 'Official data'}
               </span>
               <div className="flex items-center gap-2">
                 <button
@@ -747,7 +823,15 @@ export default function DiscoveryRadar({
                     selectedGrant.matchExplanation
                   ) : (
                     <>
-                      Based on your profile ({organization?.focusAreas?.[0] || profile?.keywords?.[0] || 'workforce development'}, {profile?.state || 'Maryland'}), this is a potential match — click "Run match analysis" below to check exact score.
+                      Based on your profile
+                      {(organization?.focusAreas?.[0] || profile?.keywords?.[0] || profile?.state) && (
+                        <>
+                          {' '}({[organization?.focusAreas?.[0] || profile?.keywords?.[0], profile?.state]
+                            .filter(Boolean)
+                            .join(', ')})
+                        </>
+                      )}
+                      , this is a potential match — click "Run match analysis" below to get an exact score.
                     </>
                   )}
                 </p>
@@ -833,7 +917,7 @@ export default function DiscoveryRadar({
                 className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-slate-200 text-sm font-bold text-slate-700 hover:bg-slate-50"
               >
                 <ExternalLink className="w-4 h-4" />
-                Open on Grants.gov
+                Open the official page
               </a>
 
               <button

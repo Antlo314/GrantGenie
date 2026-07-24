@@ -1,20 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { PenTool, Compass, ListChecks, Send, X, Maximize2, Minimize2 } from 'lucide-react';
+import {
+  PenTool,
+  Compass,
+  ListChecks,
+  Send,
+  X,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+} from 'lucide-react';
 import GenieAvatar from './GenieAvatar';
 import { BRAND } from '../lib/brand';
+
+export type GenieChatMessage = {
+  role: 'user' | 'genie';
+  text: string;
+};
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Short one-liner when idle (no AI) */
   nudge: string;
-  /** Detailed answer after user asks */
-  answer: string | null;
+  /** Conversation so far (empty = show nudge) */
+  messages: GenieChatMessage[];
   loadingAnswer?: boolean;
   onAsk: (question: string) => void;
+  onClearChat: () => void;
   onExplainPage: () => void;
   onNextStep: () => void;
   onHelpWrite: () => void;
@@ -22,15 +37,17 @@ type Props = {
 };
 
 /**
- * Floating genie — light nudge only until the user asks something.
+ * Floating genie — a real conversation thread. Stays quiet (nudge only)
+ * until the user asks something, then keeps context for follow-ups.
  */
 export default function GenieWidget({
   open,
   onOpenChange,
   nudge,
-  answer,
+  messages,
   loadingAnswer,
   onAsk,
+  onClearChat,
   onExplainPage,
   onNextStep,
   onHelpWrite,
@@ -38,6 +55,15 @@ export default function GenieWidget({
 }: Props) {
   const [question, setQuestion] = useState('');
   const [expanded, setExpanded] = useState(false);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const expandedThreadRef = useRef<HTMLDivElement>(null);
+
+  // Keep the newest message in view
+  useEffect(() => {
+    for (const el of [threadRef.current, expandedThreadRef.current]) {
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  }, [messages.length, loadingAnswer, open, expanded]);
 
   const submit = () => {
     const q = question.trim();
@@ -45,6 +71,59 @@ export default function GenieWidget({
     onAsk(q);
     setQuestion('');
   };
+
+  const hasThread = messages.length > 0;
+
+  const renderThread = (large?: boolean) => (
+    <div className="space-y-3">
+      {!hasThread && (
+        <div className="flex items-end gap-2">
+          <GenieAvatar src={BRAND.assets.widget} size={large ? 32 : 26} />
+          <p
+            className={`${large ? 'text-base' : 'text-sm'} text-slate-600 leading-relaxed italic bg-emerald-50/70 px-3.5 py-2.5 rounded-2xl rounded-bl-md border border-emerald-100/60 max-w-[85%]`}
+          >
+            {nudge}
+          </p>
+        </div>
+      )}
+      {messages.map((m, i) =>
+        m.role === 'user' ? (
+          <div key={i} className="flex justify-end">
+            <p
+              className={`${large ? 'text-base' : 'text-sm'} bg-emerald-600 text-white px-3.5 py-2.5 rounded-2xl rounded-br-md max-w-[85%] leading-relaxed shadow-sm`}
+            >
+              {m.text}
+            </p>
+          </div>
+        ) : (
+          <div key={i} className="flex items-end gap-2">
+            <GenieAvatar src={BRAND.assets.widget} size={large ? 32 : 26} />
+            <div
+              className={`${large ? 'text-base' : 'text-sm'} text-slate-800 leading-relaxed bg-slate-50 px-3.5 py-2.5 rounded-2xl rounded-bl-md border border-slate-100 max-w-[85%] whitespace-pre-wrap`}
+            >
+              {m.text}
+            </div>
+          </div>
+        )
+      )}
+      {loadingAnswer && (
+        <div className="flex items-end gap-2">
+          <GenieAvatar src={BRAND.assets.widget} size={large ? 32 : 26} />
+          <div className="bg-slate-50 border border-slate-100 px-4 py-3 rounded-2xl rounded-bl-md">
+            <span className="inline-flex gap-1">
+              {[0, 1, 2].map((d) => (
+                <span
+                  key={d}
+                  className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"
+                  style={{ animationDelay: `${d * 0.15}s` }}
+                />
+              ))}
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div
@@ -69,6 +148,16 @@ export default function GenieWidget({
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
+                  {hasThread && (
+                    <button
+                      type="button"
+                      onClick={onClearChat}
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-white hover:text-slate-700 transition-colors"
+                      title="Start a new chat"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setExpanded(true)}
@@ -88,14 +177,11 @@ export default function GenieWidget({
                 </div>
               </div>
 
-              <div className="px-4 py-4 max-h-[50vh] min-h-[140px] overflow-y-auto custom-scrollbar">
-                {loadingAnswer ? (
-                  <p className="text-sm text-slate-400 italic">Thinking…</p>
-                ) : answer ? (
-                  <div className="text-sm text-slate-800 leading-relaxed font-sans bg-slate-50 p-3 rounded-2xl border border-slate-100 whitespace-pre-wrap">{answer}</div>
-                ) : (
-                  <p className="text-sm text-slate-600 leading-relaxed italic bg-emerald-50/60 p-3 rounded-2xl border border-emerald-100/50">{nudge}</p>
-                )}
+              <div
+                ref={threadRef}
+                className="px-4 py-4 max-h-[50vh] min-h-[140px] overflow-y-auto custom-scrollbar"
+              >
+                {renderThread(false)}
               </div>
 
               <div className="px-4 pb-2">
@@ -109,7 +195,7 @@ export default function GenieWidget({
                         submit();
                       }
                     }}
-                    placeholder="Ask Genie anything…"
+                    placeholder={hasThread ? 'Ask a follow-up…' : 'Ask Genie anything…'}
                     className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:border-emerald-500"
                   />
                   <button
@@ -161,8 +247,8 @@ export default function GenieWidget({
       {/* Expanded Full Screen Consultation Modal */}
       <AnimatePresence>
         {expanded && (
-          <div className="fixed inset-0 z-[140] flex items-center justify-center p-4 sm:p-8 bg-slate-950/80 backdrop-blur-md">
-            <motion.div 
+          <div className="fixed inset-0 z-[140] flex items-center justify-center p-4 sm:p-8 bg-slate-950/80 backdrop-blur-md pointer-events-auto">
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -173,22 +259,36 @@ export default function GenieWidget({
                   <GenieAvatar src={BRAND.assets.widget} size={48} />
                   <div>
                     <h3 className="text-xl font-bold text-slate-900">Genie AI Consultation</h3>
-                    <p className="text-xs text-slate-500 font-medium">Strategic guidance & grant writing intelligence</p>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Strategic guidance & grant writing intelligence
+                    </p>
                   </div>
                 </div>
-                <button onClick={() => setExpanded(false)} className="p-2 hover:bg-slate-100 rounded-xl text-slate-500">
-                  <Minimize2 className="w-6 h-6" />
-                </button>
+                <div className="flex items-center gap-1">
+                  {hasThread && (
+                    <button
+                      type="button"
+                      onClick={onClearChat}
+                      className="p-2 hover:bg-slate-100 rounded-xl text-slate-500"
+                      title="Start a new chat"
+                    >
+                      <RotateCcw className="w-5 h-5" />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setExpanded(false)}
+                    className="p-2 hover:bg-slate-100 rounded-xl text-slate-500"
+                  >
+                    <Minimize2 className="w-6 h-6" />
+                  </button>
+                </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50 border border-slate-200 rounded-2xl mb-6">
-                {loadingAnswer ? (
-                  <p className="text-slate-400 italic">Analyzing and drafting advice...</p>
-                ) : answer ? (
-                  <div className="text-base text-slate-800 leading-relaxed font-sans whitespace-pre-wrap">{answer}</div>
-                ) : (
-                  <p className="text-base text-slate-600 leading-relaxed italic">{nudge}</p>
-                )}
+              <div
+                ref={expandedThreadRef}
+                className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50/60 border border-slate-200 rounded-2xl mb-6"
+              >
+                {renderThread(true)}
               </div>
 
               <div className="flex gap-3">
@@ -201,7 +301,7 @@ export default function GenieWidget({
                       submit();
                     }
                   }}
-                  placeholder="Ask Genie a detailed question..."
+                  placeholder={hasThread ? 'Ask a follow-up…' : 'Ask Genie a detailed question...'}
                   className="flex-1 rounded-2xl border border-slate-300 px-5 py-4 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 font-sans"
                 />
                 <button

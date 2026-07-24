@@ -1,21 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Search, 
-  Filter, 
-  Clock, 
-  ChevronRight, 
-  Map, 
-  Layers,
+import {
+  Clock,
+  ChevronRight,
   TrendingUp,
   Inbox,
   FileEdit,
   Send,
-  Flag,
   Sparkles,
   BarChart3,
   FileDown,
-  Printer
+  Loader2,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import { db } from '../lib/firebase';
@@ -66,10 +61,15 @@ const barColorMap: Record<string, string> = {
 export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g: any) => void }) {
   const { organization } = useAuth();
   const [pipeline, setPipeline] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!organization) return;
+    if (!organization) {
+      setLoading(false);
+      return;
+    }
     const fetchPipeline = async () => {
+      setLoading(true);
       try {
         const q = query(collection(db, 'pipeline_grants'), where('orgId', '==', organization.id));
         const snapshot = await getDocs(q);
@@ -77,6 +77,8 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
         setPipeline(data);
       } catch (e) {
         console.error("Error fetching pipeline:", e);
+      } finally {
+        setLoading(false);
       }
     };
     fetchPipeline();
@@ -88,6 +90,9 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
     count: pipeline.filter(p => p.stage === id).length || 0,
   }));
 
+  const totalValue = pipeline.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const withDrafts = pipeline.filter((p) => p.draft).length;
+
   return (
     <div className="space-y-6 h-full flex flex-col pb-12">
       {/* Header */}
@@ -98,17 +103,13 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
       >
         <div>
           <span className="text-[10px] font-black uppercase tracking-[0.22em] text-emerald-600 flex items-center gap-1.5 mb-1">
-            <Sparkles className="w-3 h-3" /> Portfolio Lifecycle
+            <Sparkles className="w-3 h-3" /> Saved listings & drafts
           </span>
-          <h1 className="text-3xl font-black tracking-tighter text-slate-900">Pipeline Commander</h1>
-        </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-5 py-2.5 glass-panel border border-slate-200/80 rounded-2xl hover:border-slate-300 transition-all text-xs font-black uppercase tracking-widest text-slate-600 shadow-sm">
-            <Layers className="w-4 h-4" /> Kanban
-          </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl font-black text-xs uppercase tracking-widest text-white hover:opacity-90 transition-all shadow-lg shadow-emerald-500/25">
-            <Map className="w-4 h-4" /> Roadmap
-          </button>
+          <h1 className="text-3xl font-black tracking-tighter text-slate-900">My applications</h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Everything you saved from search, plus draft progress. You always submit on the
+            official government site.
+          </p>
         </div>
       </motion.div>
 
@@ -146,25 +147,16 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
         transition={{ delay: 0.4 }}
         className="flex-1 glass-panel border border-slate-200/60 rounded-3xl overflow-hidden flex flex-col shadow-sm min-h-0"
       >
-        {/* Table toolbar */}
+        {/* Table toolbar — real numbers only */}
         <div className="px-6 py-4 border-b border-slate-100/80 flex items-center justify-between bg-slate-50/50 flex-wrap gap-3">
-          <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
-              Pipeline Monitoring Active
-            </span>
-            <button className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 hover:text-slate-800 px-3 py-2 border border-slate-200 rounded-full bg-white transition-all uppercase tracking-widest shadow-sm">
-              <Filter className="w-3 h-3" /> Filter
-            </button>
-          </div>
-          <div className="flex items-center gap-5">
-            <div className="flex items-center gap-2 text-[10px] text-slate-400 font-black font-mono uppercase tracking-[0.2em]">
-              <TrendingUp className="w-4 h-4 text-emerald-500" /> 1.2 Apps / Week
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
+            {pipeline.length} saved · {withDrafts} with drafts
+          </span>
+          {totalValue > 0 && (
+            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black font-mono uppercase tracking-[0.2em]">
+              <TrendingUp className="w-4 h-4 text-emerald-500" /> ${totalValue.toLocaleString()} combined value
             </div>
-            <div className="w-px h-4 bg-slate-200 hidden sm:block" />
-            <div className="flex items-center gap-2 text-[10px] text-emerald-600 font-black font-mono uppercase tracking-[0.2em] hidden sm:flex">
-              <Flag className="w-4 h-4" /> Next: Dec 15
-            </div>
-          </div>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0">
@@ -178,15 +170,24 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
           </div>
 
           <div className="flex flex-col divide-y divide-slate-50">
-            {pipeline.length > 0 ? (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 px-8 text-center">
+                <Loader2 className="w-8 h-8 text-emerald-500 animate-spin mb-3" />
+                <p className="text-sm text-slate-400 font-semibold">Loading your saved listings…</p>
+              </div>
+            ) : pipeline.length > 0 ? (
               pipeline.map(grant => (
                 <PipelineRow
                   key={grant.id}
                   grant={grant.title}
                   funder={grant.funder}
                   stage={grant.stage}
-                  match={`${grant.matchScore}%`}
-                  value={`$${grant.amount.toLocaleString()}`}
+                  match={`${Number(grant.matchScore) || 0}%`}
+                  value={
+                    Number(grant.amount) > 0
+                      ? `$${Number(grant.amount).toLocaleString()}`
+                      : 'See listing'
+                  }
                   draft={grant.draft}
                   icon={
                     grant.stage === 'drafting' ? <FileEdit className="w-4 h-4 text-slate-700" /> :
@@ -211,8 +212,11 @@ export default function PipelineCommander({ onStartDraft }: { onStartDraft?: (g:
                 <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-4">
                   <BarChart3 className="w-7 h-7 text-emerald-400" />
                 </div>
-                <p className="font-black text-slate-700 mb-1">No active grants yet</p>
-                <p className="text-sm text-slate-400 max-w-xs">Head to the Discovery Radar to find and track your first opportunity.</p>
+                <p className="font-black text-slate-700 mb-1">Nothing saved yet</p>
+                <p className="text-sm text-slate-400 max-w-xs">
+                  Search for grants or contracts, then tap the bookmark on any listing — it will
+                  show up here so you never lose it.
+                </p>
               </div>
             )}
           </div>

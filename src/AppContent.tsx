@@ -17,11 +17,12 @@ import {
 import { useAuth } from './components/AuthProvider';
 import PoweredBy from './components/PoweredBy';
 import GenieAvatar from './components/GenieAvatar';
-import GenieWidget from './components/GenieWidget';
+import GenieWidget, { type GenieChatMessage } from './components/GenieWidget';
 import ProductTour, { hasCompletedTour, resetTour } from './components/ProductTour';
 import InfoTip from './components/InfoTip';
 import { logout } from './auth';
 import { getGlobalAdvice } from './services/geminiService';
+import { trackEvent } from './lib/activityStore';
 import { BRAND } from './lib/brand';
 import { GLOSSARY, PAGE_HINTS } from './lib/hints';
 
@@ -61,7 +62,7 @@ export default function AppContent() {
   const [selectedGrantForDraft, setSelectedGrantForDraft] = React.useState<any>(null);
   const [genieOpen, setGenieOpen] = React.useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
-  const [globalAdvice, setGlobalAdvice] = React.useState<string | null>(null);
+  const [genieMessages, setGenieMessages] = React.useState<GenieChatMessage[]>([]);
   const [genieLoading, setGenieLoading] = React.useState(false);
   /** Public: landing → login → (auth) app */
   const [publicGate, setPublicGate] = React.useState<'landing' | 'login'>('landing');
@@ -74,10 +75,8 @@ export default function AppContent() {
     else if (profile?.sector === 'grants' || profile?.sector === 'both') setActiveSector('grants');
   }, [profile?.sector]);
 
-  // Clear detailed answer when view changes; keep Genie light until asked
-  React.useEffect(() => {
-    setGlobalAdvice(null);
-  }, [activeView]);
+  // The Genie keeps its conversation across pages — nudges update per page,
+  // but the thread only resets when the user taps "new chat".
 
   // First-time tour after profile is ready
   React.useEffect(() => {
@@ -90,19 +89,25 @@ export default function AppContent() {
   }, [user, profile?.profileComplete]);
 
   const askGenie = React.useCallback(
-    async (question: string) => {
+    async (question: string, displayText?: string) => {
       setGenieLoading(true);
-      setGlobalAdvice(null);
+      setGenieMessages((prev) => [...prev, { role: 'user', text: displayText || question }]);
       try {
         const mission = profile?.description || organization?.mission || '';
-        const prompt = `User question: ${question}. Context page: ${activeView}. User work: ${mission}. Answer in plain English, short paragraphs, for a beginner. Never invent grant or contract titles.`;
+        // Include recent turns so follow-up questions keep their context
+        const history = genieMessages
+          .slice(-6)
+          .map((m) => `${m.role === 'user' ? 'User' : 'Genie'}: ${m.text}`)
+          .join('\n');
+        const prompt = `${history ? `Conversation so far:\n${history}\n\n` : ''}User question: ${question}. Context page: ${activeView}. User work: ${mission}. Answer in plain English, short paragraphs, for a beginner. Never invent grant or contract titles.`;
         const text = await getGlobalAdvice(prompt, activeView);
-        setGlobalAdvice(text);
+        setGenieMessages((prev) => [...prev, { role: 'genie', text }]);
+        if (user?.uid) trackEvent(user.uid, 'genie_chat');
       } finally {
         setGenieLoading(false);
       }
     },
-    [activeView, organization?.mission, profile?.description]
+    [activeView, organization?.mission, profile?.description, genieMessages, user?.uid]
   );
 
   if (loading) {
@@ -140,6 +145,7 @@ export default function AppContent() {
     setSelectedGrantForDraft(grant);
     setActiveView('writer');
     setGenieOpen(false);
+    if (user?.uid) trackEvent(user.uid, 'draft');
   };
 
   const findLabel = activeSector === 'contracts' ? 'Find contracts' : 'Find grants';
@@ -367,29 +373,29 @@ export default function AppContent() {
 
         <GenieWidget
           open={genieOpen}
-          onOpenChange={(o) => {
-            setGenieOpen(o);
-            if (!o) setGlobalAdvice(null);
-          }}
+          onOpenChange={setGenieOpen}
           nudge={
             PAGE_HINTS[activeView]?.nudge ||
             'Set your industry, then Find. Ask me only if you have a question.'
           }
-          answer={globalAdvice}
+          messages={genieMessages}
           loadingAnswer={genieLoading}
           onAsk={(q) => {
             void askGenie(q);
           }}
+          onClearChat={() => setGenieMessages([])}
           onExplainPage={() => {
             setGenieOpen(true);
             void askGenie(
-              `Explain the ${activeView} page in plain English for a total beginner. Keep it under 5 sentences.`
+              `Explain the ${activeView} page in plain English for a total beginner. Keep it under 5 sentences.`,
+              'Explain this page'
             );
           }}
           onNextStep={() => {
             setGenieOpen(true);
             void askGenie(
-              'What should I do next in Grant Genie? Be concrete and short. Prefer: set industry, search, save, draft, open official page.'
+              'What should I do next in Grant Genie? Be concrete and short. Prefer: set industry, search, save, draft, open official page.',
+              'What should I do next?'
             );
           }}
           onHelpWrite={() => {
@@ -409,7 +415,7 @@ export default function AppContent() {
         onClose={() => setTourOpen(false)}
         onStepChange={(step) => {
           // Navigate so highlighted controls exist (and are visible when possible)
-          if (step.id === 'welcome' || step.id === 'genie' || step.id === 'specs' || step.id === 'sector') {
+          if (step.id === 'welcome' || step.id === 'genie' || step.id === 'specs' || step.id === 'sector' || step.id === 'checklist') {
             setActiveView('mission');
           }
           if (step.id === 'find' || step.id === 'search' || step.id === 'results') {

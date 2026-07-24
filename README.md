@@ -41,9 +41,12 @@ State portals: curated official .gov links for the user’s state (no single nat
 ## Product flow
 
 1. Sign in (Firebase `grant-genie-f3618`)  
-2. Get started quiz (individual/company · grant/contract · location · mission)  
-3. Sector switcher → multi-source search (chips show which APIs returned data)  
-4. Score fit + draft helper (Gemini)
+2. Get started quiz — 6 short labeled steps (who you are · grants/contracts · location · what you do · size · optional extras). ~2 minutes; final step shows a summary of your answers.  
+3. First-run beginner tour + **Getting started checklist** on Home (search → save → draft), tracked from real activity  
+4. Sector switcher → multi-source search (chips show which APIs returned data)  
+5. Score fit + draft helper (Gemini); the Genie widget is a full chat with follow-up memory
+
+**Dev shortcut:** open the app with `?dev=1` to pre-fill a test profile and jump to the last quiz step. Without the flag, users always start at step 1 with blank answers.
 
 ## Run locally
 

@@ -19,6 +19,7 @@ import {
   FileDown,
   Printer,
   ChevronDown,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../components/AuthProvider';
 import {
@@ -28,13 +29,15 @@ import {
   profileFromOrganization,
 } from '../services/geminiService';
 import PreFlightAuditor from '../components/PreFlightAuditor';
+import VersionHistory from '../components/VersionHistory';
 import { exportToWord, exportToPDF } from '../lib/exportUtils';
+import { saveVersion, logAudit } from '../lib/versionStore';
 
 import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
 export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: () => void }) {
-  const { organization } = useAuth();
+  const { organization, user } = useAuth();
   const [draft, setDraft] = useState('');
   const [guidelines, setGuidelines] = useState(grant?.description || "Must focus on measurable community impact and demonstrate sustainability of infrastructure projects.");
   const [loadingAdvice, setLoadingAdvice] = useState(false);
@@ -49,6 +52,7 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
   const [isExpandedAdvice, setIsExpandedAdvice] = useState(false);
   const [showAuditor, setShowAuditor] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const expandedTextareaRef = React.useRef<HTMLTextAreaElement>(null);
 
@@ -62,6 +66,15 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       deadline: grant?.deadline,
     });
     setShowExportMenu(false);
+    if (grant?.pipelineId) {
+      logAudit(grant.pipelineId, {
+        action: 'exported_word',
+        actor: user?.uid || 'unknown',
+        actorName: user?.displayName || 'Unknown',
+        timestamp: new Date().toISOString(),
+        details: `Exported "${grant?.title || 'Untitled'}" to Word`,
+      });
+    }
   };
 
   const handleExportPDF = () => {
@@ -74,6 +87,15 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
       deadline: grant?.deadline,
     });
     setShowExportMenu(false);
+    if (grant?.pipelineId) {
+      logAudit(grant.pipelineId, {
+        action: 'exported_pdf',
+        actor: user?.uid || 'unknown',
+        actorName: user?.displayName || 'Unknown',
+        timestamp: new Date().toISOString(),
+        details: `Exported "${grant?.title || 'Untitled'}" to PDF`,
+      });
+    }
   };
 
   const fetchOracleAdvice = async () => {
@@ -113,6 +135,15 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
           : 'Award-winning draft generated'
       );
       setTimeout(() => setSaveMessage(null), 5000);
+      if (grant?.pipelineId) {
+        logAudit(grant.pipelineId, {
+          action: 'ai_generated',
+          actor: user?.uid || 'unknown',
+          actorName: user?.displayName || 'Unknown',
+          timestamp: new Date().toISOString(),
+          details: `AI generated full proposal (${proposal.fullMarkdown.trim().split(/\s+/).length} words)`,
+        });
+      }
     } catch (err) {
       console.error('Proposal engine failed:', err);
       alert('Proposal generation failed. Check GEMINI_API_KEY in .env.local');
@@ -129,14 +160,34 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
     }
     
     setSaving(true);
+    const now = new Date().toISOString();
     try {
       const docRef = doc(db, 'pipeline_grants', grant.pipelineId);
       await updateDoc(docRef, {
         draft: draft,
         stage: stage,
-        lastEditedAt: new Date().toISOString()
+        lastEditedAt: now
       });
-      setSaveMessage(stage === 'review' ? "Finalized and sent to review!" : "Draft Saved");
+      // Save version snapshot
+      await saveVersion(grant.pipelineId, {
+        draft,
+        stage,
+        savedBy: user?.uid || 'unknown',
+        savedByName: user?.displayName || 'Unknown',
+        savedAt: now,
+        wordCount: draft.trim().split(/\s+/).filter(Boolean).length,
+      });
+      // Log audit entry
+      await logAudit(grant.pipelineId, {
+        action: stage === 'review' ? 'stage_changed' : 'draft_saved',
+        actor: user?.uid || 'unknown',
+        actorName: user?.displayName || 'Unknown',
+        timestamp: now,
+        details: stage === 'review'
+          ? 'Marked proposal as ready for review'
+          : `Saved draft (${draft.trim().split(/\s+/).filter(Boolean).length} words)`,
+      });
+      setSaveMessage(stage === 'review' ? "Finalized and sent to review!" : "Draft Saved ✓ Version snapshot created");
     } catch (e) {
       console.error("Failed to save draft:", e);
       setSaveMessage("Failed to save");
@@ -243,6 +294,13 @@ export default function OracleWriter({ grant, onBack }: { grant?: any, onBack: (
                 </div>
               )}
             </div>
+            <button
+              onClick={() => setShowVersionHistory(true)}
+              className="flex items-center gap-2 px-3 py-3 bg-white border border-slate-200 rounded-xl hover:bg-violet-50 hover:border-violet-200 transition-colors text-xs font-bold uppercase tracking-widest text-slate-500 hover:text-violet-700"
+              title="Version History & Audit Trail"
+            >
+              <History className="w-4 h-4" /> History
+            </button>
             <button 
               onClick={() => handleSave('drafting')}
               disabled={saving}

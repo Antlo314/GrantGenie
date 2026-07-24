@@ -19,7 +19,10 @@ export function stripUndefined<T extends Record<string, unknown>>(obj: T): T {
   return out as T;
 }
 
-/** Default test profile fields for quick onboarding (step 6). */
+/**
+ * Test profile used ONLY by the ?dev=1 onboarding shortcut.
+ * Real users start the Get started quiz with blank answers.
+ */
 export function buildTestProfileFields(user: {
   uid: string;
   email?: string | null;

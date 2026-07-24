@@ -124,9 +124,15 @@ export const TOUR_STEPS: TourStepDef[] = [
   {
     id: 'genie',
     title: 'I’m here if you need me',
-    body: 'I float in the bottom-right. I stay quiet unless you ask a question — light tips only.',
+    body: 'I float in the bottom-right. Ask me anything in plain English — I remember the conversation, so follow-up questions work too.',
     target: '[data-tour="genie"]',
     placement: 'left',
+  },
+  {
+    id: 'checklist',
+    title: 'You’re ready!',
+    body: 'Your Home screen has a short Getting started checklist — finish those steps (search, save, draft) and you’ll know the whole app. You can replay this tour anytime from Settings or the Genie.',
+    target: null,
   },
 ];
 
